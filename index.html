@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- navbar
+
+        Purpose:
+        - Navigation bar that allows users to jump to different sections of the webpage
+        - Also holds buttons for user settings (dark mode, reduce motion)
+
+        When To Modify:
+        - [ ] Project 4 (REQUIRED FEATURE)
+        - [ ] Project 5 (REQUIRED FEATURE) 
+        - [ ] Project 8 (STRETCH FEATURE) 
+        - [ ] Any time between / after
+        -->
+        <!-- <div class="navbar"> -->
+            <!-- <ul>
+                <li><a href="https://www.playcodequest.com/">Start a Quest</a></li> -->
+                <!-- <li><a href="#">Trials</a></li> -->
+                <!-- <li><a href="#About">About</a></li>
+                <li><a href="https://www.codepath.org">CodePath</a></li> -->
+            <!-- </ul>
+        </div>  -->
+
+        <!-- head
+
+        Purpose:
+        - Title used here shows up in the browser tab
+        - Link to the favicon (small image that appears in the browser tab)
+        - Link to the CSS file (used to style the webpage)
+
+        When To Modify:
+        - [ ] Project 2 (REQUIRED FEATURE) 
+        - [ ] Project 2 (STRETCH FEATURE) (favicon)
+        - [ ] Any time after
+        -->
+        <title>Sameeraa's WEB101 Website</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    
+    <body> 
+        <div class="header-container">
+            <div id="header-item">
+                <h1 class="neon-text">CodeScape</h1>
+                <!-- <img id="header-img" src="./logo500.png" /> -->
+            </div>
+
+            <nav class="navbar">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="https://www.playcodequest.com/">Rooms</a></li>
+                <li><a href="#">Leaderboard</a></li>
+                <li><a href="#About">How it works</a></li>
+                <!-- <li><a href="https://www.codepath.org">CodePath</a></li> -->
+            </ul>
+            </nav>
+            
+                
+            
+
+            <div class="header-button">
+                <button type="button" id="darkModeToggle"></button>
+                <button type="button" id="joinNow">JOIN NOW!</button>
+            </div>
+            
+        </div>
+        
+
+        
+        <!-- about
+ 
+        Purpose:
+        - Section for general info about the event
+        - Contains a video, description, and key points about the event
+
+        When To Modify:
+        - [ ] Project 2 (REQUIRED FEATURE) 
+        - [ ] Project 2 (STRETCH FEATURE) 
+        - [ ] Project 4 (STRETCH FEATURE) 
+        - [ ] Any time between / after
+        --> 
+        <img id="about-img" src="./main.png"/>
+        <div class="about-text">
+
+            <h2>About the Event</h2>
+                <ul>CodeScape: The Algorithm Escape Room is an immersive and interactive experience where computer science meets adventure.
+                    Designed for puzzle lovers and tech enthusiasts, this event challenges teams to solve algorithm-based mysteries inspired by real CS concepts — including recursion, encryption, sorting, and more.
+                    <br><br>
+                Participants will work together to unlock clues, crack digital codes, and "escape" by solving a series of logic-driven 
+                    challenges. Whether you're a beginner or a seasoned coder, CodeScape offers a fun, hands-on way to sharpen your problem-solving skills.
+                    <br><br>
+                The website includes a detailed event schedule, team activity breakdown, and important info for attendees. 
+                    It also features a clean, responsive design with dynamic navigation, styled buttons, and space for multimedia content to bring the experience to life.
+                </ul>
+            
+            <h3>What to Expect</h3>
+            <img id="about-img2" src="./main2.png"/>
+            <h4>Crack the Code. Escape the Room. Master the Algorithm.</h4>
+            <ul>
+                <li> <b></b> <i>Team-based challenges that test your logic and problem-solving skills</i></li>
+                <li> <b></b> <i>Interactive puzzles inspired by core computer science topics</i></li>
+                <li> <b></b> <i>A fun, collaborative experience that blends coding with adventure</i></li>
+            </ul>
+        </div>
+        <!-- schedule
+
+        Purpose:
+        - Section for specific info about the event's schedule
+        - Contains images and descriptions of each activity
+
+        When To Modify:
+        - [ ] Project 2 (REQUIRED FEATURE) 
+        - [ ] Project 4 (STRETCH FEATURE) 
+        - [ ] Any time between / after
+        --> 
+
+        <section class="schedule-section">
+        <h2>Event Schedule</h2>
+        <ul>
+            Prepare for an unforgettable journey! Each stage of CodeScape is designed to test your teamwork, logic, and coding intuition. Here's what's in store for our teams.
+        </ul>
+
+        <div class="schedule-item">
+            <img alt="Welcome and team formation activity" src="./chll.png"/>
+            <div class="schedule-content">
+                <h3>1. Welcome & Team Formation</h3>
+                <p>
+                    The adventure begins! We'll kick things off with a brief introduction to the CodeScape universe and its rules. You'll meet your fellow participants, form your elite teams, and receive your very first digital clue that sets the stage for the puzzles to come. It’s all about collaboration from the start.
+                </p>
+                <span class="event-time">Time: 10:00 AM - 10:30 AM</span>
+            </div>
+        </div>
+
+        <div class="schedule-item">
+            <img alt="Team solving puzzles together" src="./first.png"/>
+            <div class="schedule-content">
+                <h3>2. Puzzle Round: The Code Breakers' Challenge</h3>
+                <p>
+                    Dive into a series of mind-bending puzzles and ciphers. This round is where you'll apply core computer science concepts—like sorting algorithms, data structures, and basic encryption—to unlock hidden messages and advance to the next level. Think fast, communicate clearly, and debug your way to success!
+                </p>
+                <span class="event-time">Time: 10:30 AM - 12:00 PM</span>
+            </div>
+        </div>
+
+        <div class="schedule-item">
+            <img alt="Final escape room challenge" src="./excited final chall.png"/>
+            <div class="schedule-content">
+                <h3>3. Final Challenge: The Algorithm Maze</h3>
+                <p>
+                    This is the ultimate test. Using all the clues and skills you've gathered, your team must navigate a complex algorithmic maze to find the final key and "escape." The clock is ticking, and the path is filled with dynamic challenges that require critical thinking and a strategic approach.
+                </p>
+                <span class="event-time">Time: 12:00 PM - 1:00 PM</span>
+            </div>
+        </div>
+
+        <div class="schedule-item">
+            <img alt="Winners being announced" src="./yay.png"/>
+            <div class="schedule-content">
+                <h3>4. Award Ceremony & Wrap-Up</h3>
+                <p>
+                    After the dust settles, we'll celebrate everyone's hard work. We'll announce the winning team, present awards, and have a brief Q&A with the creators. This is a great time to network with other participants and share your favorite moments from the day.
+                </p>
+                <span class="event-time">Time: 1:00 PM - 2:00 PM</span>
+            </div>
+        </div>
+
+    </section>
+
+        <!-- rsvp [PLACEHOLDER] [ADDED IN UNIT 6] -->
+        <!-- success modal [PLACEHOLDER] [ADDED IN UNIT 9] --> 
+            <div id="inline-rsvp-form" class="modal-overlay">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <img id="modal-image" alt="CodeScape Logo" src="./logo500.png" />
+                <h2>Register for CodeScape</h2>
+                <form id="rsvp-modal-form">
+                    <label for="modal-name">Name:</label>
+                    <input type="text" id="modal-name" name="name" required>
+                    <label for="modal-email">Email:</label>
+                    <input type="email" id="modal-email" name="email" required>
+                    <label for="modal-team">Team Size:</label>
+                    <input type="number" id="modal-team" name="team" min="1" max="10" required>
+                    <button type="submit">Register</button>
+                </form>
+                <h3>RSVP'd Participants</h3>
+                <ul id="modal-participant-list"></ul>
+            </div>
+        </div>
+
+        <div id="success-modal" class="modal-overlay">
+            <div class="modal-content">
+                <img id="success-image" src="./yay.png" alt="Success Icon">
+                <h2 id="success-message"></h2>
+                <p>This modal will close automatically in a few seconds.</p>
+            </div>
+        </div>
+        <!-- links
+         
+
+        Purpose:
+        - Links to other resources related to the event
+
+        When To Modify:
+        - [ ] Project 2 (STRETCH FEATURE) 
+        - [ ] Project 4 (STRETCH FEATURE) 
+        - [ ] Any time between / after
+        --> 
+        <h2>Links</h2>
+
+        <!-- This <a> block is one link.  Copy and paste all 6 lines to create another link. -->
+        <a class="block" href="https://www.codepath.org">
+            <article>
+                <h3>Codepath</h3>
+
+            </article>
+        </a>
+
+        <!-- RSVP Form -->
+        <section id="rsvp">
+            <div class="rsvp-container">
+                <div class="rsvp-left">
+                    <h2>Register for CodeScape</h2>
+                    <ul>
+                        Are you ready to crack the code? Sign up now to secure your team's spot in the ultimate algorithm escape room challenge. Fill out the form to let us know you're coming, and we'll send you an email with all the details you need to prepare for the adventure.
+                    </ul>
+                    <form id="rsvp-form">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required>
+        
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+        
+                        <label for="team">Team Size:</label>
+                        <input type="number" id="team" name="team" min="1" max="10" required>
+        
+                        <button type="submit">Register</button>
+                    </form>
+                </div>
+
+                <div class="rsvp-right">
+                    <h3>RSVP'd Participants</h3>
+                    <ul id="participant-list">
+                        </ul>
+                </div>
+            </div>
+        </section>
+
+
+        
+            
+        <!-- footer [PLACEHOLDER] [ADDED IN UNIT 3] -->
+         <footer class="footer">
+            <p>&copy; 2025 CodeScape. All rights reserved.</p>
+        </footer>
+        <!-- script [PLACEHOLDER] [ADDED IN UNIT 5] -->
+         <script src="index.js"></script>
+
+    </body>
+</html>
