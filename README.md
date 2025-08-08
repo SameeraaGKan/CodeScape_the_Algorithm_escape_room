@@ -187,29 +187,30 @@ CodeScape aims to:
 3. **Local Development Server (Recommended) - Choose ONE option:**
    
 ### Option A: VS Code Live Server (Easiest)
-```bash
-Install VS Code and the "Live Server" extension
-Open your project folder in VS Code
-Right-click on index.html → select "Open with Live Server"
-Your website will automatically open in the browser
-```
+
+-Install VS Code and the "Live Server" extension
+- Open your project folder in VS Code
+- Right-click on index.html → select "Open with Live Server"
+- Your website will automatically open in the browser
+
 
 ### Option B: Python (if you have Python installed)
 ```bash
- - Navigate to your project folder in terminal/command prompt
+# Navigate to your project folder in terminal/command prompt
    cd path/to/your/codescape/folder
-- Then run this command:
+# Then run this command:
    python -m http.server 8000
- - Open browser and go to: http://localhost:8000
+# Open browser and go to:
+   http://localhost:8000
 ```
 
 ### Option C: Node.js (if you have Node.js installed)
 ```bash
-- Navigate to your project folder in terminal/command prompt
+# Navigate to your project folder in terminal/command prompt
 cd path/to/your/codescape/folder
-- Then run this command:
+# Then run this command:
 npx http-server
-- Follow the URL shown in terminal (usually http://localhost:8080)
+# Follow the URL shown in terminal (usually http://localhost:8080)
 ```
 
 4. **Direct Browser Opening**
