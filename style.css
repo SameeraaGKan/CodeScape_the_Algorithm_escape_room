@@ -1,0 +1,960 @@
+/*** VSCodeEDU preview fix 
+
+  Purpose:
+  - Fix VSCodeEDU issue that causes a white border to show around
+    the preview window
+
+  When To Modify:
+  - If you change the background color of your webpage, you may need to update this rule too.
+***/
+html {
+    background-color: var(--bg-color);
+}
+
+
+/*** body ***
+  
+  Purpose:
+  - Add style rules for the body of your webpage
+  - This is useful if you want a rule to apply to EVERYTHING on your page
+    - (Tip: You can always override these rules later in the stylesheet)
+
+  When To Modify:
+  - [ ] Project 3 (REQUIRED FEATURE) 
+  - [ ] Any time after
+***/
+
+body {
+    /* Add a background color or image */
+    background-color: var(--bg-color); /* see bottom of file for color variables */
+
+    /* Customize the default size, color, and font for text*/
+    font-size: 16px;
+    color: var(--text-color);
+    font-family: Tahoma, sans-serif; /* This tells the browser: "Try to use `Tahoma`, and if you can't find it, use any sans-serif font." */
+
+    /* Put space around the edges of the webpage */
+    margin: 0px;
+}
+
+/*** Text ***
+  
+  Purpose: 
+  - Add style rules for headings (h1-6),
+    paragraphs (p), links (a), and buttons
+
+  When To Modify:
+  - [X] Project 3 (REQUIRED FEATURE) 
+  - [ ] Any time after
+***/
+
+h1 {
+    
+}
+
+h2 {
+    
+}
+
+h3 {
+    
+}
+
+h4 {
+    
+}
+
+p {
+    
+}
+
+a, a * {
+    font-family:'Times New Roman', Times, serif;
+    font-weight: 200;
+    font-size: medium;
+}
+
+a:link {
+    color: #0d0886;
+} */
+
+/* a:visited {
+    color:#d2cff5;
+}
+
+a:hover {
+    color: #f8bbd0;
+}
+
+a:active {
+    color: #e63946;
+}
+
+/* button {
+    /* Example Style, replace with your own! */
+    /* background-color: rgb(58, 120, 124);    button color */
+    /* color: white;               text color */
+    /* border: none;               hides the default border */
+    /* padding: 5px 12px;          space between button's text and edge */
+    /* border-radius: 5px;         curved edges instead of square */
+    /* cursor: pointer;            makes the cursor change when over button */
+/* } */
+
+button:hover {
+    /* Make the button look different when the user hovers over it */
+}
+
+/*** header ***
+  
+  Purpose:
+  - Add style rules for your website's header section
+
+  When To Modify:
+  - [X] Project 3 (REQUIRED FEATURE) 
+  - [ ] Project 4 (REQUIRED FEATURE) 
+  - [ ] Any time after
+***/
+
+/* Container for the entire header */
+.header-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 30px;
+  background-color: #000000;
+  flex-wrap: wrap;
+  color: #07b49d;
+  /* ...existing styles... */
+  
+}
+
+.neon-text {
+  color: #d6faff;
+  text-shadow:
+    0 0 10px #011111,
+    0 0 0px #00ffff,
+    0 0 15px #00ffff,
+    0 0 20px #0ff,
+    0 0 60px #0ff;
+  font-weight: bold;
+}
+
+/* #header-center {
+  text-align: center;
+  flex: 1;
+  padding: 0;
+  margin: 0;
+  ;
+} */
+ 
+/* Remove extra margins */
+#header-center h1,
+#header-center h2 {
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+
+/* Left side: logo image */
+.header-item:nth-of-type(1) {
+  display: flex;
+  align-items: center;
+}
+
+#header-img {
+  border-radius: 8px;
+  height: 50px;
+  width: auto;
+  cursor:pointer;
+}
+
+/* Right side: title and subtitle */
+.header-item:nth-of-type(2) {
+  text-align: right;
+}
+
+#header-right h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #07a792;
+}
+
+#header-right h2 {
+  margin: 0;
+  font-size: 16px;
+  color: #777;
+}
+
+/* Buttons area */
+.header-button {
+  display: flex;
+  gap: 10px;
+}
+
+.header-button button {
+  padding: 6px 12px;
+  border: none;
+  background: linear-gradient(135deg, #9afffd, #cecafb);
+  color: rgb(0, 0, 0);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.header-button button:hover {
+  background: linear-gradient(135deg, #02e2e2, #7b6aff);
+  color: #ffffff;
+  font-weight: 600;
+}
+/*** footer ***
+  
+  Purpose:
+  - Add style rules for your website's footer section
+
+  When To Modify:
+  - [ ] Project 3 (STRETCH FEATURE) 
+  - [ ] Any time after
+***/
+
+.footer { /* Example B: This styles elements with class="footer" */
+    
+}
+
+/*** Navigation bar (navbar) ***
+  
+  Purpose:
+  - Add style rules for your website's navbar
+
+  When To Modify:
+  - [ ] Project 4 (REQUIRED FEATURE) 
+  - [ ] Any time after
+***/
+
+.navbar ul a {
+  position: relative;
+  text-decoration: none;
+  color: #05d8d8; /* Neon blue */
+  font-weight: bold;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: color 0.3s ease;
+}
+
+.navbar ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around; /* or space-between */
+  align-items: center;
+  list-style: none;
+  padding: 5px 0;
+  margin: 3px;
+  gap: 20px; /* optional: space between items */
+}
+
+/* Hover color and glow */
+.navbar ul a:hover {
+  color: #ffffff;
+  text-shadow: 0 0 1px #00ffff, 0 0 10px #00ffff;
+}
+
+/* Glowing underline */
+.navbar ul a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, #00ffff, #4f91fb);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+  border-radius: 2px;
+}
+
+/* Animate underline on hover */
+.navbar ul a:hover::after {
+  transform: scaleX(1);
+}
+
+.navbar ul a.active {
+  color: #fff;
+  text-shadow: 0 0 10px #0ff;
+}
+
+/*** About Section ***
+  
+  Purpose:
+  - Add style rules for your website's About section
+
+  When To Modify:
+  - [ ] Project 3 (OPTIONAL)
+  - [ ] Project 4 (STRETCH FEATURE) 
+  - [ ] Any time after
+
+***/
+#about-img {
+  display: block;
+  margin: 20px auto;
+  width: 80%; /* adjust as needed */
+  max-width: 600px; /* optional: set a limit */
+  border-radius: 12px; /* optional: gives rounded corners */
+}
+#about-img2 {
+  display: block;
+  margin: 20px auto;
+  width: 60%; /* adjust as needed */
+  max-width: 500px; /* optional: set a limit */
+  border-radius: 12px; /* optional: gives rounded corners */
+}
+.about-text {
+  display: flex;
+  /* justify-content: center; */
+  flex-direction: column;
+  font-size: large;
+  margin: 0 auto;
+  padding: 0 20px;
+  max-width: 1000px;
+}
+
+.about-text p, h2, h3, h4 {
+  text-align: center;
+}
+
+/*** Schedule Section ***
+  
+  Purpose:
+  - Add style rules for your website's Schedule section
+
+  When To Modify:
+  - [ ] Project 3 (OPTIONAL)
+  - [ ] Project 4 (STRETCH FEATURE) 
+  - [ ] Any time after
+***/
+
+/* Add to your index.css file */
+
+.schedule-section {
+    max-width: 1200px; /* Limit the width for better readability */
+    margin: 50px auto;
+    padding: 0 20px;
+}
+
+.schedule-section h2 {
+    /* Existing h2 styles apply here */
+}
+
+.schedule-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 20px auto 50px;
+    font-size: 1.15rem;
+    color: #a0a0a0;
+}
+
+.schedule-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 60px;
+    padding: 30px;
+    background-color: var(--accent-color-darkest);
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+.schedule-item:nth-child(even) {
+    flex-direction: row-reverse; /* Reverse the order for every other item */
+}
+
+.schedule-item img {
+    max-width: 40%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    transition: transform 0.3s ease;
+}
+
+.schedule-item img:hover {
+    transform: scale(1.02);
+}
+
+.schedule-content {
+    flex: 1;
+}
+
+.schedule-content h3 {
+    margin-top: 0;
+    text-align: left; /* Align headings with the text */
+    font-size: 1.8rem;
+    text-shadow: 0 0 5px var(--accent-color-medium);
+}
+
+.schedule-content p {
+    text-align: left;
+    margin: 10px 0;
+}
+
+.event-time {
+    display: block;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 1rem;
+    color: #07d6d6;
+    margin-top: 15px;
+    text-shadow: 0 0 3px #04f6f6;
+}
+
+
+
+h2 {
+    text-align: center;
+    margin-top: 60px; /* Increased margin for better spacing */
+    color: var(--accent-color-light);
+    font-size: 2.5rem; /* Larger font size for headings */
+    text-shadow: 0 0 5px var(--accent-color-light), 0 0 10px var(--accent-color-light); /* Added a subtle glow */
+    letter-spacing: 2px; /* Added letter spacing for a more "digital" feel */
+    font-family: 'Consolas', 'Courier New', monospace; /* Use a monospace font for a techy look */
+}
+
+h3 {
+    text-align: center;
+    margin-top: 30px;
+    color: var(--accent-color-medium);
+    font-size: 1.8rem;
+    text-shadow: 0 0 5px var(--accent-color-medium);
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+p {
+    text-align: center;
+    padding: 0 20px; /* Increased horizontal padding */
+    max-width: 900px; /* Wider paragraphs for easier reading */
+    margin: 0 auto 30px; /* Increased bottom margin */
+    font-size: 1.1rem; /* Slightly larger font size */
+    line-height: 1.6; /* Improved line spacing */
+    color: #c0c0c0; /* Softer white for readability */
+}
+/*** Links Section ***
+  
+  Purpose:
+  - Add style rules for your website's Links section
+
+  When To Modify:
+  - [ ] Project 3 (OPTIONAL)
+  - [ ] Project 4 (STRETCH FEATURE) 
+  - [ ] Any time after
+***/
+
+.block {
+    display: block;
+    background-color: var(--accent-color-darkest);
+    color: white;
+    padding: 25px; /* Increased padding */
+    margin: 15px auto; /* Increased margin */
+    max-width: 700px;
+    text-decoration: none;
+    border-radius: 12px; /* More rounded corners */
+    border: 2px solid transparent; /* Added a transparent border for the glow effect */
+    transition: all 0.3s ease; /* Smooth transition for all properties */
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.2); /* Subtle initial glow */
+}
+
+.block:hover {
+    background-color: #2b204e; /* A slightly different hover color */
+    border-color: #00ffff; /* A cyan border on hover */
+    box-shadow: 0 0 15px #00ffff, 0 0 25px #00ffff; /* A stronger neon glow on hover */
+    transform: translateY(-5px); /* Lift the block slightly */
+}
+
+.block h3 {
+    margin: 0;
+    color: #9afffd; /* Updated to a brighter cyan */
+    text-shadow: 0 0 5px #00ffff;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.block p {
+    margin: 5px 0 0;
+    font-size: 1rem;
+    color: #c0c0c0; /* Softer text color */
+    text-align: left; /* Align description to the left */
+}
+
+.footer {
+    text-align: center;
+    padding: 30px; /* Increased padding */
+    color: var(--text-color);
+    background-color: #0d0d0d; /* A darker, more consistent footer background */
+    font-size: 0.95rem;
+    margin-top: 50px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+/*** RSVP [PLACEHOLDER] [ADDED IN UNIT 6] ***/
+
+
+/* styles.css */
+
+/* Modal Overlays (for both modals) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal Content Container (for both modals) */
+.modal-content {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 40px;
+    border-radius: 10px;
+    max-width: 800px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    max-height: 90vh;
+    width: 90%;
+}
+
+/* Image inside the RSVP modal */
+#modal-image {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px auto;
+    display: block;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+}
+
+/*** RSVP & Inline Form Styles ***/
+/* Style the labels and input to match the site's neon theme */
+.rsvp-container label,
+.modal-content label {
+    color: #00ffff;
+    font-size: 1.1rem;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.rsvp-container input,
+.modal-content input {
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    font-size: 1rem;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    box-shadow: inset 0 0 5px #000;
+}
+
+.rsvp-container input:focus,
+.modal-content input:focus {
+    outline: none;
+    border-color: #00ffff;
+    box-shadow: 0 0 8px #00ffff, inset 0 0 5px #000;
+}
+
+.rsvp-container button,
+.modal-content button {
+    background: linear-gradient(135deg, #00ffff, #0077ff);
+    color: #000;
+    font-weight: bold;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.rsvp-container button:hover,
+.modal-content button:hover {
+    background: linear-gradient(135deg, #00ffff, #00aaff);
+    box-shadow: 0 0 15px #00ffff, 0 0 25px #00ffff;
+}
+
+/* New CSS to format the modal's form into a horizontal layout */
+#rsvp-modal-form {
+    display: flex;
+    flex-direction: row; /* Arranges children in a row */
+    align-items: center; /* Vertically aligns items in the center */
+    flex-wrap: wrap; /* Allows items to wrap onto a new line on smaller screens */
+    gap: 15px; /* Adds space between form elements */
+}
+
+/* You might need to adjust the width of the inputs to fit the layout */
+#rsvp-modal-form input {
+    max-width: 150px;
+}
+
+/* Light mode overrides for form elements */
+body.light-mode .rsvp-container input,
+body.light-mode .modal-content input {
+    background-color: #f0f0f0;
+    color: #000000;
+    border: 1px solid #000000;
+    box-shadow: none;
+}
+body.light-mode .rsvp-container input:focus,
+body.light-mode .modal-content input:focus {
+    border-color: #000000;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+body.light-mode .rsvp-container button,
+body.light-mode .modal-content button {
+    background: linear-gradient(135deg, #e0e0e0, #cccccc);
+    color: #000000;
+    box-shadow: none;
+}
+body.light-mode .rsvp-container button:hover,
+body.light-mode .modal-content button:hover {
+    background: linear-gradient(135deg, #cccccc, #bbbbbb);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Success Modal specific styles */
+#success-modal .modal-content {
+    max-width: 500px;
+    text-align: center;
+}
+
+#success-image {
+    width: 150px;
+    height: auto;
+    margin-bottom: 20px;
+    animation: rotateAndScale 1s ease-in-out infinite alternate;
+}
+
+/* Animation Keyframes */
+@keyframes rotateAndScale {
+    from { transform: scale(0.9) rotate(0deg); }
+    to { transform: scale(1.1) rotate(5deg); }
+}
+
+/* Light mode overrides for modals */
+body.light-mode .modal-content {
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+body.light-mode #modal-image {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+body.light-mode #success-modal .modal-content {
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+#rsvp {
+    padding: 60px 20px;
+}
+
+.rsvp-container {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.rsvp-left, .rsvp-right {
+    flex: 1;
+    max-width: 500px;
+}
+
+.rsvp-left h2 {
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+.rsvp-left p {
+    text-align: left;
+    margin-bottom: 30px;
+    color: #c0c0c0;
+}
+
+#rsvp-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#rsvp-form label {
+    color: #00ffff;
+    font-size: 1.1rem;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+#rsvp-form input {
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    font-size: 1rem;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    box-shadow: inset 0 0 5px #000;
+}
+
+#rsvp-form input:focus {
+    outline: none;
+    border-color: #00ffff;
+    box-shadow: 0 0 8px #00ffff, inset 0 0 5px #000;
+}
+
+#rsvp-form button {
+    background: linear-gradient(135deg, #00ffff, #0077ff);
+    color: #000;
+    font-weight: bold;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+#rsvp-form button:hover {
+    background: linear-gradient(135deg, #00ffff, #00aaff);
+    box-shadow: 0 0 15px #00ffff, 0 0 25px #00ffff;
+}
+
+/* New CSS for the participant list */
+.rsvp-right h3 {
+    text-align: left;
+    margin-bottom: 20px;
+    color: var(--accent-color-light);
+}
+
+#participant-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#participant-list li {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+}
+
+/* CSS for invalid input highlighting */
+#rsvp-form input.invalid-input {
+    border-color: #ff5e62; /* Red border */
+    box-shadow: 0 0 8px #ff5e62, inset 0 0 5px #000;
+}/*** Animations [PLACEHOLDER] [ADDED IN UNIT 8] ***/
+
+body,
+input,
+button {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/*** Success Modal [PLACEHOLDER] [ADDED IN UNIT 9] ***/
+
+/* Modal styles - you already have this, but double-check */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 40px; /* Increase padding for better spacing */
+    border-radius: 10px;
+    max-width: 800px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow: auto; /* Add overflow to handle long content */
+    max-height: 90vh; /* Limit the modal height */
+    width: 90%; /* Make it responsive */
+}
+
+/* Position the close button correctly relative to the modal-content */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    color: #fff; /* Make sure it's visible */
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: transparent; /* Ensure no background */
+    border: none;
+    padding: 0;
+}
+
+/* Style the new modal-body to handle the layout */
+#modal-body {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    justify-content: center; /* Center content horizontally */
+}
+
+/* styles.css */
+/* ... (your existing CSS content) ... */
+
+/* Format the image inside the modal */
+#modal-image {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 10px auto;
+    display: block; /* Ensures it is centered */
+    border-radius: 50%; /* Makes the image circular */
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+}
+
+/* Light mode override for the modal image */
+body.light-mode #modal-image {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Make sure this is in your light mode section */
+body.light-mode .modal-content {
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+body.light-mode .modal-content .close-button {
+    color: #000000;
+}
+
+/* You may need to adjust the original RSVP-specific classes to work inside the modal */
+.rsvp-left, .rsvp-right {
+    flex: 1; /* Allow them to grow and shrink */
+    min-width: 300px; /* Ensure they don't get too small */
+}
+
+/* Ensure the RSVP form itself has a column layout */
+#rsvp-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+#rsvp-success {
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #28eb76; /* Use your accent green color */
+    text-shadow: 0 0 5px #28eb76;
+}
+
+/* Dark Mode [PLACEHOLDER] [ADDED IN UNIT 5] */
+
+/* Default dark mode */
+body {
+background-color: var(--bg-color); /* Use the CSS variable */
+color: var(--text-color); /* Use the CSS variable */
+}
+
+body input,
+body button {
+background-color: #1f1f1f;
+color: white;
+border: 1px solid white;
+}
+
+/* Light mode override */
+body.light-mode {
+background-color: #ffffff;
+color: #000000;
+}
+
+.header-container.light-mode{
+  background-color: white;
+}
+
+.about-text.light-mode{
+  color: #000000;
+}
+
+body.light-mode input,
+body.light-mode button {
+background-color: #f0f0f0;
+color: #000000;
+border: 1px solid #000000;
+}
+
+/* Light mode specific styles for the header and navbar text */
+.header-container.light-mode h1 {
+    color: #002c34; /* or a different dark color of your choice */
+}
+
+.header-container.light-mode .navbar a {
+    color: #000000; /* Set the link color to black */
+}
+
+.header-container.light-mode #darkModeToggle {
+    color: #000000; /* Set the dark mode toggle button text color */
+}
+
+/* Also, update the "Dark Mode" button text when in light mode */
+.header-container.light-mode #darkModeToggle::after {
+  content: "";
+}
+
+.header-container #darkModeToggle::before {
+  content: "Mode";
+}
+
+/*** Custom Colors (OPTIONAL) ***
+  
+  Purpose:
+  - Use CSS variables to define custom colors for your website
+  - To get you started, we've provided the color scheme used in our example site.
+  - To reference a color variable in your css, use var(--variable-name) in place of a color value
+
+  When To Modify:
+  - [ ] Any time (OPTIONAL)
+***/
+
+/* Updated Custom Colors for better harmony */
+:root {
+    /* Light Mode */
+    --bg-color: #000000;
+    --text-color: #e0e0e0; /* Softer text color */
+
+    /* Dark Mode - These are not actively used in your code, but keep for reference */
+    --bg-color-dark-mode: #3e3377;
+    --text-color-dark-mode: #fff;
+
+    /* Accent Colors - Harmonized for a cooler, techy palette */
+    --accent-color-light: #05b9b6; /* Brighter cyan */
+    --accent-color-medium: #02bcbc; /* Pure cyan */
+    --accent-color-dark: #008080; /* Teal */
+    --accent-color-darkest: #1a1a1a; /* Dark gray */
+    --accent-color-green: #28eb76;
+
+    /* Error Colors */
+    --error-color: #ff5e62; /* Brighter red */
+    --error-color-border: #e63946;
+}
