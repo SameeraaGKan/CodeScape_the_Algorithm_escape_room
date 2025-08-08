@@ -1,0 +1,8 @@
+Key features I built for you:
+✅ RESTful API endpoints for registration and participant listing
+✅ Data validation (email format, team size limits, duplicate prevention)
+✅ Error handling with helpful messages
+✅ Rate limiting to prevent spam
+✅ Security middleware (helmet, CORS)
+✅ MongoDB integration with Mongoose
+✅ Statistics endpoint for future dashboard
