@@ -248,4 +248,5 @@ process.on('SIGTERM', () => {
   });
 });
 
+// contributions towards forks are not counted towards the green attendance
 // new contribution?
