@@ -10,8 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
         aboutText.classList.toggle('light-mode');
     });
 
-
-    
     // "JOIN NOW!" button opens the RSVP form modal
     const joinNowBtn = document.getElementById('joinNow');
     const rsvpModal = document.getElementById('inline-rsvp-form');
@@ -21,13 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
         rsvpModal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     });
-    
     rsvpModalCloseBtn.addEventListener('click', () => {
         rsvpModal.style.display = 'none';
         document.body.style.overflow = 'auto';
         document.getElementById('rsvp-modal-form').reset();
     });
-    
     // Close modal when clicking outside of the content
     window.addEventListener('click', (event) => {
         if (event.target === rsvpModal) {
@@ -36,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('rsvp-modal-form').reset();
         }
     });
-
     // Success Modal elements
     const successModal = document.getElementById('success-modal');
     const successMessageH2 = document.getElementById('success-message');
@@ -58,9 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-
             let isValid = true;
-
             // Basic validation
             nameInput.classList.remove('invalid-input');
             emailInput.classList.remove('invalid-input');
@@ -90,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 allParticipantLists.forEach(list => {
                     list.appendChild(listItem.cloneNode(true)); // Use cloneNode to add to multiple lists
                 });
-
                 // Show the success modal with personalized message
                 successMessageH2.textContent = `Thank you, ${nameInput.value}! Your team of ${teamSize} is registered.`;
                 successModal.style.display = 'flex';
@@ -100,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (modalToClose) {
                     modalToClose.style.display = 'none';
                 }
-
                 // Automatically hide the success modal and reset the form
                 setTimeout(() => {
                     successModal.style.display = 'none';
@@ -110,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
-
     // Initialize form submission logic for both forms
     handleFormSubmission('rsvp-form'); // Main page form
     handleFormSubmission('rsvp-modal-form', rsvpModal); // Modal form
