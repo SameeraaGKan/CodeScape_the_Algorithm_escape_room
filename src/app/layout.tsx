@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Geist_Mono, Orbitron } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -35,7 +36,9 @@ export default function RootLayout({
       className={`${poppins.variable} ${geistMono.variable} ${orbitron.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

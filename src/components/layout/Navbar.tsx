@@ -1,10 +1,14 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
-import { Menu, X, Terminal } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, X, Terminal, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <nav className="fixed top-0 inset-x-0 z-50 border-b border-[var(--dark-border)] bg-black/80 backdrop-blur-md">
@@ -29,6 +33,15 @@ export function Navbar() {
           <Link href="/dashboard" className="hover:text-[var(--neon-cyan)] transition-colors">
             Leaderboard
           </Link>
+          {mounted && (
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="text-gray-400 hover:text-[var(--neon-cyan)] transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+          )}
           <Link
             href="/register"
             className="px-4 py-1.5 rounded border border-[var(--neon-cyan)] text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 transition-all box-glow-cyan text-xs font-semibold tracking-wider"
@@ -38,12 +51,23 @@ export function Navbar() {
         </div>
 
         {/* Mobile toggle */}
-        <button
-          className="md:hidden text-gray-400 hover:text-[var(--neon-cyan)]"
-          onClick={() => setOpen(!open)}
-        >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="md:hidden flex items-center gap-3">
+          {mounted && (
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="text-gray-400 hover:text-[var(--neon-cyan)] transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+          )}
+          <button
+            className="text-gray-400 hover:text-[var(--neon-cyan)]"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
