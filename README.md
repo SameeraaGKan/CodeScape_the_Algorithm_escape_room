@@ -228,9 +228,6 @@ Please do not commit `.env.local` or any API keys.
 
 ## Troubleshooting
 
-**`supabaseUrl is required` during build** — `NEXT_PUBLIC_SUPABASE_URL` is empty in `.env.local`
-
-**Database connection refused** — if your Supabase password contains `@`, encode it as `%40` in `DATABASE_URL`
 
 **Upstash warnings during build** — non-fatal, disappear once env vars are set
 
@@ -248,7 +245,7 @@ CodePath WEB101 curriculum · Anthropic Claude API · Supabase · Vercel · Upst
 
 <div align="center">
 
-Built by **[Sameeraa Ganesan Kannan](https://sameeraagkan.github.io/)** &nbsp;·&nbsp; UTD Summer 2026
+Built by **[Sameeraa](https://sameeraagkan.github.io/)** &nbsp;·&nbsp; UTD Summer 2026
 
 *CodePath WEB101 — Intro to Web Development*
 
