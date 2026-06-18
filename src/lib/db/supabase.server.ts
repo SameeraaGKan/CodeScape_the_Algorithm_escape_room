@@ -1,5 +1,4 @@
 import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
@@ -27,25 +26,30 @@ export async function createSupabaseServerClient() {
   });
 }
 
-// Admin client with service role — bypasses RLS, server-side only
-function getSupabaseAdmin() {
-  return createClient(
-    supabaseUrl,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
+// Decodes a Supabase JWT payload locally — no network call, just base64 decode.
+// Checks expiry. Returns null if invalid or expired.
+function parseJwt(token: string): { sub: string; email?: string; exp: number } | null {
+  try {
+    const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString("utf-8"));
+    if (!payload.sub || !payload.exp) return null;
+    if (payload.exp * 1000 < Date.now()) return null;
+    return payload as { sub: string; email?: string; exp: number };
+  } catch {
+    return null;
+  }
 }
 
 // Resolves the authenticated user from a route handler request.
-// Tries the Authorization: Bearer <token> header first (works even when the
-// session was created before cookie-based storage was enabled), then falls
-// back to the cookie-based server client.
+// Bearer token path: decodes the JWT locally (zero network calls).
+// Cookie fallback: used for server-rendered pages / the proxy.
 export async function getUserFromRequest(request: NextRequest) {
   const authHeader = request.headers.get("Authorization");
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user } } = await getSupabaseAdmin().auth.getUser(token);
-    if (user) return user;
+    const payload = parseJwt(token);
+    if (payload) {
+      return { id: payload.sub, email: payload.email ?? payload.sub };
+    }
   }
 
   const supabase = await createSupabaseServerClient();

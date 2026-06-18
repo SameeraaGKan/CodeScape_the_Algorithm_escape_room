@@ -72,8 +72,8 @@ function RegisterPageContent() {
   // Init auth listener
   useEffect(() => {
     void (async () => {
-      const { data } = await getSupabaseBrowser().auth.getUser();
-      setUser(data.user);
+      const { data: { session } } = await getSupabaseBrowser().auth.getSession();
+      setUser(session?.user ?? null);
       setAuthLoading(false);
     })();
     const {
