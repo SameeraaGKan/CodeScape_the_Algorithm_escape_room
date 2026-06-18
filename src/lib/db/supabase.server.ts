@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 // Server client with cookie-based session — used in Server Components and Route Handlers
 export async function createSupabaseServerClient() {
