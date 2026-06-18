@@ -34,6 +34,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${poppins.variable} ${geistMono.variable} ${orbitron.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>
