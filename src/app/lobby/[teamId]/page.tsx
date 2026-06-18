@@ -79,8 +79,8 @@ export default function LobbyPage({
           table: "teams",
           filter: `id=eq.${teamId}`,
         },
-        (payload) => {
-          setTeam(payload.new as TeamData);
+        (payload: { new: TeamData }) => {
+          setTeam(payload.new);
         }
       )
       .subscribe();

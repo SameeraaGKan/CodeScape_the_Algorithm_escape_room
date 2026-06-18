@@ -1,13 +1,15 @@
+import { createBrowserClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 
-// Lazy singleton — avoids calling createClient at module init time (safe for SSR/build)
-let _browser: ReturnType<typeof createClient> | undefined;
+// Uses createBrowserClient so the session is stored in cookies (not just localStorage),
+// making it visible to the server-side client and proxy.
+let _browser: ReturnType<typeof createBrowserClient> | undefined;
 export function getSupabaseBrowser() {
   if (!_browser) {
-    _browser = createClient(supabaseUrl, supabaseAnonKey);
+    _browser = createBrowserClient(supabaseUrl, supabaseAnonKey);
   }
   return _browser;
 }

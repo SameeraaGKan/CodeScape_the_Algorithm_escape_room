@@ -8,7 +8,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { AGENT_CONFIGS } from "@/lib/ai/personalities";
 import type { AgentPersonality } from "@/types";
 import { getSupabaseBrowser } from "@/lib/db/supabase";
-import type { User } from "@supabase/supabase-js";
+import type { User, AuthChangeEvent, Session } from "@supabase/supabase-js";
 import {
   Terminal,
   Users,
@@ -71,13 +71,14 @@ function RegisterPageContent() {
 
   // Init auth listener
   useEffect(() => {
-    getSupabaseBrowser().auth.getUser().then(({ data }) => {
+    void (async () => {
+      const { data } = await getSupabaseBrowser().auth.getUser();
       setUser(data.user);
       setAuthLoading(false);
-    });
+    })();
     const {
       data: { subscription },
-    } = getSupabaseBrowser().auth.onAuthStateChange((_e, session) => {
+    } = getSupabaseBrowser().auth.onAuthStateChange((_e: AuthChangeEvent, session: Session | null) => {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
