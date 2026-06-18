@@ -76,11 +76,14 @@ export async function POST(request: NextRequest) {
   });
   } catch (err) {
     const e = err as Record<string, unknown>;
-    const msg = [e?.message, e?.code ? `(code: ${e.code})` : null, e?.detail ?? null]
-      .filter(Boolean)
-      .join(" ") || String(err);
-    console.error("[POST /api/teams]", msg, err);
-    return NextResponse.json({ error: String(msg) }, { status: 500 });
+    const cause = e?.cause as Record<string, unknown> | undefined;
+    // Drizzle wraps the real postgres error in err.cause
+    const rootMsg = String(cause?.message ?? e?.message ?? err);
+    const code = String(cause?.code ?? e?.code ?? "");
+    const detail = String(cause?.detail ?? "");
+    const msg = [rootMsg, code && `[pg:${code}]`, detail].filter(Boolean).join(" ");
+    console.error("[POST /api/teams] cause:", cause, "top:", e?.message);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
