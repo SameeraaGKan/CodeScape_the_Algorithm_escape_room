@@ -39,16 +39,19 @@ export async function withRateLimit(
     request.headers.get("x-real-ip") ??
     "anonymous";
 
-  const { success, reset } = await limiter.limit(ip);
-
-  if (!success) {
-    return NextResponse.json(
-      { error: "Too many requests. Slow down, hacker." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(Math.ceil((reset - Date.now()) / 1000)) },
-      }
-    );
+  try {
+    const { success, reset } = await limiter.limit(ip);
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests. Slow down, hacker." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil((reset - Date.now()) / 1000)) },
+        }
+      );
+    }
+  } catch {
+    // Redis unavailable — fail open so the app still works
   }
 
   return handler();

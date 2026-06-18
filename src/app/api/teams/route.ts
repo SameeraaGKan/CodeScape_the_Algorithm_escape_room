@@ -13,7 +13,8 @@ function generateInviteCode(): string {
 
 // POST /api/teams — create a new team
 export async function POST(request: NextRequest) {
-  return withRateLimit(request, teamCreateLimiter, async () => {
+  try {
+  return await withRateLimit(request, teamCreateLimiter, async () => {
     const user = await getUserFromRequest(request);
 
     if (!user) {
@@ -73,6 +74,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ team }, { status: 201 });
   });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[POST /api/teams]", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 }
 
 // GET /api/teams?invite=CODE or ?id=TEAMID
