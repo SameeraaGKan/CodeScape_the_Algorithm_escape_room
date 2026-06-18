@@ -1,343 +1,266 @@
-# CodeScape: The Algorithm Escape Room
-
-![CodeScape Banner](./main.png)
-
-## 🎯 Project Overview
-
-CodeScape is an immersive, interactive web experience that combines computer science education with adventure gaming. This project presents a virtual algorithm escape room where teams collaborate to solve coding-inspired puzzles, crack digital codes, and navigate through challenges based on real CS concepts including recursion, encryption, sorting algorithms, and data structures.
-
-The website serves as both an information hub and registration platform for this unique educational event, featuring a modern, cyberpunk-inspired design with neon aesthetics and dynamic interactive elements.
-
-**Key Features:**
-- 🎮 Interactive escape room concept presentation
-- 🌙 Dark/Light mode toggle functionality
-- 📝 Real-time RSVP system with participant tracking
-- 📱 Responsive design with modern UI/UX
-- ✨ Dynamic modals and success animations
-- 🎨 Neon-themed visual effects and smooth transitions
-
-## 📚 Background
-
-This project was developed as part of the **CodePath WEB101 Intro to Web Development** course, serving as a comprehensive demonstration of fundamental web development skills including HTML5, CSS3, and vanilla JavaScript. The project spans multiple units of learning, incorporating progressive features from basic styling to advanced interactive functionality.
-
-## 🔧 Implementation Details
-
-### Core Components
-
-#### **HTML Structure (`index.html`)**
-- Semantic HTML5 markup with proper accessibility considerations
-- Responsive navigation bar with smooth scroll anchoring
-- Modal systems for user registration and success feedback
-- Image-rich content sections showcasing the event experience
-- Form validation and user interaction elements
-
-#### **Styling (`styles.css`)**
-- **CSS Variables**: Custom color scheme with cyberpunk/neon theme
-- **Flexbox Layouts**: Modern responsive design patterns
-- **CSS Animations**: Smooth transitions, hover effects, and keyframe animations
-- **Dark/Light Mode**: Complete theme switching with seamless transitions
-- **Mobile-First Design**: Responsive breakpoints and adaptive layouts
-
-#### **JavaScript Functionality (`index.js`)**
-- **Theme Toggle**: Dynamic dark/light mode switching with localStorage persistence
-- **Modal Management**: Advanced modal systems with overlay controls
-- **Form Validation**: Real-time input validation with visual feedback
-- **Dynamic Content**: Live participant list updates
-- **Event Handling**: Comprehensive user interaction management
-
-### Notable Achievements
-
-1. **Advanced Modal System**: Dual-modal architecture supporting both inline and popup registration forms
-2. **Real-time Validation**: Custom validation with visual feedback using CSS classes
-3. **Responsive Navigation**: Mobile-friendly navbar with neon glow effects
-4. **Animation Framework**: CSS keyframe animations with JavaScript triggers
-5. **Accessibility Features**: Semantic HTML and keyboard navigation support
-
-### Challenges Overcome
-
-- **State Synchronization**: Managing participant data across multiple form instances
-- **Theme Consistency**: Ensuring visual coherence across light/dark modes
-- **Modal UX**: Creating intuitive modal interactions without external libraries
-- **CSS Variables**: Implementing a scalable color system for theme switching
-
-## 🎓 Learning Outcomes
-
-Through developing CodeScape, I gained valuable experience in:
-
-### **Technical Skills**
-- **Modern CSS**: Flexbox, CSS Grid, custom properties, and advanced selectors
-- **Vanilla JavaScript**: DOM manipulation, event handling, and modern ES6+ syntax
-- **Responsive Design**: Mobile-first development and cross-device compatibility
-- **UI/UX Principles**: User-centered design, accessibility, and visual hierarchy
-
-### **Development Practices**
-- **Code Organization**: Modular CSS architecture and semantic HTML structure
-- **Progressive Enhancement**: Building features layer by layer
-- **Cross-browser Testing**: Ensuring compatibility across different environments
-- **Performance Optimization**: Efficient CSS and JavaScript implementation
-
-### **Problem-Solving Skills**
-- **Debugging Techniques**: Using browser DevTools for troubleshooting
-- **User Experience Design**: Creating intuitive interactions and feedback systems
-- **State Management**: Handling complex user interactions without frameworks
-
-## 🚀 Future Development
-
-### Planned Enhancements
-
-#### **Phase 1: Backend Integration**
-- **Database Integration**: Store participant data persistently
-- **Email Notifications**: Automated confirmation emails for registrants
-- **Admin Dashboard**: Event management and participant tracking
-- **Authentication System**: User accounts and login functionality
-
-#### **Phase 2: Interactive Features**
-- **Live Chat**: Real-time communication for registered participants
-- **Team Formation**: Automated team matching based on skill levels
-- **Progress Tracking**: Individual and team progress visualization
-- **Leaderboards**: Dynamic scoring and achievement systems
-
-#### **Phase 3: Educational Content**
-- **Practice Puzzles**: Mini-challenges for skill building
-- **Tutorial System**: Interactive CS concept explanations
-- **Resource Library**: Curated learning materials and documentation
-- **Mentorship Program**: Connect participants with experienced developers
-
-#### **Phase 4: Advanced Features**
-- **Mobile App**: Native iOS/Android companion application
-- **AR Integration**: Augmented reality puzzle elements
-- **AI Assistance**: Intelligent hints and personalized difficulty adjustment
-- **Integration APIs**: Connect with coding platforms and educational tools
-
-## 💡 Project Rationale
-
-### **Inspiration and Motivation**
-
-The choice to create CodeScape stemmed from a passion for making computer science education more engaging and accessible. Traditional CS learning often involves abstract concepts that can be difficult to visualize and apply. By gamifying these concepts through an escape room experience, students can:
-
-- **Experience CS Concepts**: Apply algorithms and data structures in practical, engaging scenarios
-- **Develop Teamwork**: Collaborate on complex problems in a supportive environment
-- **Build Confidence**: Solve challenging puzzles that reinforce learning outcomes
-- **Connect Theory to Practice**: See real-world applications of academic concepts
-
-### **Personal Goals**
-
-This project aligns with my goal of becoming a developer who creates educational technology that makes learning more inclusive and enjoyable. The escape room format addresses different learning styles while maintaining the rigor necessary for CS education.
-
-### **Target Impact**
-
-CodeScape aims to:
-- Reduce intimidation around computer science topics
-- Increase engagement with algorithmic thinking
-- Foster collaborative problem-solving skills
-- Bridge the gap between theoretical knowledge and practical application
-
-## 📈 Future Plans
-
-### **Short-term Goals (Next 6 months)**
-- **User Testing**: Conduct usability studies with target demographics
-- **Content Expansion**: Develop additional puzzle categories and difficulty levels
-- **Performance Optimization**: Implement advanced caching and loading strategies
-- **Accessibility Audit**: Ensure WCAG 2.1 AA compliance
-
-### **Medium-term Goals (6-12 months)**
-- **Backend Development**: Build robust server-side infrastructure
-- **Mobile Optimization**: Create dedicated mobile experience
-- **Partnership Development**: Collaborate with educational institutions
-- **Beta Launch**: Limited release to gather user feedback
-
-### **Long-term Vision (1-2 years)**
-- **Full Platform Launch**: Complete educational gaming platform
-- **Curriculum Integration**: Develop teacher resources and lesson plans
-- **Global Expansion**: Multi-language support and international partnerships
-- **Advanced Analytics**: Learning outcome tracking and educational insights
-
-## 🏃‍♂️ Running the Code
-
-### **Prerequisites**
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- Text editor or IDE (VS Code recommended)
-- Local development server (optional but recommended)
-
-### **Setup Instructions**
-
-1. **Clone or Download the Repository**
-   ```bash
-   # If using Git
-   git clone [repository-url]
-   
-   # Or download and extract the ZIP file
-   ```
-
-2. **File Structure Verification**
-   ```
-   codescape/
-   ├── index.html
-   ├── styles.css
-   ├── index.js
-   ├── main.png
-   ├── main2.png
-   ├── chll.png
-   ├── first.png
-   ├── excited final chall.png
-   ├── yay.png
-   └── logo500.png
-   ```
-
-3. **Local Development Server (Recommended) - Choose ONE option:**
-
-   **Option A: VS Code Live Server (Easiest)**
-   - Install VS Code and the "Live Server" extension
-   - Open your project folder in VS Code
-   - Right-click on `index.html` → select "Open with Live Server"
-   - Your website will automatically open in the browser
-
-   **Option B: Python (if you have Python installed)**
-   ```bash
-   # Navigate to your project folder in terminal/command prompt
-   cd path/to/your/codescape/folder
-   # Then run this command:
-   python -m http.server 8000
-   # Open browser and go to: http://localhost:8000
-   ```
-
-   **Option C: Node.js (if you have Node.js installed)**
-   ```bash
-   # Navigate to your project folder in terminal/command prompt
-   cd path/to/your/codescape/folder
-   # Then run this command:
-   npx http-server
-   # Follow the URL shown in terminal (usually http://localhost:8080)
-   ```
-
-4. **Direct Browser Opening**
-   - Simply double-click `index.html` to open in your default browser
-   - Note: Some features may not work correctly without a proper server
-
-### **Testing Features**
-
-1. **Dark/Light Mode Toggle**: Click the "Mode" button in the header
-2. **Navigation**: Test smooth scrolling to different sections
-3. **RSVP Registration**: 
-   - Use the main form or click "JOIN NOW!" for the modal
-   - Try invalid inputs to see validation in action
-4. **Responsive Design**: Resize browser window to test mobile layout
-5. **Modal Interactions**: Test opening/closing modals and outside-click behavior
-
-## 🤝 Contributing
-
-We welcome contributions from developers, designers, educators, and students! Here are ways you can help improve CodeScape:
-
-### **Areas for Contribution**
-
-#### **🎨 Frontend Development**
-- UI/UX improvements and new design patterns
-- Accessibility enhancements and ARIA implementation
-- Performance optimizations and code refactoring
-- Cross-browser compatibility testing
-
-#### **🧩 Content Development**
-- New puzzle concepts and challenge designs
-- Educational content and CS concept explanations
-- Multilingual translations and localization
-- User documentation and tutorials
-
-#### **🔧 Technical Improvements**
-- Backend architecture and API development
-- Database schema design and optimization
-- Testing framework implementation
-- DevOps and deployment automation
-
-#### **📊 Research and Analysis**
-- User experience research and usability testing
-- Educational effectiveness studies
-- Accessibility audits and compliance testing
-- Performance benchmarking and optimization
-
-### **Contribution Process**
-
-1. **Fork the Repository**: Create your own copy of the project
-2. **Create Feature Branch**: `git checkout -b feature/your-feature-name`
-3. **Make Changes**: Implement your improvements with clear, documented code
-4. **Test Thoroughly**: Ensure all features work across different browsers/devices
-5. **Submit Pull Request**: Include detailed description of changes and rationale
-
-### **Code Standards**
-
-- **HTML**: Use semantic elements and maintain accessibility
-- **CSS**: Follow BEM methodology and maintain the existing variable system
-- **JavaScript**: Use modern ES6+ syntax with clear, commented code
-- **Documentation**: Update README and inline comments for any new features
-
-## 🎉 Acknowledgments
-
-### **Educational Resources**
-- **CodePath**: For providing structured web development curriculum and mentorship
-- **MDN Web Docs**: Comprehensive reference for web technologies
-- **CSS-Tricks**: Inspiration for advanced CSS techniques and layouts
-
-### **Design Inspiration**
-- **Cyberpunk Aesthetics**: Modern gaming and sci-fi visual culture
-- **Educational Gaming**: Platforms like CodeCombat and HackerRank
-- **Escape Room Experiences**: Real-world puzzle and adventure game design
-
-### **Tools and Technologies**
-- **Visual Studio Code**: Primary development environment
-- **Chrome DevTools**: Testing and debugging platform
-- **GitHub**: Version control and collaboration platform
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
-### **MIT License Summary**
-- ✅ Commercial use permitted
-- ✅ Modification and distribution allowed  
-- ✅ Private use welcome
-- ⚠️ No warranty provided
-- 📝 License and copyright notice must be included
-
-## 🛠️ Troubleshooting
-
-### **Common Issues**
-
-#### **Images Not Loading**
-- Ensure all image files are in the same directory as HTML file
-- Check file names match exactly (case-sensitive)
-- Verify image file formats are supported (PNG, JPG, SVG)
-
-#### **JavaScript Not Working**
-- Open browser console (F12) to check for errors
-- Ensure all files are served from the same domain/protocol
-- Try hard refresh (Ctrl+F5) to clear cache
-
-#### **Styles Not Applying**
-- Verify CSS file path in HTML `<link>` tag
-- Check for syntax errors in CSS file
-- Ensure CSS custom properties are supported (modern browsers only)
-
-#### **Modal Issues**
-- Test JavaScript console for errors
-- Verify event listeners are properly attached
-- Check z-index conflicts with other elements
-
-### **Browser Compatibility**
-
-#### **Fully Supported**
-- Chrome 60+
-- Firefox 55+
-- Safari 12+
-- Edge 79+
-
-#### **Limited Support**
-- Internet Explorer: Not supported (CSS variables not available)
-- Older mobile browsers: Basic functionality only
-
-### **Performance Tips**
-- Use local development server for optimal performance
-- Enable browser caching for faster subsequent loads
-- Consider image optimization for slower connections
+# CodeEscape — The Algorithm Escape Room
+
+> A cyberpunk-themed, AI-powered CS algorithm escape room built as a full-stack web application.
+
+![Next.js](https://img.shields.io/badge/Next.js-16.2.9-black?logo=next.js)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?logo=supabase)
+![Claude AI](https://img.shields.io/badge/Claude-Sonnet_4.6-orange?logo=anthropic)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---
 
-**Built with ❤️ for CodePath WEB101** | **Developed by Sameeraa** | **© 2025 CodeScape. All rights reserved.**
+## Project Overview
+
+CodeEscape is an interactive, team-based escape room where players solve computer science algorithm puzzles to "break out" of a simulated cyberpunk mainframe. Each team is made up of human players and/or AI agent teammates — four distinct AI personalities powered by Claude — who provide real-time hints, encouragement, and guided learning as players work through puzzles involving sorting algorithms, Caesar ciphers, recursion call stacks, and graph traversal mazes.
+
+This project was built for **CodePath WEB101: Intro to Web Development** as the capstone project. I chose this topic because I wanted to build something at the intersection of two things I genuinely care about: making CS concepts more approachable for beginners, and exploring what AI-assisted learning feels like in practice. The escape room format makes algorithm study feel like a game rather than homework.
+
+---
+
+## Background
+
+This project was developed for **CodePath WEB101 — Intro to Web Development**, Summer 2026 at UT Dallas. It is a ground-up rebuild of an earlier static HTML/CSS/JS event registration page (CodeScape v1) into a production-grade, full-stack Next.js application. The rebuild introduced real interactive gameplay, a live database, AI integration, real-time team sync, and a machine learning adaptive difficulty system — none of which existed in v1.
+
+---
+
+## Features
+
+### Gameplay
+- **4 puzzle types**: Caesar cipher decode, code fill-in-the-blank, recursion call stack tracing, and BFS/DFS algorithm maze
+- **6 puzzles total** at launch, covering sorting, divide & conquer, recursion, graph algorithms, and data structures
+- **Timed stages** with a color-coded countdown bar (cyan → amber → red as time runs low)
+- **Score system** with points per puzzle weighted by speed and hints used
+
+### AI Agent System
+Four distinct AI teammate personalities, each powered by `claude-sonnet-4-6`:
+
+| Agent | Personality | Style |
+|---|---|---|
+| ARIA | Supportive | Validates thinking, builds confidence, never gives answers |
+| BYTE | Spoon Feeder | Step-by-step micro-hints, reveals approach after 3 failures |
+| SIGMA | Supervisor | Socratic questions only, time complexity focus, professional |
+| ZAP | Friendly | Casual analogies, light humor, still genuinely helpful |
+
+- Real-time streaming chat with each agent (token-by-token display)
+- Agents receive full context: puzzle type, player's current wrong answer, hints already given, and time remaining
+- Smart hint engine: after a wrong submission, Claude analyzes the *specific* wrong answer and generates a targeted hint — not a generic one
+
+### Team Formation
+- Magic link authentication via Supabase Auth (no passwords)
+- Create a team and configure each slot: invite a human via link, or assign an AI agent
+- Real-time lobby with Supabase Realtime — slot fills appear instantly across all browsers
+- Host-only "Start Game" control
+
+### Adaptive Difficulty (ML)
+- Item Response Theory (IRT) model estimates each player's skill level (θ) from their performance
+- θ updates after every puzzle: correct + fast → θ increases; slow + many hints → θ decreases
+- Next puzzle selection is matched to current θ — struggling players get easier puzzles, fast players get harder ones
+
+### Analytics Dashboard
+- Aggregated stats across all sessions: avg attempts per puzzle, hint usage by stage, skill distribution, agent personality popularity
+- Recharts bar charts and radar charts with cyberpunk color palette
+
+### Security
+- Zod validation on every API route input
+- Upstash Redis rate limiting: 10 req/min on agent chat, 30/min on puzzle submit, 5/min on team create
+- CSP, X-Frame-Options, HSTS, and other security headers via `next.config.ts`
+- Puzzle answers never sent to the client — validation runs server-side only
+
+---
+
+## Implementation Details
+
+### Architecture
+The entire application is a single Next.js 16 App Router project deployed to Vercel. There is no separate backend server — all API logic lives in Next.js Route Handlers under `src/app/api/`.
+
+```
+src/
+├── app/
+│   ├── page.tsx                # Landing page
+│   ├── register/               # Team formation + auth gate
+│   ├── lobby/[teamId]/         # Waiting room with real-time slot updates
+│   ├── game/[roomCode]/        # Puzzle engine + agent sidebar
+│   ├── results/[roomCode]/     # Session summary
+│   ├── dashboard/              # Analytics charts
+│   └── api/                    # Route handlers (teams, rooms, agent, ML)
+├── components/
+│   ├── puzzle/                 # CipherPuzzle, CodeFillPuzzle, RecursionTrace, AlgorithmMaze
+│   └── agent/                  # AgentChatPanel (custom streaming)
+└── lib/
+    ├── ai/personalities.ts     # 4 agent system prompts + context injection
+    ├── ml/adaptive.ts          # IRT difficulty engine
+    ├── puzzles/validator.ts    # Server-side answer checking
+    └── security/               # Zod schemas + Upstash rate limiters
+```
+
+### Notable Challenges Overcome
+
+**AI SDK v6 breaking changes** — The `ai` package completely changed its API in v6: `maxTokens` → `maxOutputTokens`, `toDataStreamResponse()` → `toTextStreamResponse()`, and `useChat` moved to a separate package with an incompatible protocol. Solved by reading type declaration files directly and building a custom streaming component using raw `fetch` + `ReadableStream`.
+
+**Next.js 16 API changes** — `params` in dynamic route segments became a `Promise` requiring `use(params)` to unwrap in client components. Middleware was also renamed to "proxy" (`middleware.ts` → `proxy.ts`).
+
+**Supabase client/server split** — A single `supabase.ts` importing `next/headers` caused build failures when imported by client components. Fixed by creating a lazy browser-safe singleton (`getSupabaseBrowser()`) and a separate server-only file.
+
+**Zod v4 record type** — `z.record(valueType)` (one-argument form) was removed in Zod v4. Now requires both key and value: `z.record(z.string(), z.string())`.
+
+**`useSearchParams` Suspense requirement** — Next.js App Router requires `useSearchParams()` to be wrapped in a `<Suspense>` boundary. Solved by splitting the register page into an inner content component wrapped by a Suspense shell.
+
+---
+
+## Learning Outcomes
+
+- **Full-stack Next.js App Router**: Learned the distinction between Server Components, Client Components, Route Handlers, and proxy/middleware, and when each is appropriate.
+- **Streaming AI responses**: Implemented token-by-token streaming from Claude using `ReadableStream` and `TextDecoder` — understanding how streaming works at the HTTP level rather than relying on library abstractions.
+- **Real-time with Supabase**: Used `postgres_changes` subscriptions to push database updates to connected clients without polling.
+- **Item Response Theory**: Implemented a psychometric model in TypeScript — the math behind estimating ability from performance rather than just tracking right/wrong.
+- **TypeScript strictness**: Learned to read `.d.ts` declaration files directly to understand breaking API changes in third-party packages when docs lag behind releases.
+- **Production build debugging**: Traced and fixed multiple classes of build-time errors — module boundary violations, prerender failures, missing Suspense boundaries — by reading stack traces and bundle output.
+
+---
+
+## Project Rationale
+
+I picked an escape room format because it reframes CS problem-solving as exploration rather than evaluation. When you're stuck in a timed room with teammates (even AI ones), the collaborative pressure is different from a LeetCode timer — it feels more like a game than a test.
+
+The AI agent system was the part I was most curious about. Rather than one generic "hint bot," having four distinct personalities lets a player choose how much hand-holding they want. BYTE (spoon feeder) is for someone who's completely lost; SIGMA (supervisor) is for someone who wants to be pushed. The question of *how* you deliver a hint — not just *what* the hint says — turns out to matter a lot for learning.
+
+---
+
+## Future Development
+
+- **More puzzle types**: Dynamic programming (knapsack/coin change), binary search trees, hash map collision resolution, graph coloring
+- **Multiplayer puzzle sync**: When one teammate solves a puzzle, all clients advance simultaneously via Supabase Realtime
+- **Leaderboard**: Global and team-based scoreboards with Elo-style ratings
+- **Hint replay**: After session completion, replay the exact agent conversation that helped you solve each puzzle
+- **Custom puzzle builder**: Let instructors create puzzle sets via a form, stored in Supabase
+- **OAuth login**: GitHub/Google OAuth alongside magic link for faster sign-in
+- **Mobile polish**: Full responsive layout for tablet play in a classroom setting
+
+---
+
+## Future Plans
+
+The immediate next step is a live playtest session with classmates to gather feedback on puzzle difficulty calibration and agent personality usefulness. After that:
+
+1. **v2.1** — Multiplayer puzzle sync so teams feel connected during gameplay, not just in the lobby
+2. **v2.2** — Instructor dashboard: create custom puzzle sets for specific courses (e.g., a UTD CS 2336 puzzle pack)
+3. **v3.0** — Open the platform publicly as a free CS study tool, with a community puzzle contribution system
+
+---
+
+## Running the Code
+
+### Prerequisites
+- Node.js 18+
+- A [Supabase](https://supabase.com) project (free tier works)
+- An [Anthropic](https://console.anthropic.com) API key
+- An [Upstash](https://upstash.com) Redis database (free tier works)
+
+### 1. Clone and install
+```bash
+git clone https://github.com/SameeraaGKan/CodeScape_the_Algorithm_escape_room.git
+cd CodeScape_the_Algorithm_escape_room
+npm install
+```
+
+### 2. Set up environment variables
+Create a `.env.local` file in the project root:
+
+```env
+# Supabase — from your Supabase project Settings > API
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Supabase Postgres — Settings > Database > Connection string (Transaction pooler)
+# NOTE: URL-encode special characters in your password (@ becomes %40)
+DATABASE_URL=postgresql://postgres:your_password@db.your-project.supabase.co:5432/postgres
+
+# Anthropic Claude API — console.anthropic.com > API Keys
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Upstash Redis — upstash.com > Redis > Create Database > REST API section
+UPSTASH_REDIS_REST_URL=https://your-db.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your_token
+```
+
+### 3. Push the database schema
+```bash
+npx drizzle-kit push
+```
+
+### 4. Enable Supabase Realtime
+In your Supabase dashboard → **Database** → **Replication**, enable realtime for the `teams` and `game_sessions` tables.
+
+### 5. Enable Supabase Auth
+In your Supabase dashboard → **Authentication** → **Providers**, ensure **Email** is enabled.
+
+### 6. Run the dev server
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 7. Build for production
+```bash
+npm run build
+npm start
+```
+
+### Deploying to Vercel
+1. Push to GitHub
+2. Import the repo at [vercel.com](https://vercel.com)
+3. Add all environment variables under Settings → Environment Variables
+4. Deploy — Next.js deploys with zero config
+
+---
+
+## Contributing
+
+Contributions are welcome. Areas where help is especially appreciated:
+
+- **New puzzles**: Add definitions to `src/lib/puzzles/data/puzzles.ts` following the existing schema. All four puzzle types are already supported — just add data.
+- **Answer validation edge cases**: `src/lib/puzzles/validator.ts` — improve normalization (whitespace handling, case sensitivity per puzzle type)
+- **Agent personality tuning**: `src/lib/ai/personalities.ts` — refine system prompts based on playtesting feedback
+- **Accessibility**: Keyboard navigation and screen reader support could be improved throughout
+- **Mobile layout**: The game page sidebar collapses to tabs on mobile — more polish needed
+
+To contribute:
+1. Fork the repo
+2. Create a feature branch: `git checkout -b feature/my-puzzle`
+3. Run `npx tsc --noEmit` to verify no type errors before submitting
+4. Open a pull request describing what you added and why
+
+Please do not commit `.env.local` or any API keys.
+
+---
+
+## Troubleshooting
+
+**`supabaseUrl is required` error during build** — Your `NEXT_PUBLIC_SUPABASE_URL` is empty or missing in `.env.local`.
+
+**`DATABASE_URL` connection refused** — If your Supabase password contains `@`, it must be URL-encoded as `%40` in the connection string.
+
+**Upstash Redis warnings during build** — These are expected if env vars aren't set; they're non-fatal warnings. Set your `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` to silence them.
+
+**Magic link not arriving** — Check Supabase Auth logs in your dashboard. Ensure your Supabase project's email provider is configured and the redirect URL matches your local or production URL.
+
+**Agent chat not streaming** — Verify `ANTHROPIC_API_KEY` is set correctly (no surrounding quotes needed in `.env.local`).
+
+---
+
+## Acknowledgments
+
+- **CodePath** for the WEB101 curriculum and the project structure that pushed me to build something real
+- **Anthropic** for the Claude API
+- **Supabase** for auth + real-time + PostgreSQL in one free-tier package
+- **Vercel** for Next.js and zero-config deployment
+- **Upstash** for serverless Redis on the free tier
+
+---
+
+## License
+
+MIT — do whatever you want with it, just don't use it to cheat on your actual CS homework.
