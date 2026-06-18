@@ -149,11 +149,15 @@ function RegisterPageContent() {
     setCreating(true);
     setCreateError("");
 
+    const { data: { session } } = await getSupabaseBrowser().auth.getSession();
     const agentSlots = slotConfigs.filter((s) => s.slotIndex > 0);
 
     const res = await fetch("/api/teams", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
       body: JSON.stringify({
         teamName: teamName.trim(),
         maxSize,
@@ -181,9 +185,14 @@ function RegisterPageContent() {
     setJoining(true);
     setJoinError("");
 
+    const { data: { session } } = await getSupabaseBrowser().auth.getSession();
+
     const res = await fetch("/api/teams", {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
       body: JSON.stringify({ inviteCode: inviteTeam.inviteCode, displayName: joinName.trim() }),
     });
     const data = await res.json();

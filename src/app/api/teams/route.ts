@@ -3,7 +3,7 @@ import { db, teams } from "@/lib/db";
 import { eq, or } from "drizzle-orm";
 import { createTeamSchema, joinTeamSchema } from "@/lib/security/schemas";
 import { withRateLimit, teamCreateLimiter } from "@/lib/security/ratelimit";
-import { createSupabaseServerClient } from "@/lib/db/supabase.server";
+import { getUserFromRequest } from "@/lib/db/supabase.server";
 import { AGENT_CONFIGS } from "@/lib/ai/personalities";
 import type { AgentPersonality } from "@/types";
 
@@ -14,10 +14,7 @@ function generateInviteCode(): string {
 // POST /api/teams — create a new team
 export async function POST(request: NextRequest) {
   return withRateLimit(request, teamCreateLimiter, async () => {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getUserFromRequest(request);
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -109,10 +106,7 @@ export async function GET(request: NextRequest) {
 
 // PATCH /api/teams — join an open human slot via invite code
 export async function PATCH(request: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUserFromRequest(request);
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
