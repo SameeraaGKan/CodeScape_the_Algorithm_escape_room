@@ -75,9 +75,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ team }, { status: 201 });
   });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("[POST /api/teams]", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    const e = err as Record<string, unknown>;
+    const msg = [e?.message, e?.code ? `(code: ${e.code})` : null, e?.detail ?? null]
+      .filter(Boolean)
+      .join(" ") || String(err);
+    console.error("[POST /api/teams]", msg, err);
+    return NextResponse.json({ error: String(msg) }, { status: 500 });
   }
 }
 
