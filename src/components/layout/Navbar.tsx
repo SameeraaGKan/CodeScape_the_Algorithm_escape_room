@@ -11,7 +11,7 @@ export function Navbar() {
   useEffect(() => setMounted(true), []);
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-50 border-b border-[var(--dark-border)] bg-black/80 backdrop-blur-md">
+    <nav className="fixed top-0 inset-x-0 z-50 border-b border-[var(--dark-border)] bg-background/80 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
           <Terminal
@@ -26,7 +26,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
+        <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
           <Link href="/#how-it-works" className="hover:text-[var(--neon-cyan)] transition-colors">
             How It Works
           </Link>
@@ -36,7 +36,7 @@ export function Navbar() {
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="text-gray-400 hover:text-[var(--neon-cyan)] transition-colors"
+              className="text-muted-foreground hover:text-[var(--neon-cyan)] transition-colors"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -55,14 +55,14 @@ export function Navbar() {
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="text-gray-400 hover:text-[var(--neon-cyan)] transition-colors"
+              className="text-muted-foreground hover:text-[var(--neon-cyan)] transition-colors"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
           )}
           <button
-            className="text-gray-400 hover:text-[var(--neon-cyan)]"
+            className="text-muted-foreground hover:text-[var(--neon-cyan)]"
             onClick={() => setOpen(!open)}
           >
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -72,7 +72,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t border-[var(--dark-border)] bg-black/95 px-4 py-4 flex flex-col gap-4 text-sm text-gray-400">
+        <div className="md:hidden border-t border-[var(--dark-border)] bg-background/95 px-4 py-4 flex flex-col gap-4 text-sm text-muted-foreground">
           <Link href="/#how-it-works" onClick={() => setOpen(false)} className="hover:text-[var(--neon-cyan)]">
             How It Works
           </Link>

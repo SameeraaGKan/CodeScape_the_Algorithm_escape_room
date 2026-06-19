@@ -105,6 +105,41 @@
   --dark-border: #1a2a2a;
 }
 
+/* Light mode overrides */
+.light {
+  --background: oklch(0.97 0.005 192);    /* faint teal tint */
+  --foreground: oklch(0.12 0.01 220);     /* deep navy-ish dark */
+  --card: oklch(1 0 0);                   /* pure white cards */
+  --card-foreground: oklch(0.12 0.01 220);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.12 0.01 220);
+  --primary: oklch(0.40 0.17 192);        /* dark accessible teal */
+  --primary-foreground: oklch(0.97 0 0);
+  --secondary: oklch(0.93 0.005 192);
+  --secondary-foreground: oklch(0.12 0.01 220);
+  --muted: oklch(0.93 0.005 192);
+  --muted-foreground: oklch(0.45 0.01 200);
+  --accent: oklch(0.45 0.22 320);
+  --accent-foreground: oklch(0.97 0 0);
+  --destructive: oklch(0.55 0.22 25);
+  --border: oklch(0.86 0.018 192);
+  --input: oklch(0.92 0.01 192);
+  --ring: oklch(0.40 0.17 192);
+
+  --neon-cyan: #027a78;
+  --neon-magenta: #b5007a;
+  --neon-blue: #0044cc;
+  --neon-green: #006633;
+  --dark-card: #ffffff;
+  --dark-border: #c8e0df;
+}
+
+.light .grid-bg {
+  background-image:
+    linear-gradient(rgba(2, 122, 120, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(2, 122, 120, 0.08) 1px, transparent 1px);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -114,6 +149,7 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
 }
 

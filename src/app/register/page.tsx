@@ -230,10 +230,10 @@ function RegisterPageContent() {
           <div className="relative z-10 w-full max-w-md animate-slide-up">
             <div className="p-8 rounded border border-[var(--neon-cyan)]/30 bg-[var(--dark-card)]">
               <Terminal className="w-8 h-8 text-[var(--neon-cyan)] mb-4" />
-              <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-black text-white mb-2">
+              <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-black text-foreground mb-2">
                 SIGN IN TO CONTINUE
               </h1>
-              <p className="text-gray-500 text-sm mb-8">
+              <p className="text-muted-foreground text-sm mb-8">
                 {inviteParam
                   ? "Sign in to join this team."
                   : "Sign in to create or join a CodeEscape team."}
@@ -242,26 +242,26 @@ function RegisterPageContent() {
               {magicLinkSent ? (
                 <div className="text-center">
                   <CheckCircle className="w-12 h-12 text-[var(--neon-green)] mx-auto mb-4" />
-                  <p className="text-white font-semibold mb-2">Check your email</p>
-                  <p className="text-gray-500 text-sm">
+                  <p className="text-foreground font-semibold mb-2">Check your email</p>
+                  <p className="text-muted-foreground text-sm">
                     We sent a magic link to <span className="text-[var(--neon-cyan)]">{email}</span>
                   </p>
                 </div>
               ) : (
                 <form onSubmit={sendMagicLink} className="space-y-4">
                   <div>
-                    <label className="text-xs text-gray-500 tracking-widest block mb-2">
+                    <label className="text-xs text-muted-foreground tracking-widest block mb-2">
                       EMAIL
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <input
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full pl-10 pr-4 py-3 bg-black border border-[var(--dark-border)] rounded text-white placeholder-gray-600 text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors"
+                        className="w-full pl-10 pr-4 py-3 bg-card border border-[var(--dark-border)] rounded text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors"
                       />
                     </div>
                   </div>
@@ -297,12 +297,12 @@ function RegisterPageContent() {
               <div className="text-xs text-[var(--neon-cyan)] tracking-widest mb-2">
                 JOINING TEAM
               </div>
-              <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-black text-white mb-6">
+              <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-black text-foreground mb-6">
                 {inviteTeam.teamName}
               </h1>
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs text-gray-500 tracking-widest block mb-2">
+                  <label className="text-xs text-muted-foreground tracking-widest block mb-2">
                     YOUR DISPLAY NAME
                   </label>
                   <input
@@ -311,7 +311,7 @@ function RegisterPageContent() {
                     value={joinName}
                     onChange={(e) => setJoinName(e.target.value)}
                     placeholder="Enter your in-game name"
-                    className="w-full px-4 py-3 bg-black border border-[var(--dark-border)] rounded text-white placeholder-gray-600 text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors"
+                    className="w-full px-4 py-3 bg-card border border-[var(--dark-border)] rounded text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors"
                   />
                 </div>
                 {joinError && <p className="text-red-400 text-xs">{joinError}</p>}
@@ -348,15 +348,15 @@ function RegisterPageContent() {
               <div className="text-xs text-[var(--neon-cyan)] tracking-widest mb-2">
                 TEAM INITIALIZED
               </div>
-              <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-black text-white mb-6">
+              <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-black text-foreground mb-6">
                 {createdTeam.teamName}
               </h1>
 
               {humanSlotCount > 0 ? (
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-muted-foreground">
                     Share this link with your teammates to fill the{" "}
-                    <span className="text-white">{humanSlotCount}</span> open human slot
+                    <span className="text-foreground">{humanSlotCount}</span> open human slot
                     {humanSlotCount !== 1 ? "s" : ""}:
                   </p>
                   <div className="flex items-center gap-2 p-3 bg-black rounded border border-[var(--dark-border)]">
@@ -370,13 +370,13 @@ function RegisterPageContent() {
                       {copied ? (
                         <CheckCircle className="w-4 h-4 text-[var(--neon-green)]" />
                       ) : (
-                        <Copy className="w-4 h-4 text-gray-400 hover:text-white" />
+                        <Copy className="w-4 h-4 text-muted-foreground hover:text-foreground" />
                       )}
                     </button>
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   All slots are filled with AI agents — you're ready to start.
                 </p>
               )}
@@ -406,14 +406,14 @@ function RegisterPageContent() {
           <div className="w-full max-w-2xl bg-[var(--dark-card)] rounded border border-[var(--dark-border)] p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-xs text-gray-500 tracking-widest">SLOT {String(pickerSlot + 1).padStart(2, "0")}</p>
-                <h2 className="font-[family-name:var(--font-orbitron)] text-lg font-bold text-white mt-1">
+                <p className="text-xs text-muted-foreground tracking-widest">SLOT {String(pickerSlot + 1).padStart(2, "0")}</p>
+                <h2 className="font-[family-name:var(--font-orbitron)] text-lg font-bold text-foreground mt-1">
                   SELECT AI AGENT
                 </h2>
               </div>
               <button
                 onClick={() => setPickerSlot(null)}
-                className="p-2 hover:bg-white/5 rounded transition-colors text-gray-400 hover:text-white"
+                className="p-2 hover:bg-white/5 rounded transition-colors text-muted-foreground hover:text-foreground"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -423,7 +423,7 @@ function RegisterPageContent() {
                 <button
                   key={key}
                   onClick={() => pickPersonality(pickerSlot, key)}
-                  className="text-left p-4 rounded border border-[var(--dark-border)] bg-black hover:scale-[1.02] transition-all group"
+                  className="text-left p-4 rounded border border-[var(--dark-border)] bg-card hover:scale-[1.02] transition-all group"
                   style={{ "--hover-color": cfg.color } as React.CSSProperties}
                 >
                   <div className="text-2xl mb-2">{cfg.emoji}</div>
@@ -433,8 +433,8 @@ function RegisterPageContent() {
                   >
                     {cfg.name}
                   </div>
-                  <div className="text-xs text-gray-500 italic mb-2">{cfg.tagline}</div>
-                  <p className="text-xs text-gray-400 leading-relaxed">{cfg.description}</p>
+                  <div className="text-xs text-muted-foreground italic mb-2">{cfg.tagline}</div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{cfg.description}</p>
                 </button>
               ))}
             </div>
@@ -450,17 +450,17 @@ function RegisterPageContent() {
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
               TEAM INITIALIZATION
             </div>
-            <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-white">
+            <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground">
               CREATE YOUR <span className="text-[var(--neon-cyan)] glow-cyan">TEAM</span>
             </h1>
-            <p className="text-gray-500 text-sm mt-2">
-              Signed in as <span className="text-gray-300">{user.email}</span>
+            <p className="text-muted-foreground text-sm mt-2">
+              Signed in as <span className="text-foreground/70">{user.email}</span>
             </p>
           </div>
 
           {/* Team name */}
           <section className="space-y-4">
-            <label className="text-xs text-gray-500 tracking-widest block">
+            <label className="text-xs text-muted-foreground tracking-widest block">
               TEAM NAME
             </label>
             <input
@@ -469,13 +469,13 @@ function RegisterPageContent() {
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               placeholder="e.g. Null Pointer Exception"
-              className="w-full px-4 py-3 bg-black border border-[var(--dark-border)] rounded text-white placeholder-gray-600 text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors"
+              className="w-full px-4 py-3 bg-card border border-[var(--dark-border)] rounded text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors"
             />
           </section>
 
           {/* Team size */}
           <section className="space-y-4">
-            <label className="text-xs text-gray-500 tracking-widest block">
+            <label className="text-xs text-muted-foreground tracking-widest block">
               TEAM SIZE — {maxSize} PLAYERS
             </label>
             <div className="flex gap-2">
@@ -486,7 +486,7 @@ function RegisterPageContent() {
                   className={`flex-1 py-2 rounded border text-sm font-semibold transition-all ${
                     maxSize === n
                       ? "border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10 text-[var(--neon-cyan)]"
-                      : "border-[var(--dark-border)] text-gray-500 hover:border-gray-600"
+                      : "border-[var(--dark-border)] text-muted-foreground hover:border-gray-600"
                   }`}
                 >
                   {n}
@@ -497,7 +497,7 @@ function RegisterPageContent() {
 
           {/* Slot configurator */}
           <section className="space-y-3">
-            <p className="text-xs text-gray-500 tracking-widest">
+            <p className="text-xs text-muted-foreground tracking-widest">
               CONFIGURE SLOTS
             </p>
             <div className="space-y-2">
@@ -516,22 +516,22 @@ function RegisterPageContent() {
                         ? "border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5"
                         : slot.type === "agent"
                         ? "border-[var(--dark-border)] bg-black"
-                        : "border-[var(--dark-border)] bg-black"
+                        : "border-[var(--dark-border)] bg-card"
                     }`}
                   >
-                    <div className="font-[family-name:var(--font-orbitron)] text-xs text-gray-600 w-6 shrink-0">
+                    <div className="font-[family-name:var(--font-orbitron)] text-xs text-muted-foreground w-6 shrink-0">
                       {String(slot.slotIndex + 1).padStart(2, "0")}
                     </div>
 
                     {isHost ? (
                       <>
                         <div className="flex-1">
-                          <div className="text-sm text-white font-semibold">
+                          <div className="text-sm text-foreground font-semibold">
                             {user.email?.split("@")[0] ?? "You"}
                           </div>
                           <div className="text-xs text-[var(--neon-cyan)]">HOST</div>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <Users className="w-3 h-3" />
                           HUMAN
                         </div>
@@ -549,17 +549,17 @@ function RegisterPageContent() {
                                 >
                                   {agentCfg.name}
                                 </div>
-                                <div className="text-xs text-gray-600 italic">
+                                <div className="text-xs text-muted-foreground italic">
                                   {agentCfg.tagline}
                                 </div>
                               </div>
                             </div>
                           ) : slot.type === "human" ? (
-                            <div className="text-sm text-gray-400">
+                            <div className="text-sm text-muted-foreground">
                               Invite via link
                             </div>
                           ) : (
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-muted-foreground">
                               No agent selected
                             </div>
                           )}
@@ -570,7 +570,7 @@ function RegisterPageContent() {
                           {slot.type === "agent" && (
                             <button
                               onClick={() => setPickerSlot(slot.slotIndex)}
-                              className="text-xs px-2 py-1 rounded border border-[var(--dark-border)] text-gray-400 hover:text-white hover:border-gray-600 transition-all"
+                              className="text-xs px-2 py-1 rounded border border-[var(--dark-border)] text-muted-foreground hover:text-foreground hover:border-border transition-all"
                             >
                               Change
                             </button>
@@ -587,7 +587,7 @@ function RegisterPageContent() {
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded border text-xs font-semibold transition-all ${
                               slot.type === "agent"
                                 ? "border-[var(--neon-magenta)]/50 text-[var(--neon-magenta)] bg-[var(--neon-magenta)]/10"
-                                : "border-[var(--dark-border)] text-gray-400 hover:border-gray-600"
+                                : "border-[var(--dark-border)] text-muted-foreground hover:border-gray-600"
                             }`}
                           >
                             {slot.type === "agent" ? (
@@ -609,7 +609,7 @@ function RegisterPageContent() {
                 );
               })}
             </div>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               Toggle a slot to switch between inviting a human or adding an AI agent.
             </p>
           </section>

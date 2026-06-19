@@ -23,15 +23,15 @@ export default function LandingPage() {
           </div>
 
           <h1 className="font-[family-name:var(--font-orbitron)] text-5xl md:text-7xl font-black tracking-tight mb-6">
-            <span className="text-white">CODE</span>
+            <span className="text-foreground">CODE</span>
             <span className="text-[var(--neon-cyan)] glow-cyan">ESCAPE</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-4 leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed">
             An algorithm-powered escape room where you race against the clock,
             crack CS puzzles, and choose your teammates — human or AI.
           </p>
-          <p className="text-sm text-gray-600 mb-12">
+          <p className="text-sm text-muted-foreground mb-12">
             Sorting · Recursion · Ciphers · Data Structures · Graph Traversal
           </p>
 
@@ -46,7 +46,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="#how-it-works"
-              className="inline-flex items-center gap-2 px-8 py-4 border border-gray-700 text-gray-400 hover:border-[var(--neon-cyan)]/50 hover:text-[var(--neon-cyan)] rounded text-sm tracking-widest transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 border border-gray-700 text-muted-foreground hover:border-[var(--neon-cyan)]/50 hover:text-[var(--neon-cyan)] rounded text-sm tracking-widest transition-all"
             >
               HOW IT WORKS
             </Link>
@@ -63,7 +63,7 @@ export default function LandingPage() {
               <div className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-[var(--neon-cyan)] glow-cyan">
                 {value}
               </div>
-              <div className="text-xs text-gray-500 tracking-widest mt-1">{label.toUpperCase()}</div>
+              <div className="text-xs text-muted-foreground tracking-widest mt-1">{label.toUpperCase()}</div>
             </div>
           ))}
         </div>
@@ -73,7 +73,7 @@ export default function LandingPage() {
       <section id="how-it-works" className="py-24 px-4 max-w-6xl mx-auto">
         <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-16">
           <span className="text-[var(--neon-cyan)] glow-cyan">HOW IT</span>{" "}
-          <span className="text-white">WORKS</span>
+          <span className="text-foreground">WORKS</span>
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -102,11 +102,11 @@ export default function LandingPage() {
               className="relative p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/40 transition-all group"
             >
               <div className="text-[var(--neon-cyan)] mb-4">{icon}</div>
-              <div className="font-[family-name:var(--font-orbitron)] text-xs text-gray-600 mb-2">
+              <div className="font-[family-name:var(--font-orbitron)] text-xs text-muted-foreground mb-2">
                 STEP {step}
               </div>
-              <h3 className="font-semibold text-white mb-3">{title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+              <h3 className="font-semibold text-foreground mb-3">{title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
@@ -116,10 +116,10 @@ export default function LandingPage() {
       <section className="py-24 px-4 bg-[var(--dark-card)] border-y border-[var(--dark-border)]">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-4">
-            <span className="text-white">CHOOSE YOUR</span>{" "}
+            <span className="text-foreground">CHOOSE YOUR</span>{" "}
             <span className="text-[var(--neon-magenta)] glow-magenta">AI AGENTS</span>
           </h2>
-          <p className="text-gray-500 text-center text-sm mb-16 max-w-lg mx-auto">
+          <p className="text-muted-foreground text-center text-sm mb-16 max-w-lg mx-auto">
             Each agent has a distinct personality. Pick the style that matches how you want to be helped.
           </p>
 
@@ -127,7 +127,7 @@ export default function LandingPage() {
             {agents.map(([key, config]) => (
               <div
                 key={key}
-                className="p-5 rounded border border-[var(--dark-border)] bg-black hover:scale-[1.02] transition-all"
+                className="p-5 rounded border border-[var(--dark-border)] bg-card hover:scale-[1.02] transition-all"
               >
                 <div className="text-3xl mb-3">{config.emoji}</div>
                 <div
@@ -136,10 +136,10 @@ export default function LandingPage() {
                 >
                   {config.name}
                 </div>
-                <div className="text-xs text-gray-500 mb-3 italic">{config.tagline}</div>
-                <p className="text-xs text-gray-400 leading-relaxed mb-4">{config.description}</p>
+                <div className="text-xs text-muted-foreground mb-3 italic">{config.tagline}</div>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-4">{config.description}</p>
                 <div
-                  className="text-xs italic text-gray-600 border-l-2 pl-3"
+                  className="text-xs italic text-muted-foreground border-l-2 pl-3"
                   style={{ borderColor: config.color }}
                 >
                   {config.exampleQuote}
@@ -154,7 +154,7 @@ export default function LandingPage() {
       <section className="py-24 px-4 max-w-6xl mx-auto">
         <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-16">
           <span className="text-[var(--neon-cyan)] glow-cyan">3 STAGES.</span>{" "}
-          <span className="text-white">6 PUZZLES.</span>
+          <span className="text-foreground">6 PUZZLES.</span>
         </h2>
 
         <div className="space-y-4">
@@ -166,8 +166,8 @@ export default function LandingPage() {
             <div key={stage} className="flex flex-col sm:flex-row sm:items-center gap-4 p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/30 transition-all">
               <div className="font-[family-name:var(--font-orbitron)] text-xs font-bold shrink-0 w-20" style={{ color }}>{stage}</div>
               <div className="flex-1">
-                <div className="font-semibold text-white mb-1">{title}</div>
-                <div className="text-sm text-gray-500">{desc}</div>
+                <div className="font-semibold text-foreground mb-1">{title}</div>
+                <div className="text-sm text-muted-foreground">{desc}</div>
               </div>
               <div className="text-xs px-2 py-1 rounded border shrink-0" style={{ color, borderColor: color, background: `${color}18` }}>{difficulty}</div>
             </div>
@@ -180,10 +180,10 @@ export default function LandingPage() {
         <div className="max-w-2xl mx-auto">
           <Lock className="w-12 h-12 text-[var(--neon-cyan)] mx-auto mb-6 animate-pulse-glow" />
           <h2 className="font-[family-name:var(--font-orbitron)] text-4xl font-black mb-6">
-            <span className="text-white">THE EXIT IS</span>{" "}
+            <span className="text-foreground">THE EXIT IS</span>{" "}
             <span className="text-[var(--neon-cyan)] glow-cyan">LOCKED.</span>
           </h2>
-          <p className="text-gray-400 mb-10 leading-relaxed">
+          <p className="text-muted-foreground mb-10 leading-relaxed">
             Form your team, pick your agents, and crack the algorithm maze to escape.
           </p>
           <Link
@@ -196,7 +196,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-[var(--dark-border)] py-8 px-4 text-center text-xs text-gray-600">
+      <footer className="border-t border-[var(--dark-border)] py-8 px-4 text-center text-xs text-muted-foreground">
         <p className="font-[family-name:var(--font-orbitron)] text-[var(--neon-cyan)]/40 mb-2">CODEESCAPE</p>
         <p>Built with Next.js · Supabase · Claude AI · Tailwind CSS</p>
       </footer>
