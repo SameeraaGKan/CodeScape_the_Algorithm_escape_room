@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
+import { MouseBackground } from "@/components/layout/MouseBackground";
 import { Terminal, Zap, Brain, Users, Lock, ChevronRight } from "lucide-react";
 import { AGENT_CONFIGS } from "@/lib/ai/personalities";
 
@@ -11,10 +12,8 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ── Hero ─────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-16 overflow-hidden grid-bg">
-        <div className="pointer-events-none absolute inset-0 scanline" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-[var(--neon-cyan)]/5 blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-[var(--neon-magenta)]/5 blur-3xl" />
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-16 overflow-hidden">
+        <MouseBackground />
 
         <div className="relative z-10 text-center max-w-4xl animate-slide-up">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] text-xs tracking-widest mb-8">
