@@ -4,12 +4,12 @@ const PATH_IDS = [
   "cs_algorithms","cs_theory","cs_discrete_math","cs_os_compilers",
   "cs_networks","cs_cybersecurity","cs_ml_ai","cs_databases",
   "cs_data_science","cs_software_engineering","cs_graphics","cs_hci",
-  "gmat_quant","gmat_verbal","gmat_data_insights","cs_random",
+  "gmat_quant","gmat_verbal","gmat_data_insights","cs_random","gmat_full_test",
 ] as const;
 
 export const createTeamSchema = z.object({
   teamName: z.string().min(2).max(50),
-  maxSize: z.number().int().min(2).max(6),
+  maxSize: z.number().int().min(1).max(6),
   creatorName: z.string().min(1).max(50),
   selectedPath: z.enum(PATH_IDS).optional(),
   slotConfigs: z

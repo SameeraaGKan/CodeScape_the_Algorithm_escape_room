@@ -16,7 +16,8 @@ export type PathId =
   | "gmat_quant"
   | "gmat_verbal"
   | "gmat_data_insights"
-  | "cs_random";
+  | "cs_random"
+  | "gmat_full_test";
 
 export type MCQQuestion = {
   id: string;

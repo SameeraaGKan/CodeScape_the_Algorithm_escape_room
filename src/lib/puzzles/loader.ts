@@ -30,7 +30,7 @@ const ALL_CS_QUESTIONS: MCQQuestion[] = [
   ...hciQuestions,
 ];
 
-const QUESTION_BANK: Record<Exclude<PathId, "cs_random">, MCQQuestion[]> = {
+const QUESTION_BANK: Record<Exclude<PathId, "cs_random" | "gmat_full_test">, MCQQuestion[]> = {
   cs_algorithms: algorithmsQuestions,
   cs_theory: theoryQuestions,
   cs_discrete_math: discreteMathQuestions,
@@ -66,6 +66,10 @@ const CS_PATH_IDS = new Set<PathId>([
 export function getQuestionsForPath(path: PathId, count?: number): MCQQuestion[] {
   if (path === "cs_random") {
     return shuffle(ALL_CS_QUESTIONS).slice(0, count ?? 20);
+  }
+  if (path === "gmat_full_test") {
+    // Not used directly — GMAT test page loads sections individually
+    return [];
   }
 
   const pool = QUESTION_BANK[path];

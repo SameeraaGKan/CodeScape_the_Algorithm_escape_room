@@ -107,7 +107,12 @@ export default function LobbyPage({
       setStartError(data.error ?? "Failed to start game.");
       return;
     }
-    router.push(`/game/${data.roomCode}`);
+    // GMAT full test gets its own dedicated page
+    if (data.selectedPath === "gmat_full_test") {
+      router.push(`/gmat-test/${data.roomCode}`);
+    } else {
+      router.push(`/game/${data.roomCode}`);
+    }
   }
 
   async function copyInviteLink() {

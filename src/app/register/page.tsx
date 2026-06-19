@@ -431,23 +431,39 @@ function RegisterPageContent() {
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {catPaths.map((path) => {
                       const isSelected = selectedPath === path.id;
+                      const isGmatFull = path.id === "gmat_full_test";
                       return (
                         <button
                           key={path.id}
                           onClick={() => setSelectedPath(path.id)}
                           className={`text-left p-4 rounded border transition-all hover:scale-[1.01] ${
+                            isGmatFull ? "sm:col-span-2 lg:col-span-3" : ""
+                          } ${
                             isSelected
-                              ? "border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10"
+                              ? isGmatFull
+                                ? "border-amber-400 bg-amber-400/10"
+                                : "border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10"
+                              : isGmatFull
+                              ? "border-amber-400/30 bg-amber-400/5 hover:border-amber-400/60"
                               : "border-[var(--dark-border)] bg-card hover:border-[var(--neon-cyan)]/40"
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <span className="text-2xl">{path.icon}</span>
-                            <span className="text-[10px] tracking-widest text-muted-foreground border border-[var(--dark-border)] rounded px-1.5 py-0.5">
-                              {path.questionCount}Q
-                            </span>
+                            <div className="flex items-center gap-1.5">
+                              {isGmatFull && (
+                                <span className="text-[10px] tracking-widest text-amber-400 border border-amber-400/50 rounded px-1.5 py-0.5 font-semibold">
+                                  SOLO ONLY
+                                </span>
+                              )}
+                              <span className="text-[10px] tracking-widest text-muted-foreground border border-[var(--dark-border)] rounded px-1.5 py-0.5">
+                                {isGmatFull ? "3 Sections · 64Q" : `${path.questionCount}Q`}
+                              </span>
+                            </div>
                           </div>
-                          <div className={`font-[family-name:var(--font-orbitron)] text-xs font-bold mb-1 ${isSelected ? "text-[var(--neon-cyan)]" : "text-foreground"}`}>
+                          <div className={`font-[family-name:var(--font-orbitron)] text-xs font-bold mb-1 ${
+                            isSelected ? (isGmatFull ? "text-amber-400" : "text-[var(--neon-cyan)]") : "text-foreground"
+                          }`}>
                             {path.label}
                           </div>
                           <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
@@ -465,7 +481,11 @@ function RegisterPageContent() {
 
           <div className="mt-10 flex justify-end">
             <button
-              onClick={() => { if (selectedPath) setPathConfirmed(true); }}
+              onClick={() => {
+                if (!selectedPath) return;
+                if (selectedPath === "gmat_full_test") setMaxSize(1);
+                setPathConfirmed(true);
+              }}
               disabled={!selectedPath}
               className="flex items-center gap-2 px-8 py-3 bg-[var(--neon-cyan)] text-black font-bold text-sm tracking-widest rounded hover:bg-[var(--neon-cyan)]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all box-glow-cyan"
             >
@@ -542,7 +562,11 @@ function RegisterPageContent() {
               )}
             </div>
             {selectedPath && (
-              <div className="mb-3 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5 text-[var(--neon-cyan)] text-xs tracking-widest">
+              <div className={`mb-3 inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs tracking-widest ${
+                selectedPath === "gmat_full_test"
+                  ? "border-amber-400/40 bg-amber-400/5 text-amber-400"
+                  : "border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5 text-[var(--neon-cyan)]"
+              }`}>
                 {PATHS.find(p => p.id === selectedPath)?.icon}{" "}
                 {PATHS.find(p => p.id === selectedPath)?.label}
               </div>
@@ -570,7 +594,23 @@ function RegisterPageContent() {
             />
           </section>
 
+          {/* Solo-only notice for GMAT full test */}
+          {selectedPath === "gmat_full_test" && (
+            <div className="p-4 rounded border border-amber-400/30 bg-amber-400/5">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-amber-400 text-sm font-bold font-[family-name:var(--font-orbitron)] tracking-widest">
+                  🏆 SOLO EXAMINATION MODE
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                The GMAT Focus Edition is a single-player adaptive test. No teammates, no agents.
+                Your session is private — just you and the timer.
+              </p>
+            </div>
+          )}
+
           {/* Team size */}
+          {selectedPath !== "gmat_full_test" && (
           <section className="space-y-4">
             <label className="text-xs text-muted-foreground tracking-widest block">
               TEAM SIZE — {maxSize} PLAYERS
@@ -591,8 +631,10 @@ function RegisterPageContent() {
               ))}
             </div>
           </section>
+          )}
 
           {/* Slot configurator */}
+          {selectedPath !== "gmat_full_test" && (
           <section className="space-y-3">
             <p className="text-xs text-muted-foreground tracking-widest">
               CONFIGURE SLOTS
@@ -710,6 +752,7 @@ function RegisterPageContent() {
               Toggle a slot to switch between inviting a human or adding an AI agent.
             </p>
           </section>
+          )}
 
           {/* Create button */}
           {createError && (
@@ -718,12 +761,22 @@ function RegisterPageContent() {
           <button
             onClick={createTeam}
             disabled={creating || !teamName.trim()}
-            className="w-full py-4 bg-[var(--neon-cyan)] text-black font-bold text-sm tracking-widest rounded hover:bg-[var(--neon-cyan)]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all box-glow-cyan flex items-center justify-center gap-2"
+            className={`w-full py-4 text-black font-bold text-sm tracking-widest rounded disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 ${
+              selectedPath === "gmat_full_test"
+                ? "bg-amber-400 hover:bg-amber-300"
+                : "bg-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/90 box-glow-cyan"
+            }`}
           >
             {creating ? (
               <>
                 <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
                 INITIALIZING…
+              </>
+            ) : selectedPath === "gmat_full_test" ? (
+              <>
+                <span>🏆</span>
+                BEGIN EXAM SETUP
+                <ChevronRight className="w-4 h-4" />
               </>
             ) : (
               <>
