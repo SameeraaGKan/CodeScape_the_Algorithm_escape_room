@@ -171,20 +171,20 @@ Create a `.env.local` file in the project root:
 
 ```env
 # Supabase — from your Supabase project Settings > API
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
 
 # Supabase Postgres — Settings > Database > Connection string
-# NOTE: URL-encode special characters in your password (@ becomes %40)
-DATABASE_URL=postgresql://postgres:your_password@db.your-project.supabase.co:5432/postgres
+# NOTE: URL-encode special characters in your password 
+DATABASE_URL=...
 
 # Anthropic Claude API — console.anthropic.com > API Keys
-ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_API_KEY=...
 
 # Upstash Redis — upstash.com > Redis > Create Database > REST API section
-UPSTASH_REDIS_REST_URL=https://your-db.upstash.io
-UPSTASH_REDIS_REST_TOKEN=your_token
+UPSTASH_REDIS_REST_URL=...
+UPSTASH_REDIS_REST_TOKEN=...
 ```
 
 ### 3. Push the database schema
@@ -228,7 +228,6 @@ Please do not commit `.env.local` or any API keys.
 
 ## Troubleshooting
 
-
 **Upstash warnings during build** — non-fatal, disappear once env vars are set
 
 **Magic link not arriving** — check Supabase Auth logs; verify email provider is configured
@@ -245,8 +244,7 @@ CodePath WEB101 curriculum · Anthropic Claude API · Supabase · Vercel · Upst
 
 <div align="center">
 
-Built by **[Sameeraa](https://sameeraagkan.github.io/)** &nbsp;·&nbsp; UTD Summer 2026
+Built by **[Sameeraa](https://sameeraagkan.github.io/)** &nbsp;·&nbsp;Summer 2026
 
-*CodePath WEB101 — Intro to Web Development*
 
 </div>

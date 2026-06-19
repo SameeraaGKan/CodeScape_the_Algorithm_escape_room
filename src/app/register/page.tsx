@@ -9,6 +9,8 @@ import { AGENT_CONFIGS } from "@/lib/ai/personalities";
 import type { AgentPersonality } from "@/types";
 import { getSupabaseBrowser } from "@/lib/db/supabase";
 import type { User, AuthChangeEvent, Session } from "@supabase/supabase-js";
+import type { PathId } from "@/types";
+import { PATHS, PATH_CATEGORIES } from "@/lib/puzzles/paths";
 import {
   Terminal,
   Users,
@@ -54,6 +56,10 @@ function RegisterPageContent() {
   const [joinName, setJoinName] = useState("");
   const [joining, setJoining] = useState(false);
   const [joinError, setJoinError] = useState("");
+
+  // Path selection state (Step 0)
+  const [selectedPath, setSelectedPath] = useState<PathId | null>(null);
+  const [pathConfirmed, setPathConfirmed] = useState(false);
 
   // Create team state
   const [teamName, setTeamName] = useState("");
@@ -163,6 +169,7 @@ function RegisterPageContent() {
         maxSize,
         creatorName: user?.email?.split("@")[0] ?? "Host",
         slotConfigs: agentSlots,
+        selectedPath: selectedPath ?? "cs_algorithms",
       }),
     });
     const data = await res.json();
@@ -396,6 +403,80 @@ function RegisterPageContent() {
     );
   }
 
+  // ── Path selection (Step 0) ──────────────────────────────
+  if (!pathConfirmed && !inviteParam) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen px-4 pt-24 pb-16 max-w-5xl mx-auto animate-slide-up">
+          <div className="mb-10">
+            <div className="inline-flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
+              STEP 01 OF 02
+            </div>
+            <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground mb-2">
+              SELECT YOUR <span className="text-[var(--neon-cyan)] glow-cyan">CHALLENGE</span>
+            </h1>
+            <p className="text-muted-foreground text-sm">Choose a topic. Your team will answer questions from this area.</p>
+          </div>
+
+          <div className="space-y-10">
+            {PATH_CATEGORIES.map((cat) => {
+              const catPaths = PATHS.filter((p) => p.category === cat.id);
+              return (
+                <div key={cat.id}>
+                  <p className="text-xs tracking-widest mb-4 font-semibold" style={{ color: cat.color }}>
+                    {cat.label}
+                  </p>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {catPaths.map((path) => {
+                      const isSelected = selectedPath === path.id;
+                      return (
+                        <button
+                          key={path.id}
+                          onClick={() => setSelectedPath(path.id)}
+                          className={`text-left p-4 rounded border transition-all hover:scale-[1.01] ${
+                            isSelected
+                              ? "border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10"
+                              : "border-[var(--dark-border)] bg-card hover:border-[var(--neon-cyan)]/40"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <span className="text-2xl">{path.icon}</span>
+                            <span className="text-[10px] tracking-widest text-muted-foreground border border-[var(--dark-border)] rounded px-1.5 py-0.5">
+                              {path.questionCount}Q
+                            </span>
+                          </div>
+                          <div className={`font-[family-name:var(--font-orbitron)] text-xs font-bold mb-1 ${isSelected ? "text-[var(--neon-cyan)]" : "text-foreground"}`}>
+                            {path.label}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
+                            {path.description}
+                          </p>
+                          <div className="mt-2 text-[10px] text-muted-foreground tracking-widest">{path.difficulty}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-10 flex justify-end">
+            <button
+              onClick={() => { if (selectedPath) setPathConfirmed(true); }}
+              disabled={!selectedPath}
+              className="flex items-center gap-2 px-8 py-3 bg-[var(--neon-cyan)] text-black font-bold text-sm tracking-widest rounded hover:bg-[var(--neon-cyan)]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all box-glow-cyan"
+            >
+              CONFIRM PATH →
+            </button>
+          </div>
+        </main>
+      </>
+    );
+  }
+
   // ── Main create-team form ────────────────────────────────
   return (
     <>
@@ -446,10 +527,26 @@ function RegisterPageContent() {
         <div className="animate-slide-up space-y-10">
           {/* Header */}
           <div>
-            <div className="inline-flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
-              TEAM INITIALIZATION
+            <div className="flex items-center gap-3 mb-4">
+              <div className="inline-flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
+                STEP 02 OF 02
+              </div>
+              {selectedPath && (
+                <button
+                  onClick={() => setPathConfirmed(false)}
+                  className="text-xs text-muted-foreground hover:text-[var(--neon-cyan)] transition-colors tracking-widest"
+                >
+                  ← CHANGE PATH
+                </button>
+              )}
             </div>
+            {selectedPath && (
+              <div className="mb-3 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5 text-[var(--neon-cyan)] text-xs tracking-widest">
+                {PATHS.find(p => p.id === selectedPath)?.icon}{" "}
+                {PATHS.find(p => p.id === selectedPath)?.label}
+              </div>
+            )}
             <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground">
               CREATE YOUR <span className="text-[var(--neon-cyan)] glow-cyan">TEAM</span>
             </h1>

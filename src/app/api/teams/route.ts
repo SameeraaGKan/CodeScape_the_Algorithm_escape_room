@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { teamName, maxSize, creatorName, slotConfigs } = parsed.data;
+    const { teamName, maxSize, creatorName, slotConfigs, selectedPath } = parsed.data;
     const inviteCode = generateInviteCode();
 
     const baseSlots = Array.from({ length: maxSize }, (_, i) => ({
@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
         maxSize,
         slots: initialSlots,
         createdBy: user.email ?? user.id,
+        selectedPath: selectedPath ?? "cs_algorithms",
         status: "forming",
       })
       .returning();

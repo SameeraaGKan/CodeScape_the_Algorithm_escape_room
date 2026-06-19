@@ -40,6 +40,7 @@ export const teams = pgTable("teams", {
   maxSize: integer("max_size").notNull().default(4),
   slots: jsonb("slots").$type<TeamSlot[]>().notNull().default([]),
   createdBy: text("created_by").notNull(),
+  selectedPath: text("selected_path").default("cs_algorithms"),
   status: text("status").notNull().default("forming"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

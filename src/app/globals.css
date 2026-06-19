@@ -136,8 +136,8 @@
 
 .light .grid-bg {
   background-image:
-    linear-gradient(rgba(2, 122, 120, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(2, 122, 120, 0.06) 1px, transparent 1px);
+    linear-gradient(rgba(2, 122, 120, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(2, 122, 120, 0.14) 1px, transparent 1px);
 }
 
 /* Scanlines are barely visible in dark mode but very harsh on light backgrounds */
