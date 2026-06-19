@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { CheckCircle, XCircle, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CheckCircle, XCircle, ChevronRight, Timer } from "lucide-react";
 import type { MCQQuestion } from "@/types";
 
 type Props = {
@@ -8,11 +8,19 @@ type Props = {
   questionNumber: number;
   totalQuestions: number;
   onAnswer: (isCorrect: boolean, selectedIndex: number) => void;
+  onNext?: () => void;
+  timedOut?: boolean;
 };
 
-export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer }: Props) {
+export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer, onNext, timedOut }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    if (timedOut && !revealed) {
+      setRevealed(true);
+    }
+  }, [timedOut, revealed]);
 
   function handleSelect(idx: number) {
     if (revealed) return;
@@ -22,6 +30,7 @@ export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer }
   }
 
   const isDS = question.options.length === 5;
+  const isLast = questionNumber === totalQuestions;
 
   return (
     <div className="space-y-6 animate-slide-up">
@@ -41,6 +50,14 @@ export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer }
         />
       </div>
 
+      {/* Timed out banner */}
+      {timedOut && revealed && (
+        <div className="flex items-center gap-2 px-4 py-2 rounded border border-red-500/40 bg-red-500/10 text-red-400 text-sm">
+          <Timer className="w-4 h-4 shrink-0" />
+          <span>Time&apos;s up! The correct answer is shown below.</span>
+        </div>
+      )}
+
       {/* Question text */}
       <div className="p-6 rounded border border-[var(--dark-border)] bg-card">
         <p className="text-foreground leading-relaxed whitespace-pre-line text-sm md:text-base">
@@ -53,13 +70,12 @@ export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer }
         {question.options.map((opt, idx) => {
           const isCorrect = idx === question.answer;
           const isSelected = idx === selected;
-          const showResult = revealed;
 
           let borderClass = "border-[var(--dark-border)] hover:border-[var(--neon-cyan)]/50";
           let bgClass = "bg-card hover:bg-[var(--neon-cyan)]/5";
           let textClass = "text-foreground";
 
-          if (showResult) {
+          if (revealed) {
             if (isCorrect) {
               borderClass = "border-[var(--neon-green)]";
               bgClass = "bg-[var(--neon-green)]/10";
@@ -81,17 +97,14 @@ export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer }
               disabled={revealed}
               className={`flex items-start gap-3 p-4 rounded border text-left text-sm transition-all ${borderClass} ${bgClass} ${textClass} ${!revealed ? "cursor-pointer" : "cursor-default"}`}
             >
-              {/* Option letter */}
               <span className="shrink-0 w-6 h-6 rounded border border-current flex items-center justify-center text-xs font-bold font-[family-name:var(--font-orbitron)]">
                 {String.fromCharCode(65 + idx)}
               </span>
-
               <span className="flex-1 leading-relaxed">{opt}</span>
-
-              {showResult && isCorrect && (
+              {revealed && isCorrect && (
                 <CheckCircle className="shrink-0 w-5 h-5 text-[var(--neon-green)] mt-0.5" />
               )}
-              {showResult && isSelected && !isCorrect && (
+              {revealed && isSelected && !isCorrect && (
                 <XCircle className="shrink-0 w-5 h-5 text-red-500 mt-0.5" />
               )}
             </button>
@@ -109,17 +122,14 @@ export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer }
         </div>
       )}
 
-      {/* Next button appears after answering */}
-      {revealed && questionNumber < totalQuestions && (
+      {/* Next / Finish button */}
+      {revealed && (
         <div className="flex justify-end">
           <button
-            onClick={() => {
-              setSelected(null);
-              setRevealed(false);
-            }}
-            className="flex items-center gap-2 px-6 py-2 rounded border border-[var(--neon-cyan)] text-[var(--neon-cyan)] text-sm font-semibold hover:bg-[var(--neon-cyan)]/10 transition-all"
+            onClick={() => onNext?.()}
+            className="flex items-center gap-2 px-6 py-2 rounded border border-[var(--neon-cyan)] text-[var(--neon-cyan)] text-sm font-semibold hover:bg-[var(--neon-cyan)]/10 transition-all font-[family-name:var(--font-orbitron)]"
           >
-            NEXT <ChevronRight className="w-4 h-4" />
+            {isLast ? "FINISH" : "NEXT"} <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       )}

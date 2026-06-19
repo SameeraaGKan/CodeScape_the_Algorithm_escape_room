@@ -40,12 +40,16 @@ export async function POST(request: NextRequest) {
   }
 
   const roomCode = generateRoomCode();
+  // Use team's selected path as puzzleSetId so the game knows which questions to load.
+  // Falls back to "default_set" for teams created before path selection was added.
+  const puzzleSetId = team.selectedPath ?? "default_set";
+
   const [session] = await db
     .insert(gameSessions)
     .values({
       teamId,
       roomCode,
-      puzzleSetId: "default_set",
+      puzzleSetId,
       currentPuzzleIndex: 0,
       status: "active",
     })
@@ -53,8 +57,12 @@ export async function POST(request: NextRequest) {
 
   await db.update(teams).set({ status: "in_game" }).where(eq(teams.id, teamId));
 
-  const puzzleOrder = getPuzzleOrder("default_set");
+  const isMcqMode = puzzleSetId !== "default_set";
+  if (isMcqMode) {
+    return NextResponse.json({ session, roomCode, isMcqMode: true, selectedPath: puzzleSetId }, { status: 201 });
+  }
 
+  const puzzleOrder = getPuzzleOrder("default_set");
   return NextResponse.json({ session, roomCode, puzzleOrder }, { status: 201 });
 }
 
@@ -75,9 +83,18 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
 
+  // MCQ mode: puzzleSetId is a path ID (not "default_set")
+  const isMcqMode = session.puzzleSetId !== "default_set";
+  if (isMcqMode) {
+    return NextResponse.json({
+      session,
+      isMcqMode: true,
+      selectedPath: session.puzzleSetId,
+    });
+  }
+
   const puzzleOrder = getPuzzleOrder(session.puzzleSetId);
   const currentPuzzleId = puzzleOrder[session.currentPuzzleIndex];
-  const currentPuzzle = currentPuzzleId ? PUZZLES[currentPuzzleId] : null;
 
   return NextResponse.json({
     session,

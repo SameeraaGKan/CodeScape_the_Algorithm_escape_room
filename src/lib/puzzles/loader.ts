@@ -57,17 +57,27 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export function getQuestionsForPath(path: PathId, count?: number): MCQQuestion[] {
-  let pool: MCQQuestion[];
+const CS_PATH_IDS = new Set<PathId>([
+  "cs_algorithms", "cs_theory", "cs_discrete_math", "cs_os_compilers",
+  "cs_networks", "cs_cybersecurity", "cs_ml_ai", "cs_databases",
+  "cs_data_science", "cs_software_engineering", "cs_graphics", "cs_hci",
+]);
 
+export function getQuestionsForPath(path: PathId, count?: number): MCQQuestion[] {
   if (path === "cs_random") {
-    pool = shuffle(ALL_CS_QUESTIONS).slice(0, count ?? 20);
-  } else {
-    pool = QUESTION_BANK[path];
-    if (count) pool = shuffle(pool).slice(0, count);
+    return shuffle(ALL_CS_QUESTIONS).slice(0, count ?? 20);
   }
 
-  return pool;
+  const pool = QUESTION_BANK[path];
+
+  // CS topics: always shuffle and serve 10 from the pool (pool may be 20+)
+  if (CS_PATH_IDS.has(path)) {
+    const n = count ?? 10;
+    return shuffle(pool).slice(0, n);
+  }
+
+  // GMAT paths: serve all questions (or a subset if count specified)
+  return count ? shuffle(pool).slice(0, count) : pool;
 }
 
 export function getAllPaths(): PathId[] {
