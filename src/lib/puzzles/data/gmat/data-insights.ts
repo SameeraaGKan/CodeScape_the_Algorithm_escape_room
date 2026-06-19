@@ -204,8 +204,8 @@ export const gmatDataInsightsQuestions: MCQQuestion[] = [
       "No, the actual average is 3.9",
       "No, the actual average is 4.2",
     ],
-    answer: 0,
-    explanation: "Weighted average = 0.4×5 + 0.3×4 + 0.2×3 + 0.1×2 = 2.0+1.2+0.6+0.2 = 4.0. Wait — that gives 4.0, not 4.1. Actually the correct answer is B (4.0). The reported 4.1 is slightly overstated.",
+    answer: 1,
+    explanation: "Weighted average = 0.4×5 + 0.3×4 + 0.2×3 + 0.1×2 = 2.0+1.2+0.6+0.2 = 4.0. The reported 4.1 is overstated; the actual average is 4.0.",
     difficulty: "medium",
   },
   // ── Data Sufficiency (DI context) ────────────────────────
