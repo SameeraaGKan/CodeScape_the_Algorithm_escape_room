@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { MouseBackground } from "@/components/layout/MouseBackground";
-import { Terminal, Zap, Brain, Users, Lock, ChevronRight } from "lucide-react";
+import { Terminal, Zap, Brain, Users, Lock, ChevronRight, Map, Trophy } from "lucide-react";
 import { AGENT_CONFIGS } from "@/lib/ai/personalities";
 
 export default function LandingPage() {
@@ -27,11 +27,11 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed">
-            An algorithm-powered escape room where you race against the clock,
-            crack CS puzzles, and choose your teammates — human or AI.
+            A CS challenge platform where you race the clock, answer domain-specific questions,
+            and bring AI agents as teammates — each with their own personality.
           </p>
           <p className="text-sm text-muted-foreground mb-12">
-            Sorting · Recursion · Ciphers · Data Structures · Graph Traversal
+            Algorithms · ML/AI · Cybersecurity · Databases · Networks · Theory · and more
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -54,9 +54,9 @@ export default function LandingPage() {
 
         <div className="relative z-10 mt-20 grid grid-cols-3 gap-8 max-w-lg w-full">
           {[
-            { label: "Puzzles", value: "6" },
+            { label: "Topics", value: "12+" },
             { label: "AI Agents", value: "4" },
-            { label: "Stages", value: "3" },
+            { label: "Questions", value: "240+" },
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
               <div className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-[var(--neon-cyan)] glow-cyan">
@@ -70,42 +70,64 @@ export default function LandingPage() {
 
       {/* ── How It Works ─────────────────────────────────── */}
       <section id="how-it-works" className="py-24 px-4 max-w-6xl mx-auto">
-        <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-16">
+        <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-4">
           <span className="text-[var(--neon-cyan)] glow-cyan">HOW IT</span>{" "}
           <span className="text-foreground">WORKS</span>
         </h2>
+        <p className="text-center text-sm text-muted-foreground mb-16 max-w-xl mx-auto">
+          Four steps from sign-in to scoreboard — solo or with a crew.
+        </p>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-6">
           {[
             {
-              icon: <Users className="w-6 h-6" />,
+              icon: <Map className="w-6 h-6" />,
               step: "01",
-              title: "Form Your Team",
-              desc: "Create a team of up to 6. Fill each slot with a friend via invite link or pick an AI agent with your preferred personality.",
+              color: "var(--neon-cyan)",
+              title: "Pick Your Challenge",
+              desc: "Choose from 12+ CS topic tracks — Algorithms, ML/AI, Cybersecurity, Databases, Networks, and more. Or grab a Random Mix for a wildcard session. Each track draws 10 curated questions from a pool of 20+.",
+            },
+            {
+              icon: <Users className="w-6 h-6" />,
+              step: "02",
+              color: "#a855f7",
+              title: "Build Your Team",
+              desc: "Go solo or invite friends (up to 6 players). Any open human slot can be filled with an AI agent instead — choose a personality: ARIA (supportive), BYTE (step-by-step), SIGMA (Socratic), or ZAP (casual).",
             },
             {
               icon: <Brain className="w-6 h-6" />,
-              step: "02",
-              title: "Solve CS Puzzles",
-              desc: "Work through 6 algorithm challenges across 3 stages. Sorting, recursion, ciphers, mazes — all in a neon cyberpunk escape room.",
+              step: "03",
+              color: "#ff00cc",
+              title: "Race the Clock",
+              desc: "Each question has a timer. Answer correctly fast for bonus points — wrong answers cost time. Your AI teammate reacts in real-time: it'll check in if you're quiet, react to wrong answers, and warn you when time is running low.",
             },
             {
               icon: <Zap className="w-6 h-6" />,
-              step: "03",
-              title: "AI Adapts to You",
-              desc: "Our IRT-based ML engine tracks your skill and adjusts difficulty in real-time. Agents give personalized help based on your specific wrong answers.",
+              step: "04",
+              color: "#f59e0b",
+              title: "Track & Improve",
+              desc: "After every session your results, score, and path history are saved to your profile. The leaderboard shows how you stack up. The analytics dashboard surfaces aggregate performance across all players.",
             },
-          ].map(({ icon, step, title, desc }) => (
+          ].map(({ icon, step, color, title, desc }) => (
             <div
               key={step}
-              className="relative p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/40 transition-all group"
+              className="relative p-7 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/30 transition-all"
             >
-              <div className="text-[var(--neon-cyan)] mb-4">{icon}</div>
-              <div className="font-[family-name:var(--font-orbitron)] text-xs text-muted-foreground mb-2">
-                STEP {step}
+              <div className="flex items-start gap-4">
+                <div
+                  className="shrink-0 w-10 h-10 rounded flex items-center justify-center"
+                  style={{ color, background: `${color}18`, border: `1px solid ${color}40` }}
+                >
+                  {icon}
+                </div>
+                <div>
+                  <div className="font-[family-name:var(--font-orbitron)] text-[10px] tracking-widest mb-1" style={{ color }}>
+                    STEP {step}
+                  </div>
+                  <h3 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-foreground mb-2">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
               </div>
-              <h3 className="font-semibold text-foreground mb-3">{title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
@@ -149,29 +171,49 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Stages ────────────────────────────────────────── */}
+      {/* ── Topic Tracks ──────────────────────────────────── */}
       <section className="py-24 px-4 max-w-6xl mx-auto">
-        <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-16">
-          <span className="text-[var(--neon-cyan)] glow-cyan">3 STAGES.</span>{" "}
-          <span className="text-foreground">6 PUZZLES.</span>
+        <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-4">
+          <span className="text-[var(--neon-cyan)] glow-cyan">12 TRACKS.</span>{" "}
+          <span className="text-foreground">ONE ESCAPE ROOM.</span>
         </h2>
+        <p className="text-center text-sm text-muted-foreground mb-16 max-w-xl mx-auto">
+          Every track pulls 10 randomized questions from a curated bank. No two sessions are the same.
+        </p>
 
-        <div className="space-y-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
-            { stage: "Stage 01", title: "Initialization Protocol", desc: "Decrypt an intercepted transmission using Caesar cipher fundamentals.", difficulty: "Easy", color: "#00ff88" },
-            { stage: "Stage 02", title: "Code Breakers Challenge", desc: "Restore corrupted sorting algorithms, fix binary search, validate bracket sequences, and trace recursive call stacks.", difficulty: "Medium", color: "#05b9b6" },
-            { stage: "Stage 03", title: "Algorithm Maze — Final Escape", desc: "Navigate the Algorithm Maze using BFS graph traversal to find the escape route.", difficulty: "Hard", color: "#ff00cc" },
-          ].map(({ stage, title, desc, difficulty, color }) => (
-            <div key={stage} className="flex flex-col sm:flex-row sm:items-center gap-4 p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/30 transition-all">
-              <div className="font-[family-name:var(--font-orbitron)] text-xs font-bold shrink-0 w-20" style={{ color }}>{stage}</div>
-              <div className="flex-1">
-                <div className="font-semibold text-foreground mb-1">{title}</div>
-                <div className="text-sm text-muted-foreground">{desc}</div>
+            { icon: "⚡", label: "Algorithms & Data Structures", diff: "Intermediate", color: "#05b9b6" },
+            { icon: "∞", label: "Computational Theory",          diff: "Advanced",     color: "#05b9b6" },
+            { icon: "∑", label: "Discrete Mathematics",          diff: "Intermediate", color: "#05b9b6" },
+            { icon: "🖥", label: "OS & Compilers",               diff: "Advanced",     color: "#0066ff" },
+            { icon: "🌐", label: "Computer Networks",            diff: "Intermediate", color: "#0066ff" },
+            { icon: "🔐", label: "Cybersecurity",                diff: "Intermediate", color: "#0066ff" },
+            { icon: "🧬", label: "Machine Learning & AI",        diff: "Advanced",     color: "#ff00cc" },
+            { icon: "🗄", label: "Databases",                    diff: "Intermediate", color: "#ff00cc" },
+            { icon: "📈", label: "Data Science",                 diff: "Intermediate", color: "#ff00cc" },
+            { icon: "🏗", label: "Software Engineering",         diff: "Intermediate", color: "#00ff88" },
+            { icon: "🎨", label: "Computer Graphics",            diff: "Advanced",     color: "#00ff88" },
+            { icon: "👆", label: "HCI & UX",                    diff: "Beginner",     color: "#00ff88" },
+          ].map(({ icon, label, diff, color }) => (
+            <div
+              key={label}
+              className="flex items-center gap-3 p-4 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/30 transition-all"
+            >
+              <span className="text-xl shrink-0">{icon}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm text-foreground font-medium truncate">{label}</div>
               </div>
-              <div className="text-xs px-2 py-1 rounded border shrink-0" style={{ color, borderColor: color, background: `${color}18` }}>{difficulty}</div>
+              <span
+                className="text-[10px] px-1.5 py-0.5 rounded border shrink-0 tracking-widest"
+                style={{ color, borderColor: `${color}50`, background: `${color}15` }}
+              >
+                {diff}
+              </span>
             </div>
           ))}
         </div>
+
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
@@ -179,11 +221,14 @@ export default function LandingPage() {
         <div className="max-w-2xl mx-auto">
           <Lock className="w-12 h-12 text-[var(--neon-cyan)] mx-auto mb-6 animate-pulse-glow" />
           <h2 className="font-[family-name:var(--font-orbitron)] text-4xl font-black mb-6">
-            <span className="text-foreground">THE EXIT IS</span>{" "}
-            <span className="text-[var(--neon-cyan)] glow-cyan">LOCKED.</span>
+            <span className="text-foreground">YOUR KNOWLEDGE</span>{" "}
+            <span className="text-[var(--neon-cyan)] glow-cyan">IS THE KEY.</span>
           </h2>
-          <p className="text-muted-foreground mb-10 leading-relaxed">
-            Form your team, pick your agents, and crack the algorithm maze to escape.
+          <p className="text-muted-foreground mb-4 leading-relaxed">
+            Pick a topic, build your crew, and race the clock — with an AI agent that has your back.
+          </p>
+          <p className="text-xs text-muted-foreground/60 mb-10 tracking-widest">
+            Powered by Claude AI (claude-sonnet-4-6) · Adaptive difficulty · Real-time leaderboard
           </p>
           <Link
             href="/register"
@@ -191,13 +236,25 @@ export default function LandingPage() {
           >
             <Terminal className="w-4 h-4" />
             BEGIN ESCAPE SEQUENCE
+            <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
       </section>
 
       <footer className="border-t border-[var(--dark-border)] py-8 px-4 text-center text-xs text-muted-foreground">
         <p className="font-[family-name:var(--font-orbitron)] text-[var(--neon-cyan)]/40 mb-2">CODEESCAPE</p>
-        <p>Built with Next.js · Supabase · Claude AI · Tailwind CSS</p>
+        <p>Built with Next.js 15 · Supabase · Claude AI (claude-sonnet-4-6) · Tailwind CSS · Vercel</p>
+        <p className="mt-2">
+          Built by{" "}
+          <a
+            href="https://sameeraagkan.github.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--neon-cyan)] hover:underline"
+          >
+            Sameeraa
+          </a>
+        </p>
       </footer>
     </>
   );

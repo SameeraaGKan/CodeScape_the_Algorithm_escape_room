@@ -8,12 +8,15 @@ import { RecursionTrace } from "@/components/puzzle/RecursionTrace";
 import { AlgorithmMaze } from "@/components/puzzle/AlgorithmMaze";
 import { MCQPuzzle } from "@/components/puzzle/MCQPuzzle";
 import { AgentChatPanel } from "@/components/agent/AgentChatPanel";
+import { TeamChatPanel } from "@/components/team/TeamChatPanel";
 import { AGENT_CONFIGS } from "@/lib/ai/personalities";
 import { PATHS } from "@/lib/puzzles/paths";
+import { getSupabaseBrowser } from "@/lib/db/supabase";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import type { AgentPersonality, Puzzle, MCQQuestion } from "@/types";
 import {
   Clock, Trophy, CheckCircle, XCircle, Loader2,
-  MessageSquare, Layout, Cpu,
+  MessageSquare, Layout, Cpu, Users,
 } from "lucide-react";
 
 type GameSession = {
@@ -71,6 +74,7 @@ export default function GamePage({
   const [submitResult, setSubmitResult] = useState<SubmitResult | null>(null);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [attemptCount, setAttemptCount] = useState(0);
+  const [wrongAnswerCount, setWrongAnswerCount] = useState(0);
   const [lastAttempt, setLastAttempt] = useState<string | undefined>();
 
   // MCQ mode state
@@ -87,9 +91,41 @@ export default function GamePage({
   // UI state
   const [activeTab, setActiveTab] = useState<"puzzle" | "chat">("puzzle");
   const [selectedAgent, setSelectedAgent] = useState<AgentPersonality>("supportive");
+  const [teamAgents, setTeamAgents] = useState<AgentPersonality[]>([]);
+  const [peerGreetings, setPeerGreetings] = useState<Partial<Record<AgentPersonality, string>>>({});
+  const peerExchangedRef = useRef(false);
+
+  // Multiplayer sync
+  const roomChannelRef = useRef<RealtimeChannel | null>(null);
+  const mcqQuestionsRef = useRef<MCQQuestion[]>([]);
+  const advancedToRef = useRef(-1); // guards against double-advance from same index
+  const mcqScoreRef = useRef(0);
+
+  // Human teammate chat
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentDisplayName, setCurrentDisplayName] = useState<string>("");
+  const [humanTeammates, setHumanTeammates] = useState<{ userId: string; displayName: string }[]>([]);
+  const [rightPanelTab, setRightPanelTab] = useState<"agents" | "teamchat">("agents");
+
+  function handleOpeningComplete(fromPersonality: AgentPersonality, message: string) {
+    if (peerExchangedRef.current || teamAgents.length < 2) return;
+    peerExchangedRef.current = true;
+    const fromCfg = AGENT_CONFIGS[fromPersonality];
+    const context = `${fromCfg.emoji} ${fromCfg.name}: "${message.trim().slice(0, 120)}"`;
+    teamAgents
+      .filter(p => p !== fromPersonality)
+      .forEach((toPersonality, i) => {
+        setTimeout(() => {
+          setPeerGreetings(prev => ({ ...prev, [toPersonality]: context }));
+        }, 2000 + i * 1500);
+      });
+  }
 
   async function loadRoom(code: string) {
     try {
+      const { data: { user } } = await getSupabaseBrowser().auth.getUser();
+      setCurrentUserId(user?.id ?? null);
+
       const res = await fetch(`/api/rooms?code=${code}`);
       const data = await res.json();
       if (!res.ok) {
@@ -99,14 +135,29 @@ export default function GamePage({
       }
 
       setSession(data.session);
+      if (Array.isArray(data.agentPersonalities) && data.agentPersonalities.length > 0) {
+        setTeamAgents(data.agentPersonalities as AgentPersonality[]);
+      }
+
+      if (Array.isArray(data.humanSlots) && user) {
+        const me = data.humanSlots.find((s: { userId: string }) => s.userId === user.id);
+        if (me) setCurrentDisplayName(me.displayName);
+        const others = data.humanSlots.filter(
+          (s: { userId: string }) => s.userId !== user.id
+        );
+        setHumanTeammates(others);
+        if (others.length > 0) setRightPanelTab("teamchat");
+      }
 
       if (data.isMcqMode) {
         setIsMcqMode(true);
         setSelectedPathId(data.selectedPath);
-        const qRes = await fetch(`/api/questions?path=${data.selectedPath}`);
+        const qRes = await fetch(`/api/questions?path=${data.selectedPath}&seed=${code}`);
         const qData = await qRes.json();
         const questions: MCQQuestion[] = qData.questions ?? [];
         setMcqQuestions(questions);
+        mcqQuestionsRef.current = questions;
+        advancedToRef.current = -1;
         setTotalPuzzles(questions.length);
         if (questions.length > 0) {
           setTimeRemaining(timeLimitFor(questions[0].difficulty));
@@ -129,6 +180,43 @@ export default function GamePage({
   }
 
   useEffect(() => { loadRoom(roomCode); }, [roomCode]);
+
+  // Keep refs in sync with state for stable broadcast callbacks
+  useEffect(() => { mcqScoreRef.current = mcqScore; }, [mcqScore]);
+
+  // Room-state broadcast channel — syncs question advances across players
+  useEffect(() => {
+    if (!session) return;
+    const supabase = getSupabaseBrowser();
+    const channel = supabase.channel(`room-state:${roomCode}`);
+    channel
+      .on(
+        "broadcast",
+        { event: "question_advance" },
+        ({ payload }: { payload: { toIndex: number } }) => {
+          const { toIndex } = payload;
+          if (advancedToRef.current >= toIndex) return; // already there
+          advancedToRef.current = toIndex;
+          if (toIndex >= mcqQuestionsRef.current.length) {
+            setMcqComplete(true);
+            setTimeout(() => router.push(`/results/${roomCode}`), 1800);
+          } else {
+            const nextQ = mcqQuestionsRef.current[toIndex];
+            setMcqIndex(toIndex);
+            setMcqAnswered(false);
+            setMcqTimedOut(false);
+            setTimeRemaining(timeLimitFor(nextQ.difficulty));
+            setWrongAnswerCount(0);
+            setLastAttempt(undefined);
+            setPeerGreetings({});
+            peerExchangedRef.current = false;
+          }
+        }
+      )
+      .subscribe();
+    roomChannelRef.current = channel;
+    return () => { supabase.removeChannel(channel); };
+  }, [session?.id, roomCode, router]);
 
   // Legacy timer
   useEffect(() => {
@@ -167,29 +255,42 @@ export default function GamePage({
     return () => clearTimeout(id);
   }, [mcqTimedOut]);
 
-  function handleMcqAnswer(isCorrect: boolean) {
+  function handleMcqAnswer(isCorrect: boolean, selectedIndex: number) {
     clearInterval(timerRef.current!);
     setMcqAnswered(true);
     setMcqTimedOut(false);
+    const q = mcqQuestions[mcqIndex];
+    setLastAttempt(q.options[selectedIndex]);
     if (isCorrect) {
-      const q = mcqQuestions[mcqIndex];
       const limit = timeLimitFor(q.difficulty);
       const pts = mcqPoints(q.difficulty, timeRemaining, limit);
       const newScore = mcqScore + pts;
       setMcqScore(newScore);
       setMcqCorrect(c => c + 1);
       setSession(s => s ? { ...s, totalScore: newScore } : s);
+    } else {
+      setWrongAnswerCount(c => c + 1);
     }
   }
 
   async function handleMcqNext() {
     const nextIdx = mcqIndex + 1;
+    if (advancedToRef.current >= nextIdx) return; // teammate already triggered this advance
+    advancedToRef.current = nextIdx;
+
+    // Broadcast to all teammates so they advance to the same question
+    await roomChannelRef.current?.send({
+      type: "broadcast",
+      event: "question_advance",
+      payload: { toIndex: nextIdx },
+    });
+
     if (nextIdx >= mcqQuestions.length) {
       setMcqComplete(true);
       await fetch("/api/rooms/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomCode, finalScore: mcqScore }),
+        body: JSON.stringify({ roomCode, finalScore: mcqScoreRef.current }),
       });
       setTimeout(() => router.push(`/results/${roomCode}`), 1800);
     } else {
@@ -198,6 +299,10 @@ export default function GamePage({
       setMcqAnswered(false);
       setMcqTimedOut(false);
       setTimeRemaining(timeLimitFor(nextQ.difficulty));
+      setWrongAnswerCount(0);
+      setLastAttempt(undefined);
+      setPeerGreetings({});
+      peerExchangedRef.current = false;
     }
   }
 
@@ -223,6 +328,7 @@ export default function GamePage({
     const data = await res.json();
     setSubmitting(false);
     setAttemptCount(c => c + 1);
+    if (!data.isCorrect) setWrongAnswerCount(c => c + 1);
 
     const result: SubmitResult = {
       isCorrect: data.isCorrect,
@@ -249,6 +355,7 @@ export default function GamePage({
         }
         setSubmitResult(null);
         setAttemptCount(0);
+        setWrongAnswerCount(0);
         setHintsUsed(0);
         setLastAttempt(undefined);
         setSession(s =>
@@ -358,21 +465,23 @@ export default function GamePage({
             <span className="text-sm text-foreground font-semibold tabular-nums">{displayScore}</span>
           </div>
 
-          {/* Agent selector (desktop) */}
-          <div className="hidden md:flex items-center gap-2 shrink-0">
-            <Cpu className="w-3.5 h-3.5 text-muted-foreground" />
-            <select
-              value={selectedAgent}
-              onChange={e => setSelectedAgent(e.target.value as AgentPersonality)}
-              className="bg-background border border-[var(--dark-border)] text-muted-foreground text-xs rounded px-2 py-1 focus:outline-none focus:border-[var(--dark-border)]"
-            >
-              {AGENT_OPTIONS.map(([key, cfg]) => (
-                <option key={key} value={key}>
-                  {cfg.emoji} {cfg.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Agent selector (desktop) — only for all-human teams */}
+          {teamAgents.length === 0 && (
+            <div className="hidden md:flex items-center gap-2 shrink-0">
+              <Cpu className="w-3.5 h-3.5 text-muted-foreground" />
+              <select
+                value={selectedAgent}
+                onChange={e => setSelectedAgent(e.target.value as AgentPersonality)}
+                className="bg-background border border-[var(--dark-border)] text-muted-foreground text-xs rounded px-2 py-1 focus:outline-none focus:border-[var(--dark-border)]"
+              >
+                {AGENT_OPTIONS.map(([key, cfg]) => (
+                  <option key={key} value={key}>
+                    {cfg.emoji} {cfg.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         {/* Timer progress bar */}
@@ -398,6 +507,8 @@ export default function GamePage({
           >
             {tab === "puzzle" ? (
               <><Layout className="w-4 h-4" /> PUZZLE</>
+            ) : humanTeammates.length > 0 ? (
+              <><Users className="w-4 h-4" /> TEAM</>
             ) : (
               <><MessageSquare className="w-4 h-4" /> AGENT</>
             )}
@@ -523,37 +634,98 @@ export default function GamePage({
           </div>
         </div>
 
-        {/* Right: agent chat panel */}
+        {/* Right: team chat or agent panel */}
         <div
           className={`md:w-80 lg:w-96 border-l border-[var(--dark-border)] flex flex-col ${
             activeTab !== "chat" ? "hidden md:flex" : "flex-1 md:flex-none"
           }`}
         >
-          {/* Mobile agent selector */}
-          <div className="md:hidden flex items-center gap-2 px-4 py-2 border-b border-[var(--dark-border)] bg-card">
-            <Cpu className="w-3.5 h-3.5 text-muted-foreground" />
-            <select
-              value={selectedAgent}
-              onChange={e => setSelectedAgent(e.target.value as AgentPersonality)}
-              className="bg-transparent text-muted-foreground text-xs focus:outline-none flex-1"
-            >
-              {AGENT_OPTIONS.map(([key, cfg]) => (
-                <option key={key} value={key}>
-                  {cfg.emoji} {cfg.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Tab toggle — shown when team has both humans and agents, or just to switch views */}
+          {humanTeammates.length > 0 && (
+            <div className="flex border-b border-[var(--dark-border)] shrink-0">
+              <button
+                onClick={() => setRightPanelTab("teamchat")}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[10px] font-semibold tracking-widest transition-colors ${
+                  rightPanelTab === "teamchat"
+                    ? "text-[var(--neon-cyan)] border-b-2 border-[var(--neon-cyan)] -mb-px"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Users className="w-3 h-3" /> TEAM
+              </button>
+              <button
+                onClick={() => setRightPanelTab("agents")}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[10px] font-semibold tracking-widest transition-colors ${
+                  rightPanelTab === "agents"
+                    ? "text-[var(--neon-cyan)] border-b-2 border-[var(--neon-cyan)] -mb-px"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Cpu className="w-3 h-3" /> AGENT
+              </button>
+            </div>
+          )}
 
-          {session && (
-            <AgentChatPanel
-              sessionId={session.id}
-              puzzleId={isMcqMode ? (currentMcqQ?.id ?? "mcq") : (puzzle?.id ?? "unknown")}
-              personality={selectedAgent}
-              playerAttempt={lastAttempt}
-              timeRemainingSeconds={timeRemaining}
-              onMessageReceived={() => setHintsUsed(h => h + 1)}
+          {/* Team chat */}
+          {rightPanelTab === "teamchat" && humanTeammates.length > 0 && session && currentUserId ? (
+            <TeamChatPanel
+              roomCode={roomCode}
+              currentUserId={currentUserId}
+              currentDisplayName={currentDisplayName}
             />
+          ) : (
+            <>
+              {/* Mobile agent selector — only for all-human teams */}
+              {teamAgents.length === 0 && (
+                <div className="md:hidden flex items-center gap-2 px-4 py-2 border-b border-[var(--dark-border)] bg-card">
+                  <Cpu className="w-3.5 h-3.5 text-muted-foreground" />
+                  <select
+                    value={selectedAgent}
+                    onChange={e => setSelectedAgent(e.target.value as AgentPersonality)}
+                    className="bg-transparent text-muted-foreground text-xs focus:outline-none flex-1"
+                  >
+                    {AGENT_OPTIONS.map(([key, cfg]) => (
+                      <option key={key} value={key}>
+                        {cfg.emoji} {cfg.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {session && teamAgents.length > 0 ? (
+                <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                  {teamAgents.map((p, i) => (
+                    <div
+                      key={p}
+                      className={`flex-1 min-h-0 flex flex-col${i > 0 ? " border-t border-[var(--dark-border)]" : ""}`}
+                    >
+                      <AgentChatPanel
+                        sessionId={session.id}
+                        puzzleId={isMcqMode ? (currentMcqQ?.id ?? "mcq") : (puzzle?.id ?? "unknown")}
+                        personality={p}
+                        playerAttempt={lastAttempt}
+                        timeRemainingSeconds={timeRemaining}
+                        wrongAnswerCount={wrongAnswerCount}
+                        onMessageReceived={() => setHintsUsed(h => h + 1)}
+                        onOpeningComplete={(msg) => handleOpeningComplete(p, msg)}
+                        peerGreeting={peerGreetings[p] ?? null}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : session ? (
+                <AgentChatPanel
+                  sessionId={session.id}
+                  puzzleId={isMcqMode ? (currentMcqQ?.id ?? "mcq") : (puzzle?.id ?? "unknown")}
+                  personality={selectedAgent}
+                  playerAttempt={lastAttempt}
+                  timeRemainingSeconds={timeRemaining}
+                  wrongAnswerCount={wrongAnswerCount}
+                  onMessageReceived={() => setHintsUsed(h => h + 1)}
+                />
+              ) : null}
+            </>
           )}
         </div>
       </main>

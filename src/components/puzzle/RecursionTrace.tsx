@@ -48,22 +48,22 @@ export function RecursionTrace({ puzzle, onSubmit, disabled, feedback }: Props) 
       {/* Function code */}
       <div className="rounded border border-[var(--dark-border)] overflow-hidden">
         <div className="px-4 py-2 bg-[var(--dark-card)] border-b border-[var(--dark-border)]">
-          <span className="text-xs text-gray-600 font-mono">python</span>
+          <span className="text-xs text-muted-foreground font-mono">python</span>
         </div>
-        <pre className="p-4 text-sm font-mono text-gray-300 bg-black overflow-x-auto leading-relaxed whitespace-pre-wrap">
+        <pre className="p-4 text-sm font-mono text-foreground bg-[var(--dark-card)] overflow-x-auto leading-relaxed whitespace-pre-wrap">
           {code}
         </pre>
       </div>
 
       {/* Call to trace */}
       <div className="flex items-center gap-2 px-4 py-2 bg-[var(--neon-cyan)]/10 rounded border border-[var(--neon-cyan)]/30">
-        <span className="text-xs text-gray-500 tracking-widest">TRACE:</span>
+        <span className="text-xs text-muted-foreground tracking-widest">TRACE:</span>
         <code className="text-[var(--neon-cyan)] font-mono text-sm">{callToTrace}</code>
       </div>
 
       {/* Call stack visualization (top frame first) */}
       <div className="space-y-2">
-        <p className="text-xs text-gray-500 tracking-widest">
+        <p className="text-xs text-muted-foreground tracking-widest">
           CALL STACK — FILL IN THE BLANKS
         </p>
         <div className="space-y-1.5">
@@ -79,15 +79,15 @@ export function RecursionTrace({ puzzle, onSubmit, disabled, feedback }: Props) 
                 className={`flex items-center gap-4 p-3 rounded border text-sm font-mono transition-all ${
                   blank
                     ? "border-[var(--neon-cyan)]/40 bg-[var(--neon-cyan)]/5"
-                    : "border-[var(--dark-border)] bg-black opacity-60"
+                    : "border-[var(--dark-border)] bg-card opacity-60"
                 }`}
               >
-                <span className="text-gray-600 text-xs w-16 shrink-0">
+                <span className="text-muted-foreground text-xs w-16 shrink-0">
                   frame {frameId}
                 </span>
-                <span className="text-gray-400 flex-1">
+                <span className="text-muted-foreground flex-1">
                   {funcName}({n}) →{" "}
-                  <span className="text-gray-600">returns</span>
+                  <span className="text-muted-foreground">returns</span>
                 </span>
                 {blank ? (
                   <input
@@ -96,10 +96,10 @@ export function RecursionTrace({ puzzle, onSubmit, disabled, feedback }: Props) 
                     onChange={(e) => setAnswer(key, e.target.value)}
                     disabled={disabled}
                     placeholder="?"
-                    className="w-20 px-2 py-1 bg-black border border-[var(--neon-cyan)]/40 rounded text-[var(--neon-cyan)] text-center text-sm focus:outline-none focus:border-[var(--neon-cyan)] transition-colors disabled:opacity-50"
+                    className="w-20 px-2 py-1 bg-background border border-[var(--neon-cyan)]/40 rounded text-[var(--neon-cyan)] text-center text-sm focus:outline-none focus:border-[var(--neon-cyan)] transition-colors disabled:opacity-50"
                   />
                 ) : (
-                  <span className="text-gray-700 w-20 text-center">—</span>
+                  <span className="text-muted-foreground w-20 text-center">—</span>
                 )}
               </div>
             );
@@ -108,7 +108,7 @@ export function RecursionTrace({ puzzle, onSubmit, disabled, feedback }: Props) 
       </div>
 
       {feedback && (
-        <p className="text-sm text-gray-400 px-1">{feedback}</p>
+        <p className="text-sm text-muted-foreground px-1">{feedback}</p>
       )}
 
       <button

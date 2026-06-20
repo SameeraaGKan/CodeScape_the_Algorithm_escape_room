@@ -1,14 +1,15 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
+import { BackButton } from "@/components/ui/BackButton";
 import { getSupabaseBrowser } from "@/lib/db/supabase";
 import { AGENT_CONFIGS } from "@/lib/ai/personalities";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import type { AgentPersonality } from "@/types";
 import {
-  Terminal,
   Users,
   Cpu,
   Copy,
@@ -51,6 +52,7 @@ export default function LobbyPage({
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState("");
   const [copied, setCopied] = useState(false);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   // Load current user + team data
   useEffect(() => {
@@ -66,27 +68,38 @@ export default function LobbyPage({
     init();
   }, [teamId]);
 
-  // Supabase Realtime — update team when slots fill
+  // Supabase Realtime — slot fill updates + game-start redirect via broadcast
   useEffect(() => {
     if (!teamId) return;
-    const channel = getSupabaseBrowser()
+    const supabase = getSupabaseBrowser();
+    const channel = supabase
       .channel(`lobby:${teamId}`)
+      // Primary: host broadcasts game_started when room is created
+      .on(
+        "broadcast",
+        { event: "game_started" },
+        ({ payload }: { payload: { roomCode: string; selectedPath?: string } }) => {
+          if (payload.selectedPath === "gmat_full_test") {
+            router.push(`/gmat-test/${payload.roomCode}`);
+          } else {
+            router.push(`/game/${payload.roomCode}`);
+          }
+        }
+      )
+      // Fallback: watch for team row status change (may not fire if RLS blocks it)
       .on(
         "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "teams",
-          filter: `id=eq.${teamId}`,
-        },
+        { event: "UPDATE", schema: "public", table: "teams", filter: `id=eq.${teamId}` },
         (payload: { new: TeamData }) => {
           setTeam(payload.new);
         }
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
-      getSupabaseBrowser().removeChannel(channel);
+      supabase.removeChannel(channel);
     };
   }, [teamId]);
 
@@ -107,7 +120,15 @@ export default function LobbyPage({
       setStartError(data.error ?? "Failed to start game.");
       return;
     }
-    // GMAT full test gets its own dedicated page
+
+    // Broadcast game start so non-host players redirect immediately
+    await channelRef.current?.send({
+      type: "broadcast",
+      event: "game_started",
+      payload: { roomCode: data.roomCode, selectedPath: data.selectedPath },
+    });
+
+    // Navigate host
     if (data.selectedPath === "gmat_full_test") {
       router.push(`/gmat-test/${data.roomCode}`);
     } else {
@@ -133,7 +154,7 @@ export default function LobbyPage({
 
   if (!team) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
         Team not found.{" "}
         <Link href="/register" className="text-[var(--neon-cyan)] ml-2">
           Create one →
@@ -156,16 +177,17 @@ export default function LobbyPage({
       <Navbar />
       <main className="min-h-screen px-4 pt-24 pb-16 max-w-2xl mx-auto">
         <div className="space-y-8 animate-slide-up">
+          <BackButton className="mb-2" />
           {/* Header */}
           <div>
             <div className="inline-flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest mb-3">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
               LOBBY — WAITING FOR PLAYERS
             </div>
-            <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-white">
+            <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground">
               {team.teamName}
             </h1>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="text-muted-foreground text-sm mt-1">
               CODE:{" "}
               <span className="text-[var(--neon-cyan)] font-mono">
                 {team.inviteCode}
@@ -176,12 +198,12 @@ export default function LobbyPage({
           {/* Invite link (if open human slots) */}
           {openHumanSlots.length > 0 && (
             <div className="p-4 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
-              <p className="text-xs text-gray-500 tracking-widest mb-3">
+              <p className="text-xs text-muted-foreground tracking-widest mb-3">
                 INVITE LINK — {openHumanSlots.length} OPEN SLOT
                 {openHumanSlots.length !== 1 ? "S" : ""}
               </p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-xs text-[var(--neon-cyan)] truncate bg-black px-3 py-2 rounded">
+                <code className="flex-1 text-xs text-[var(--neon-cyan)] truncate bg-card border border-[var(--dark-border)] px-3 py-2 rounded">
                   {inviteLink}
                 </code>
                 <button
@@ -191,7 +213,7 @@ export default function LobbyPage({
                   {copied ? (
                     <CheckCircle className="w-4 h-4 text-[var(--neon-green)]" />
                   ) : (
-                    <Copy className="w-4 h-4 text-gray-400" />
+                    <Copy className="w-4 h-4 text-muted-foreground" />
                   )}
                 </button>
               </div>
@@ -200,7 +222,7 @@ export default function LobbyPage({
 
           {/* Slot grid */}
           <div className="space-y-2">
-            <p className="text-xs text-gray-500 tracking-widest">TEAM ROSTER</p>
+            <p className="text-xs text-muted-foreground tracking-widest">TEAM ROSTER</p>
             {slots.map((slot) => {
               const agentCfg =
                 slot.type === "agent" && slot.agentPersonality
@@ -215,12 +237,12 @@ export default function LobbyPage({
                   className={`flex items-center gap-4 p-4 rounded border transition-all ${
                     isFilled
                       ? slot.type === "agent"
-                        ? "border-[var(--dark-border)] bg-black"
+                        ? "border-[var(--dark-border)] bg-card"
                         : "border-[var(--neon-cyan)]/20 bg-[var(--neon-cyan)]/5"
                       : "border-dashed border-[var(--dark-border)] bg-transparent opacity-60"
                   }`}
                 >
-                  <div className="font-[family-name:var(--font-orbitron)] text-xs text-gray-600 w-6 shrink-0">
+                  <div className="font-[family-name:var(--font-orbitron)] text-xs text-muted-foreground w-6 shrink-0">
                     {String(slot.slotIndex + 1).padStart(2, "0")}
                   </div>
 
@@ -234,11 +256,11 @@ export default function LobbyPage({
                         >
                           {agentCfg.name}
                         </div>
-                        <div className="text-xs text-gray-600 italic">
+                        <div className="text-xs text-muted-foreground italic">
                           {agentCfg.tagline}
                         </div>
                       </div>
-                      <Cpu className="w-3 h-3 text-gray-600" />
+                      <Cpu className="w-3 h-3 text-muted-foreground" />
                     </>
                   ) : slot.userId ? (
                     <>
@@ -246,7 +268,7 @@ export default function LobbyPage({
                         {slot.displayName[0]?.toUpperCase()}
                       </div>
                       <div className="flex-1">
-                        <div className="text-sm text-white">{slot.displayName}</div>
+                        <div className="text-sm text-foreground">{slot.displayName}</div>
                         {isCurrentUser && (
                           <div className="text-xs text-[var(--neon-cyan)]">
                             {slot.slotIndex === 0 ? "HOST · YOU" : "YOU"}
@@ -257,13 +279,13 @@ export default function LobbyPage({
                     </>
                   ) : (
                     <>
-                      <div className="w-7 h-7 rounded-full border-2 border-dashed border-gray-700 flex items-center justify-center">
-                        <Users className="w-3 h-3 text-gray-700" />
+                      <div className="w-7 h-7 rounded-full border-2 border-dashed border-border flex items-center justify-center">
+                        <Users className="w-3 h-3 text-muted-foreground" />
                       </div>
-                      <div className="flex-1 text-sm text-gray-600">
+                      <div className="flex-1 text-sm text-muted-foreground">
                         Waiting for player…
                       </div>
-                      <Loader2 className="w-3 h-3 text-gray-700 animate-spin" />
+                      <Loader2 className="w-3 h-3 text-muted-foreground animate-spin" />
                     </>
                   )}
                 </div>
@@ -278,7 +300,7 @@ export default function LobbyPage({
                 <p className="text-red-400 text-sm">{startError}</p>
               )}
               {openHumanSlots.length > 0 && (
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-muted-foreground">
                   <Lock className="inline w-3 h-3 mr-1" />
                   {openHumanSlots.length} human slot
                   {openHumanSlots.length !== 1 ? "s" : ""} still open — you can
@@ -306,7 +328,7 @@ export default function LobbyPage({
           )}
 
           {!isHost && (
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-muted-foreground">
               Waiting for the host to start the game…
             </p>
           )}

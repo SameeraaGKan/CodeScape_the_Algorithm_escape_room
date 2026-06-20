@@ -57,13 +57,13 @@ export function AlgorithmMaze({ puzzle, onSubmit, disabled, feedback }: Props) {
   return (
     <div className="space-y-6">
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
         {[
           { color: "bg-[var(--neon-cyan)]/20 border-[var(--neon-cyan)]", label: "START" },
           { color: "bg-[var(--neon-magenta)]/20 border-[var(--neon-magenta)]", label: "END" },
           { color: "bg-gray-800 border-gray-700", label: "WALL" },
           { color: "bg-[var(--neon-cyan)]/30 border-[var(--neon-cyan)]/50", label: "PATH" },
-          { color: "bg-black border-[var(--dark-border)]", label: "OPEN" },
+          { color: "bg-card border-[var(--dark-border)]", label: "OPEN" },
         ].map(({ color, label }) => (
           <span key={label} className="flex items-center gap-1.5">
             <span className={`w-4 h-4 rounded border ${color}`} />
@@ -97,7 +97,7 @@ export function AlgorithmMaze({ puzzle, onSubmit, disabled, feedback }: Props) {
             } else if (inPath) {
               className += "bg-[var(--neon-cyan)]/25 border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)]/70 cursor-pointer hover:bg-[var(--neon-cyan)]/35";
             } else {
-              className += "bg-black border border-[var(--dark-border)] cursor-pointer hover:border-[var(--neon-cyan)]/40 hover:bg-[var(--neon-cyan)]/5 text-gray-800";
+              className += "bg-card border border-[var(--dark-border)] cursor-pointer hover:border-[var(--neon-cyan)]/40 hover:bg-[var(--neon-cyan)]/5 text-foreground";
             }
 
             return (
@@ -116,7 +116,7 @@ export function AlgorithmMaze({ puzzle, onSubmit, disabled, feedback }: Props) {
       </div>
 
       {/* Path info */}
-      <div className="flex items-center justify-between text-xs text-gray-600">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>
           Path length: {path.length} cell{path.length !== 1 ? "s" : ""}
           {pathReachesEnd ? " · ✓ Reaches END" : ""}
@@ -124,7 +124,7 @@ export function AlgorithmMaze({ puzzle, onSubmit, disabled, feedback }: Props) {
         <button
           onClick={reset}
           disabled={disabled}
-          className="flex items-center gap-1 hover:text-gray-400 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1 hover:text-foreground transition-colors disabled:opacity-50"
         >
           <RotateCcw className="w-3 h-3" />
           Reset
@@ -132,7 +132,7 @@ export function AlgorithmMaze({ puzzle, onSubmit, disabled, feedback }: Props) {
       </div>
 
       {feedback && (
-        <p className="text-sm text-gray-400 px-1">{feedback}</p>
+        <p className="text-sm text-muted-foreground px-1">{feedback}</p>
       )}
 
       <button

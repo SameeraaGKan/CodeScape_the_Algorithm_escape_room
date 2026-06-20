@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
+import { getSupabaseBrowser } from "@/lib/db/supabase";
+import type { UserResponse } from "@supabase/supabase-js";
 import {
   BarChart,
   Bar,
@@ -16,6 +19,7 @@ import {
   Radar,
 } from "recharts";
 import { BarChart2, Loader2, Users, Cpu, TrendingUp } from "lucide-react";
+import { BackButton } from "@/components/ui/BackButton";
 
 type PuzzleStat = {
   puzzleId: string;
@@ -66,8 +70,8 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-black border border-[var(--dark-border)] rounded p-3 text-xs text-gray-300 space-y-1">
-      <p className="text-white font-semibold mb-1">{label}</p>
+    <div className="bg-card border border-[var(--dark-border)] rounded p-3 text-xs text-muted-foreground space-y-1">
+      <p className="text-foreground font-semibold mb-1">{label}</p>
       {payload.map((p) => (
         <p key={p.name} style={{ color: p.color }}>
           {p.name}: {typeof p.value === "number" ? p.value.toFixed(2) : p.value}
@@ -78,9 +82,16 @@ const CustomTooltip = ({
 };
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    getSupabaseBrowser().auth.getUser().then(({ data: { user } }: UserResponse) => {
+      if (!user) router.push("/register");
+    });
+  }, [router]);
 
   useEffect(() => {
     fetch("/api/ml/analytics")
@@ -122,21 +133,22 @@ export default function DashboardPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen px-4 pt-24 pb-16 max-w-6xl mx-auto">
-        <div className="space-y-10 animate-slide-up">
+      <main className="min-h-screen px-6 lg:px-12 pt-24 pb-20 max-w-screen-2xl mx-auto">
+        <div className="space-y-14 animate-slide-up">
           {/* Header */}
           <div>
+            <BackButton className="mb-4" />
             <div className="inline-flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest mb-3">
               <BarChart2 className="w-3.5 h-3.5" />
               ANALYTICS DASHBOARD
             </div>
-            <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-white">
+            <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground">
               PLAYER{" "}
               <span className="text-[var(--neon-cyan)] glow-cyan">
                 PERFORMANCE
               </span>
             </h1>
-            <p className="text-gray-500 text-sm mt-2">
+            <p className="text-muted-foreground text-sm mt-2">
               Aggregated metrics across all CodeEscape sessions
             </p>
           </div>
@@ -154,22 +166,22 @@ export default function DashboardPage() {
           {analytics && !loading && (
             <>
               {/* Summary stats */}
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-3 gap-6">
                 {[
                   {
-                    icon: <Users className="w-5 h-5" />,
+                    icon: <Users className="w-6 h-6" />,
                     label: "TOTAL SESSIONS",
                     value: totalSessions,
                     color: NEON_CYAN,
                   },
                   {
-                    icon: <TrendingUp className="w-5 h-5" />,
+                    icon: <TrendingUp className="w-6 h-6" />,
                     label: "COMPLETED",
                     value: completedSessions,
                     color: NEON_GREEN,
                   },
                   {
-                    icon: <Cpu className="w-5 h-5" />,
+                    icon: <Cpu className="w-6 h-6" />,
                     label: "PUZZLE CATEGORIES",
                     value: analytics.skillDistribution.length,
                     color: NEON_MAGENTA,
@@ -177,104 +189,87 @@ export default function DashboardPage() {
                 ].map(({ icon, label, value, color }) => (
                   <div
                     key={label}
-                    className="p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]"
+                    className="p-8 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]"
                   >
-                    <div style={{ color }} className="mb-3">
+                    <div style={{ color }} className="mb-4">
                       {icon}
                     </div>
                     <div
-                      className="font-[family-name:var(--font-orbitron)] text-3xl font-black mb-1"
+                      className="font-[family-name:var(--font-orbitron)] text-5xl font-black mb-2"
                       style={{ color }}
                     >
                       {value}
                     </div>
-                    <div className="text-xs text-gray-500 tracking-widest">
+                    <div className="text-xs text-muted-foreground tracking-widest">
                       {label}
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Puzzle difficulty chart */}
+              {/* Puzzle charts — 2 columns */}
               {puzzleChartData.length > 0 && (
-                <div className="p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
-                  <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-white mb-6">
-                    PUZZLE DIFFICULTY — AVG ATTEMPTS & HINTS
-                  </h2>
-                  <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={puzzleChartData} margin={{ top: 0, right: 0, left: -20, bottom: 60 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1a2a2a" />
-                      <XAxis
-                        dataKey="name"
-                        tick={{ fill: "#6b7280", fontSize: 10 }}
-                        angle={-35}
-                        textAnchor="end"
-                        interval={0}
-                      />
-                      <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar
-                        dataKey="Avg Attempts"
-                        fill={NEON_CYAN}
-                        fillOpacity={0.8}
-                        radius={[2, 2, 0, 0]}
-                      />
-                      <Bar
-                        dataKey="Avg Hints"
-                        fill={NEON_MAGENTA}
-                        fillOpacity={0.8}
-                        radius={[2, 2, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
+                <div className="grid md:grid-cols-2 gap-8">
+                  {/* Difficulty chart */}
+                  <div className="p-8 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
+                    <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-foreground mb-8">
+                      AVG ATTEMPTS & HINTS
+                    </h2>
+                    <ResponsiveContainer width="100%" height={320}>
+                      <BarChart data={puzzleChartData} margin={{ top: 4, right: 8, left: -10, bottom: 70 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1a2a2a" />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fill: "#6b7280", fontSize: 10 }}
+                          angle={-35}
+                          textAnchor="end"
+                          interval={0}
+                        />
+                        <YAxis tick={{ fill: "#6b7280", fontSize: 11 }} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="Avg Attempts" fill={NEON_CYAN} fillOpacity={0.8} radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="Avg Hints" fill={NEON_MAGENTA} fillOpacity={0.8} radius={[3, 3, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
 
-              {/* Success rate chart */}
-              {puzzleChartData.length > 0 && (
-                <div className="p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
-                  <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-white mb-6">
-                    PUZZLE SUCCESS RATE (%)
-                  </h2>
-                  <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={puzzleChartData} margin={{ top: 0, right: 0, left: -20, bottom: 60 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1a2a2a" />
-                      <XAxis
-                        dataKey="name"
-                        tick={{ fill: "#6b7280", fontSize: 10 }}
-                        angle={-35}
-                        textAnchor="end"
-                        interval={0}
-                      />
-                      <YAxis
-                        domain={[0, 100]}
-                        tick={{ fill: "#6b7280", fontSize: 10 }}
-                      />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar
-                        dataKey="Success Rate"
-                        fill={NEON_GREEN}
-                        fillOpacity={0.8}
-                        radius={[2, 2, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {/* Success rate chart */}
+                  <div className="p-8 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
+                    <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-foreground mb-8">
+                      SUCCESS RATE (%)
+                    </h2>
+                    <ResponsiveContainer width="100%" height={320}>
+                      <BarChart data={puzzleChartData} margin={{ top: 4, right: 8, left: -10, bottom: 70 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1a2a2a" />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fill: "#6b7280", fontSize: 10 }}
+                          angle={-35}
+                          textAnchor="end"
+                          interval={0}
+                        />
+                        <YAxis domain={[0, 100]} tick={{ fill: "#6b7280", fontSize: 11 }} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="Success Rate" fill={NEON_GREEN} fillOpacity={0.8} radius={[3, 3, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               )}
 
               {/* Skill distribution */}
               {radarData.length > 0 && (
-                <div className="p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
-                  <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-white mb-6">
+                <div className="p-8 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
+                  <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-foreground mb-8">
                     SKILL DISTRIBUTION (AVG θ BY CATEGORY)
                   </h2>
-                  <div className="flex flex-col md:flex-row gap-6 items-center">
-                    <ResponsiveContainer width="100%" height={260}>
+                  <div className="flex flex-col md:flex-row gap-10 items-center">
+                    <ResponsiveContainer width="100%" height={380}>
                       <RadarChart data={radarData}>
                         <PolarGrid stroke="#1a2a2a" />
                         <PolarAngleAxis
                           dataKey="subject"
-                          tick={{ fill: "#9ca3af", fontSize: 11 }}
+                          tick={{ fill: "#9ca3af", fontSize: 12 }}
                         />
                         <Radar
                           name="Avg θ"
@@ -286,20 +281,20 @@ export default function DashboardPage() {
                         <Tooltip content={<CustomTooltip />} />
                       </RadarChart>
                     </ResponsiveContainer>
-                    <div className="space-y-3 shrink-0">
+                    <div className="space-y-4 shrink-0 min-w-[220px]">
                       {radarData.map((d) => (
                         <div key={d.subject} className="flex items-center gap-3">
                           <div
-                            className="w-2 h-2 rounded-full"
+                            className="w-2 h-2 rounded-full shrink-0"
                             style={{ background: NEON_CYAN }}
                           />
-                          <span className="text-sm text-gray-400 w-24">
+                          <span className="text-sm text-muted-foreground w-28">
                             {d.subject}
                           </span>
                           <span className="text-sm font-mono text-[var(--neon-cyan)]">
                             θ = {d.theta}
                           </span>
-                          <span className="text-xs text-gray-600">
+                          <span className="text-xs text-muted-foreground">
                             ({d.players} players)
                           </span>
                         </div>
@@ -310,7 +305,7 @@ export default function DashboardPage() {
               )}
 
               {analytics.puzzleStats.length === 0 && (
-                <div className="text-center py-16 text-gray-600">
+                <div className="text-center py-16 text-muted-foreground">
                   <BarChart2 className="w-10 h-10 mx-auto mb-4 opacity-30" />
                   <p>No puzzle data yet. Play a game to see analytics.</p>
                 </div>

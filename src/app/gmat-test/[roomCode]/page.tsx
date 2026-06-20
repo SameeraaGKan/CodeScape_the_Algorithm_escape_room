@@ -2,6 +2,8 @@
 
 import { use, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { getSupabaseBrowser } from "@/lib/db/supabase";
+import type { UserResponse } from "@supabase/supabase-js";
 import type { MCQQuestion } from "@/types";
 import {
   Clock, Flag, ChevronLeft, ChevronRight, CheckCircle,
@@ -56,8 +58,25 @@ function sectionScore(entries: QEntry[]): number {
 }
 
 function totalScore(scores: number[]): number {
+  // Official GMAT Focus Edition: 205–805, all values end in 5, equally weighted sections
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-  return Math.round(((avg - 60) / 30) * 65 + 205);
+  const raw = ((avg - 60) / 30) * 600 + 205;
+  const rounded = Math.round((raw - 5) / 10) * 10 + 5;
+  return Math.max(205, Math.min(805, rounded));
+}
+
+type GradeBand = { label: string; percentile: string; color: string; bg: string; border: string };
+
+// Percentile bands from official GMAC data (Aug 2024)
+// 505 ≈ 28th · 555 ≈ 49th · 605 ≈ 72nd · 655 ≈ 91st · 705+ ≈ 98th+
+function gradeFor(score: number): GradeBand {
+  if (score >= 705) return { label: "Exceptional", percentile: "98th+ percentile", color: "#ff00cc", bg: "rgba(255,0,204,0.08)",  border: "rgba(255,0,204,0.4)"  };
+  if (score >= 655) return { label: "Excellent",   percentile: "91st–97th percentile", color: "#0066ff", bg: "rgba(0,102,255,0.08)",  border: "rgba(0,102,255,0.4)"  };
+  if (score >= 605) return { label: "Strong",      percentile: "72nd–90th percentile", color: "#05b9b6", bg: "rgba(5,185,182,0.08)",  border: "rgba(5,185,182,0.4)"  };
+  if (score >= 555) return { label: "Competitive", percentile: "49th–71st percentile", color: "#f59e0b", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.4)" };
+  if (score >= 505) return { label: "Average",     percentile: "28th–48th percentile", color: "#94a3b8", bg: "rgba(148,163,184,0.06)", border: "rgba(148,163,184,0.3)" };
+  if (score >= 455) return { label: "Below Avg",   percentile: "12th–27th percentile", color: "#f97316", bg: "rgba(249,115,22,0.06)",  border: "rgba(249,115,22,0.3)"  };
+  return               { label: "Developing",  percentile: "Below 12th percentile",color: "#64748b", bg: "rgba(100,116,139,0.06)", border: "rgba(100,116,139,0.3)" };
 }
 
 function fmtTime(s: number) {
@@ -92,6 +111,13 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
 
   // Results
   const [results, setResults] = useState<SectionResult[]>([]);
+
+  // Admin-only guard
+  useEffect(() => {
+    getSupabaseBrowser().auth.getUser().then(({ data: { user } }: UserResponse) => {
+      if (!user || user.email !== "sameeraagk883@gmail.com") router.push("/");
+    });
+  }, [router]);
 
   // Init: load session + all 3 question pools
   useEffect(() => {
@@ -582,17 +608,48 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   if (phase === "results") {
     const scores = results.map(r => r.score);
     const total = scores.length === 3 ? totalScore(scores) : null;
+    const sectionSum = scores.reduce((a, b) => a + b, 0);
+    const grade = total !== null ? gradeFor(total) : null;
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-6">
         <div className="max-w-lg w-full space-y-8">
           <div className="text-center space-y-2">
             <div className="text-xs text-[var(--neon-cyan)] tracking-[0.3em] font-[family-name:var(--font-orbitron)]">GMAT FOCUS EDITION</div>
             <h1 className="text-3xl font-black font-[family-name:var(--font-orbitron)] text-foreground">YOUR SCORES</h1>
-            {total !== null && (
-              <div className="mt-4 p-6 rounded border-2 border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/5">
-                <div className="text-xs text-muted-foreground tracking-widest">TOTAL SCORE</div>
-                <div className="text-6xl font-black font-[family-name:var(--font-orbitron)] text-[var(--neon-cyan)] tabular-nums mt-1">{total}</div>
-                <div className="text-xs text-muted-foreground mt-1">out of 270</div>
+
+            {total !== null && grade !== null && (
+              <div
+                className="mt-4 p-6 rounded border-2"
+                style={{ background: grade.bg, borderColor: grade.border }}
+              >
+                {/* Total score */}
+                <div className="text-xs text-muted-foreground tracking-widest mb-1">TOTAL SCORE</div>
+                <div
+                  className="text-7xl font-black font-[family-name:var(--font-orbitron)] tabular-nums leading-none"
+                  style={{ color: grade.color }}
+                >
+                  {total}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">out of 805 &nbsp;·&nbsp; section sum {sectionSum} / {scores.length * 90}</div>
+
+                {/* Grade band */}
+                <div className="mt-4 pt-4 border-t flex items-center justify-between" style={{ borderColor: grade.border }}>
+                  <div>
+                    <div className="text-[10px] text-muted-foreground tracking-widest mb-0.5">PERFORMANCE BAND</div>
+                    <div
+                      className="text-xl font-black font-[family-name:var(--font-orbitron)] tracking-wide"
+                      style={{ color: grade.color }}
+                    >
+                      {grade.label.toUpperCase()}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] text-muted-foreground tracking-widest mb-0.5">PERCENTILE (GMAC 2024)</div>
+                    <div className="text-sm font-semibold" style={{ color: grade.color }}>
+                      {grade.percentile}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

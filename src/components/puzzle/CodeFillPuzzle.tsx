@@ -42,11 +42,11 @@ export function CodeFillPuzzle({ puzzle, onSubmit, disabled, feedback }: Props) 
             <span className="w-3 h-3 rounded-full bg-yellow-500/60" />
             <span className="w-3 h-3 rounded-full bg-green-500/60" />
           </div>
-          <span className="text-xs text-gray-600 font-mono ml-2">
+          <span className="text-xs text-muted-foreground font-mono ml-2">
             {language ?? "python"}
           </span>
         </div>
-        <pre className="p-4 text-sm font-mono text-gray-300 bg-black overflow-x-auto leading-relaxed whitespace-pre-wrap">
+        <pre className="p-4 text-sm font-mono text-foreground bg-[var(--dark-card)] overflow-x-auto leading-relaxed whitespace-pre-wrap">
           {parts[0]}
           <span className="bg-[var(--neon-cyan)]/20 border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)] px-1 rounded">
             {answer || blank}
@@ -57,7 +57,7 @@ export function CodeFillPuzzle({ puzzle, onSubmit, disabled, feedback }: Props) 
 
       {/* Fill-in input */}
       <div className="space-y-3">
-        <label className="text-xs text-gray-500 tracking-widest block">
+        <label className="text-xs text-muted-foreground tracking-widest block">
           FILL IN THE BLANK
         </label>
         <input
@@ -67,13 +67,13 @@ export function CodeFillPuzzle({ puzzle, onSubmit, disabled, feedback }: Props) 
           onKeyDown={(e) => e.key === "Enter" && !disabled && answer.trim() && onSubmit(answer.trim())}
           disabled={disabled}
           placeholder={`Replace ${blank}`}
-          className="w-full px-4 py-3 bg-black border border-[var(--dark-border)] rounded text-[var(--neon-cyan)] font-mono placeholder-gray-700 text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors disabled:opacity-50"
+          className="w-full px-4 py-3 bg-background border border-[var(--dark-border)] rounded text-[var(--neon-cyan)] font-mono placeholder-muted-foreground text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors disabled:opacity-50"
           spellCheck={false}
         />
       </div>
 
       {feedback && (
-        <p className="text-sm text-gray-400 px-1">{feedback}</p>
+        <p className="text-sm text-muted-foreground px-1">{feedback}</p>
       )}
 
       <button

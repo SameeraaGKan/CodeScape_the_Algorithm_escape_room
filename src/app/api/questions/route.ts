@@ -10,10 +10,12 @@ const VALID_PATH_IDS = new Set<string>([
 ]);
 
 export async function GET(request: NextRequest) {
-  const path = new URL(request.url).searchParams.get("path");
+  const { searchParams } = new URL(request.url);
+  const path = searchParams.get("path");
+  const seed = searchParams.get("seed") ?? undefined;
   if (!path || !VALID_PATH_IDS.has(path)) {
     return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   }
-  const questions = getQuestionsForPath(path as PathId);
+  const questions = getQuestionsForPath(path as PathId, undefined, seed);
   return NextResponse.json({ questions });
 }

@@ -15,6 +15,9 @@ import { gmatQuantQuestions } from "./data/gmat/quant";
 import { gmatVerbalQuestions } from "./data/gmat/verbal";
 import { gmatDataInsightsQuestions } from "./data/gmat/data-insights";
 
+// Flat lookup of every MCQ question by its id — used by the agent chat API
+export const ALL_MCQ_BY_ID: Record<string, MCQQuestion> = {};
+
 const ALL_CS_QUESTIONS: MCQQuestion[] = [
   ...algorithmsQuestions,
   ...theoryQuestions,
@@ -29,6 +32,14 @@ const ALL_CS_QUESTIONS: MCQQuestion[] = [
   ...graphicsQuestions,
   ...hciQuestions,
 ];
+
+// Populate the lookup — includes all CS + GMAT questions
+[
+  ...ALL_CS_QUESTIONS,
+  ...gmatQuantQuestions,
+  ...gmatVerbalQuestions,
+  ...gmatDataInsightsQuestions,
+].forEach(q => { ALL_MCQ_BY_ID[q.id] = q; });
 
 const QUESTION_BANK: Record<Exclude<PathId, "cs_random" | "gmat_full_test">, MCQQuestion[]> = {
   cs_algorithms: algorithmsQuestions,
@@ -57,15 +68,43 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+function seededRandom(seed: string) {
+  // FNV-1a hash for seed → xorshift32 PRNG
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = (Math.imul(h, 16777619)) >>> 0;
+  }
+  return function () {
+    h ^= h << 13; h ^= h >> 17; h ^= h << 5;
+    h = h >>> 0;
+    return h / 0x100000000;
+  };
+}
+
+function seededShuffle<T>(arr: T[], seed: string): T[] {
+  const a = [...arr];
+  const rng = seededRandom(seed);
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 const CS_PATH_IDS = new Set<PathId>([
   "cs_algorithms", "cs_theory", "cs_discrete_math", "cs_os_compilers",
   "cs_networks", "cs_cybersecurity", "cs_ml_ai", "cs_databases",
   "cs_data_science", "cs_software_engineering", "cs_graphics", "cs_hci",
 ]);
 
-export function getQuestionsForPath(path: PathId, count?: number): MCQQuestion[] {
+export function getQuestionsForPath(path: PathId, count?: number, seed?: string): MCQQuestion[] {
+  const shuffleFn = seed
+    ? (arr: MCQQuestion[]) => seededShuffle(arr, seed)
+    : shuffle;
+
   if (path === "cs_random") {
-    return shuffle(ALL_CS_QUESTIONS).slice(0, count ?? 20);
+    return shuffleFn(ALL_CS_QUESTIONS).slice(0, count ?? 20);
   }
   if (path === "gmat_full_test") {
     // Not used directly — GMAT test page loads sections individually
@@ -77,11 +116,11 @@ export function getQuestionsForPath(path: PathId, count?: number): MCQQuestion[]
   // CS topics: always shuffle and serve 10 from the pool (pool may be 20+)
   if (CS_PATH_IDS.has(path)) {
     const n = count ?? 10;
-    return shuffle(pool).slice(0, n);
+    return shuffleFn(pool).slice(0, n);
   }
 
   // GMAT paths: serve all questions (or a subset if count specified)
-  return count ? shuffle(pool).slice(0, count) : pool;
+  return count ? shuffleFn(pool).slice(0, count) : (seed ? shuffleFn(pool) : pool);
 }
 
 export function getAllPaths(): PathId[] {

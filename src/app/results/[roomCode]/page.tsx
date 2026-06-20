@@ -3,6 +3,7 @@
 import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
+import { BackButton } from "@/components/ui/BackButton";
 import {
   Trophy,
   CheckCircle,
@@ -88,6 +89,7 @@ export default function ResultsPage({
       <Navbar />
       <main className="min-h-screen px-4 pt-24 pb-16 max-w-2xl mx-auto">
         <div className="space-y-10 animate-slide-up">
+          <BackButton className="mb-2" />
           {/* Header */}
           <div className="text-center">
             {complete ? (
@@ -98,7 +100,7 @@ export default function ResultsPage({
                 <div className="text-xs text-[var(--neon-cyan)] tracking-widest mb-2">
                   ESCAPE SUCCESSFUL
                 </div>
-                <h1 className="font-[family-name:var(--font-orbitron)] text-4xl font-black text-white">
+                <h1 className="font-[family-name:var(--font-orbitron)] text-4xl font-black text-foreground">
                   MISSION{" "}
                   <span className="text-[var(--neon-cyan)] glow-cyan">
                     COMPLETE
@@ -107,10 +109,10 @@ export default function ResultsPage({
               </>
             ) : (
               <>
-                <div className="text-xs text-gray-600 tracking-widest mb-2">
+                <div className="text-xs text-muted-foreground tracking-widest mb-2">
                   SESSION ENDED
                 </div>
-                <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-white">
+                <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground">
                   RESULTS
                 </h1>
               </>
@@ -124,16 +126,16 @@ export default function ResultsPage({
                 <div className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-[var(--neon-cyan)] glow-cyan mb-1">
                   {session.totalScore.toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-500 tracking-widest">
+                <div className="text-xs text-muted-foreground tracking-widest">
                   TOTAL SCORE
                 </div>
               </div>
               {elapsedSeconds !== null && (
                 <div className="p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] text-center">
-                  <div className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-white mb-1">
+                  <div className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground mb-1">
                     {formatDuration(elapsedSeconds)}
                   </div>
-                  <div className="text-xs text-gray-500 tracking-widest">
+                  <div className="text-xs text-muted-foreground tracking-widest">
                     TOTAL TIME
                   </div>
                 </div>
@@ -143,7 +145,7 @@ export default function ResultsPage({
 
           {/* Room code */}
           <div className="p-4 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
-            <div className="text-xs text-gray-600 tracking-widest mb-1">
+            <div className="text-xs text-muted-foreground tracking-widest mb-1">
               ROOM CODE
             </div>
             <div className="font-[family-name:var(--font-orbitron)] text-2xl font-black text-[var(--neon-cyan)] tracking-widest">
@@ -155,7 +157,7 @@ export default function ResultsPage({
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href="/dashboard"
-              className="flex-1 flex items-center justify-center gap-2 py-4 border border-[var(--dark-border)] text-gray-400 hover:border-[var(--neon-cyan)]/40 hover:text-[var(--neon-cyan)] rounded text-sm tracking-widest transition-all"
+              className="flex-1 flex items-center justify-center gap-2 py-4 border border-[var(--dark-border)] text-muted-foreground hover:border-[var(--neon-cyan)]/40 hover:text-[var(--neon-cyan)] rounded text-sm tracking-widest transition-all"
             >
               <BarChart2 className="w-4 h-4" />
               VIEW ANALYTICS

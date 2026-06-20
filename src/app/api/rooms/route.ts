@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, teams, gameSessions } from "@/lib/db";
-import { eq } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { createSupabaseServerClient } from "@/lib/db/supabase.server";
 import { validateAnswer, calculateScore } from "@/lib/puzzles/validator";
 import { PUZZLES, getPuzzleOrder } from "@/lib/puzzles/data/puzzles";
@@ -8,7 +8,6 @@ import { submitAnswerSchema } from "@/lib/security/schemas";
 import { withRateLimit, puzzleSubmitLimiter } from "@/lib/security/ratelimit";
 import { updateTheta, getCategoryForPuzzle } from "@/lib/ml/adaptive";
 import { db as drizzle, playerSkills, puzzleAttempts } from "@/lib/db";
-import { and } from "drizzle-orm";
 
 function generateRoomCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -67,9 +66,27 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/rooms?code=XXXXXX — get current game state
+// GET /api/rooms?teamId=UUID — get active room code for a team (used by lobby redirect)
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+  const teamId = searchParams.get("teamId");
+
+  // Lobby redirect: find the most recent active session for a team
+  if (teamId) {
+    const [session] = await db
+      .select()
+      .from(gameSessions)
+      .where(and(eq(gameSessions.teamId, teamId), eq(gameSessions.status, "active")))
+      .orderBy(desc(gameSessions.startedAt))
+      .limit(1);
+
+    if (!session) {
+      return NextResponse.json({ error: "No active session" }, { status: 404 });
+    }
+    return NextResponse.json({ roomCode: session.roomCode, selectedPath: session.puzzleSetId });
+  }
+
   if (!code) {
     return NextResponse.json({ error: "Missing room code" }, { status: 400 });
   }
@@ -83,6 +100,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
 
+  const [team] = await db.select().from(teams).where(eq(teams.id, session.teamId));
+  const slots = team?.slots ?? [];
+
+  const agentPersonalities = slots
+    .filter(s => s.type === "agent" && s.agentPersonality)
+    .map(s => s.agentPersonality!);
+
+  const humanSlots = slots
+    .filter(s => s.type === "human" && s.userId)
+    .map(s => ({ userId: s.userId!, displayName: s.displayName }));
+
   // MCQ mode: puzzleSetId is a path ID (not "default_set")
   const isMcqMode = session.puzzleSetId !== "default_set";
   if (isMcqMode) {
@@ -90,6 +118,8 @@ export async function GET(request: NextRequest) {
       session,
       isMcqMode: true,
       selectedPath: session.puzzleSetId,
+      agentPersonalities,
+      humanSlots,
     });
   }
 
@@ -101,6 +131,8 @@ export async function GET(request: NextRequest) {
     puzzleOrder,
     currentPuzzleId,
     totalPuzzles: puzzleOrder.length,
+    agentPersonalities,
+    humanSlots,
   });
 }
 

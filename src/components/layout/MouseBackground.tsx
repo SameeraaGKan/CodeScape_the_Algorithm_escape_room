@@ -58,7 +58,7 @@ export function MouseBackground() {
         const lx = (cx + 0.5) * 100;
         const ly = (cy + 0.5) * 100;
         lensRef.current.style.background =
-          `radial-gradient(ellipse 55% 45% at ${lx}% ${ly}%, rgba(5,185,182,0.07) 0%, transparent 70%)`;
+          `radial-gradient(ellipse 55% 45% at ${lx}% ${ly}%, rgba(5,185,182,0.04) 0%, transparent 70%)`;
       }
 
       rafId = requestAnimationFrame(tick);
@@ -89,10 +89,10 @@ export function MouseBackground() {
       {/* Cyan orb */}
       <div
         ref={orbCyan}
-        className="absolute top-1/4 left-1/4 w-[36rem] h-[36rem] rounded-full blur-3xl"
+        className="absolute top-1/4 left-1/4 w-[24rem] h-[24rem] rounded-full blur-3xl"
         style={{
           background: "radial-gradient(circle, var(--neon-cyan) 0%, transparent 70%)",
-          opacity: 0.07,
+          opacity: 0.045,
           willChange: "transform",
         }}
       />
@@ -100,10 +100,10 @@ export function MouseBackground() {
       {/* Magenta orb */}
       <div
         ref={orbMagenta}
-        className="absolute bottom-1/4 right-1/4 w-[36rem] h-[36rem] rounded-full blur-3xl"
+        className="absolute bottom-1/4 right-1/4 w-[24rem] h-[24rem] rounded-full blur-3xl"
         style={{
           background: "radial-gradient(circle, var(--neon-magenta) 0%, transparent 70%)",
-          opacity: 0.07,
+          opacity: 0.045,
           willChange: "transform",
         }}
       />
@@ -114,13 +114,12 @@ export function MouseBackground() {
       {/* Instant cursor glow */}
       <div
         ref={cursorGlow}
-        className="absolute -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full blur-2xl pointer-events-none"
+        className="absolute -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full blur-2xl pointer-events-none"
         style={{
           background: "radial-gradient(circle, var(--neon-cyan) 0%, transparent 70%)",
           opacity: 0,
           transition: "opacity 0.3s ease",
           willChange: "transform, left, top",
-          mixBlendMode: "screen",
           transform: "translate(-50%, -50%)",
           position: "fixed",
         }}

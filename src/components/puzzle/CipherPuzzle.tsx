@@ -18,8 +18,8 @@ export function CipherPuzzle({ puzzle, onSubmit, disabled, feedback }: Props) {
   return (
     <div className="space-y-6">
       {/* Ciphertext display */}
-      <div className="p-6 rounded border border-[var(--dark-border)] bg-black text-center">
-        <div className="text-xs text-gray-600 tracking-widest mb-3">
+      <div className="p-6 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] text-center">
+        <div className="text-xs text-muted-foreground tracking-widest mb-3">
           INTERCEPTED TRANSMISSION
         </div>
         <div className="font-[family-name:var(--font-orbitron)] text-3xl md:text-4xl font-black text-[var(--neon-cyan)] glow-cyan tracking-widest">
@@ -30,14 +30,14 @@ export function CipherPuzzle({ puzzle, onSubmit, disabled, feedback }: Props) {
       {/* Hint */}
       {shiftHint && (
         <div className="flex items-start gap-3 p-4 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
-          <Eye className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-          <p className="text-sm text-gray-400 leading-relaxed">{shiftHint}</p>
+          <Eye className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+          <p className="text-sm text-muted-foreground leading-relaxed">{shiftHint}</p>
         </div>
       )}
 
       {/* Answer input */}
       <div className="space-y-3">
-        <label className="text-xs text-gray-500 tracking-widest block">
+        <label className="text-xs text-muted-foreground tracking-widest block">
           DECODED MESSAGE
         </label>
         <input
@@ -47,12 +47,12 @@ export function CipherPuzzle({ puzzle, onSubmit, disabled, feedback }: Props) {
           onKeyDown={(e) => e.key === "Enter" && !disabled && answer.trim() && onSubmit(answer.trim())}
           disabled={disabled}
           placeholder="TYPE THE DECODED MESSAGE…"
-          className="w-full px-4 py-3 bg-black border border-[var(--dark-border)] rounded text-white font-mono placeholder-gray-700 text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors uppercase tracking-widest disabled:opacity-50"
+          className="w-full px-4 py-3 bg-background border border-[var(--dark-border)] rounded text-foreground font-mono placeholder-muted-foreground text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors uppercase tracking-widest disabled:opacity-50"
         />
       </div>
 
       {feedback && (
-        <p className="text-sm text-gray-400 px-1">{feedback}</p>
+        <p className="text-sm text-muted-foreground px-1">{feedback}</p>
       )}
 
       <button

@@ -11,6 +11,8 @@ import { getSupabaseBrowser } from "@/lib/db/supabase";
 import type { User, AuthChangeEvent, Session } from "@supabase/supabase-js";
 import type { PathId } from "@/types";
 import { PATHS, PATH_CATEGORIES } from "@/lib/puzzles/paths";
+
+const ADMIN_EMAIL = "sameeraagk883@gmail.com";
 import {
   Terminal,
   Users,
@@ -56,6 +58,8 @@ function RegisterPageContent() {
   const [joinName, setJoinName] = useState("");
   const [joining, setJoining] = useState(false);
   const [joinError, setJoinError] = useState("");
+
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   // Path selection state (Step 0)
   const [selectedPath, setSelectedPath] = useState<PathId | null>(null);
@@ -366,7 +370,7 @@ function RegisterPageContent() {
                     <span className="text-foreground">{humanSlotCount}</span> open human slot
                     {humanSlotCount !== 1 ? "s" : ""}:
                   </p>
-                  <div className="flex items-center gap-2 p-3 bg-black rounded border border-[var(--dark-border)]">
+                  <div className="flex items-center gap-2 p-3 bg-card rounded border border-[var(--dark-border)]">
                     <code className="flex-1 text-xs text-[var(--neon-cyan)] truncate">
                       {inviteLink}
                     </code>
@@ -405,15 +409,49 @@ function RegisterPageContent() {
 
   // ── Path selection (Step 0) ──────────────────────────────
   if (!pathConfirmed && !inviteParam) {
+    const selectedMeta = selectedPath ? PATHS.find(p => p.id === selectedPath) : null;
+    const isGmatFullSelected = selectedPath === "gmat_full_test";
+
+    function confirmPath() {
+      if (!selectedPath) return;
+      if (selectedPath === "gmat_full_test") setMaxSize(1);
+      setPathConfirmed(true);
+    }
+
     return (
       <>
         <Navbar />
-        <main className="min-h-screen px-4 pt-24 pb-16 max-w-5xl mx-auto animate-slide-up">
-          <div className="mb-10">
-            <div className="inline-flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest mb-4">
+
+        {/* Sticky confirm bar — always visible at top below navbar */}
+        <div className="fixed top-16 inset-x-0 z-40 border-b border-[var(--dark-border)] bg-background/95 backdrop-blur-md">
+          <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
               STEP 01 OF 02
             </div>
+            <div className="flex items-center gap-3">
+              {selectedMeta && (
+                <span className={`text-xs tracking-widest font-semibold ${isGmatFullSelected ? "text-amber-400" : "text-[var(--neon-cyan)]"}`}>
+                  {selectedMeta.icon} {selectedMeta.label}
+                </span>
+              )}
+              <button
+                onClick={confirmPath}
+                disabled={!selectedPath}
+                className={`flex items-center gap-2 px-5 py-1.5 text-black font-bold text-xs tracking-widest rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed ${
+                  isGmatFullSelected
+                    ? "bg-amber-400 hover:bg-amber-300"
+                    : "bg-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/90 box-glow-cyan"
+                }`}
+              >
+                {selectedPath ? "CONFIRM PATH →" : "SELECT A PATH"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <main className="min-h-screen px-4 pt-32 pb-16 max-w-5xl mx-auto animate-slide-up">
+          <div className="mb-10">
             <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground mb-2">
               SELECT YOUR <span className="text-[var(--neon-cyan)] glow-cyan">CHALLENGE</span>
             </h1>
@@ -422,7 +460,10 @@ function RegisterPageContent() {
 
           <div className="space-y-10">
             {PATH_CATEGORIES.map((cat) => {
-              const catPaths = PATHS.filter((p) => p.category === cat.id);
+              const catPaths = PATHS.filter(
+                (p) => p.category === cat.id && (p.category !== "gmat" || isAdmin)
+              );
+              if (catPaths.length === 0) return null;
               return (
                 <div key={cat.id}>
                   <p className="text-xs tracking-widest mb-4 font-semibold" style={{ color: cat.color }}>
@@ -477,20 +518,6 @@ function RegisterPageContent() {
                 </div>
               );
             })}
-          </div>
-
-          <div className="mt-10 flex justify-end">
-            <button
-              onClick={() => {
-                if (!selectedPath) return;
-                if (selectedPath === "gmat_full_test") setMaxSize(1);
-                setPathConfirmed(true);
-              }}
-              disabled={!selectedPath}
-              className="flex items-center gap-2 px-8 py-3 bg-[var(--neon-cyan)] text-black font-bold text-sm tracking-widest rounded hover:bg-[var(--neon-cyan)]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all box-glow-cyan"
-            >
-              CONFIRM PATH →
-            </button>
           </div>
         </main>
       </>
@@ -654,7 +681,7 @@ function RegisterPageContent() {
                       isHost
                         ? "border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5"
                         : slot.type === "agent"
-                        ? "border-[var(--dark-border)] bg-black"
+                        ? "border-[var(--dark-border)] bg-card"
                         : "border-[var(--dark-border)] bg-card"
                     }`}
                   >
