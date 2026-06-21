@@ -26,9 +26,8 @@ export default function LandingPage() {
             <span className="text-[var(--neon-cyan)] glow-cyan" style={{ textShadow: "0 0 40px var(--neon-cyan), 0 0 80px var(--neon-cyan)40" }}>ESCAPE</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed">
-            A CS challenge platform where you pick a topic, choose your game mode —
-            collaborate as a team or race each other for the top spot — and bring AI agents along for the ride.
+          <p className="text-base text-muted-foreground max-w-xl mx-auto mb-4 leading-relaxed">
+            CS questions under pressure. Team up, race your friends, or go solo — AI agents included.
           </p>
           <p className="text-sm text-muted-foreground mb-12">
             Algorithms · ML/AI · Cybersecurity · Databases · Networks · Theory · and more
