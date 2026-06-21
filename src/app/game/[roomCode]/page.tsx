@@ -110,7 +110,10 @@ export default function GamePage({
   const [currentDisplayName, setCurrentDisplayName] = useState<string>("");
   const [humanTeammates, setHumanTeammates] = useState<{ userId: string; displayName: string }[]>([]);
   const [rightPanelTab, setRightPanelTab] = useState<"agents" | "teamchat">("agents");
-  const [teammateStatus, setTeammateStatus] = useState<Record<string, boolean>>({}); // userId → answered
+  const [teammateStatus, setTeammateStatus] = useState<Record<string, boolean>>({}); // userId → answered (for status card UI)
+  const [isMultiplayerSession, setIsMultiplayerSession] = useState(false); // true when room has >1 human slot
+  const [totalHumanSlots, setTotalHumanSlots] = useState(1); // total human players in this room
+  const [playersAnsweredCurrentQ, setPlayersAnsweredCurrentQ] = useState(0); // how many players (incl. me) have answered
 
   function handleOpeningComplete(fromPersonality: AgentPersonality, message: string) {
     if (peerExchangedRef.current || teamAgents.length < 2) return;
@@ -144,14 +147,19 @@ export default function GamePage({
         setTeamAgents(data.agentPersonalities as AgentPersonality[]);
       }
 
-      if (Array.isArray(data.humanSlots) && user) {
-        const me = data.humanSlots.find((s: { userId: string }) => s.userId === user.id);
-        if (me) setCurrentDisplayName(me.displayName);
-        const others = data.humanSlots.filter(
-          (s: { userId: string }) => s.userId !== user.id
-        );
-        setHumanTeammates(others);
-        if (others.length > 0) setRightPanelTab("teamchat");
+      if (Array.isArray(data.humanSlots)) {
+        const slotCount = data.humanSlots.length;
+        setTotalHumanSlots(slotCount);
+        if (slotCount > 1) setIsMultiplayerSession(true);
+        if (user) {
+          const me = data.humanSlots.find((s: { userId: string }) => s.userId === user.id);
+          if (me) setCurrentDisplayName(me.displayName);
+          const others = data.humanSlots.filter(
+            (s: { userId: string }) => s.userId !== user.id
+          );
+          setHumanTeammates(others);
+          if (others.length > 0) setRightPanelTab("teamchat");
+        }
       }
 
       if (data.isMcqMode) {
@@ -195,7 +203,7 @@ export default function GamePage({
 
   // Broadcast player_answered whenever this player answers (manual or timeout)
   useEffect(() => {
-    if (!mcqAnswered || !isMcqMode || humanTeammates.length === 0) return;
+    if (!mcqAnswered || !isMcqMode || !isMultiplayerSession) return;
     void roomChannelRef.current?.send({
       type: "broadcast",
       event: "player_answered",
@@ -205,7 +213,7 @@ export default function GamePage({
         questionIndex: mcqIndexRef.current,
       },
     });
-  }, [mcqAnswered, isMcqMode, humanTeammates.length]);
+  }, [mcqAnswered, isMcqMode, isMultiplayerSession]);
 
   // Room-state broadcast channel — syncs question advances across players
   useEffect(() => {
@@ -221,6 +229,7 @@ export default function GamePage({
           if (advancedToRef.current >= toIndex) return; // already there
           advancedToRef.current = toIndex;
           setTeammateStatus({});
+          setPlayersAnsweredCurrentQ(0);
           if (toIndex >= mcqQuestionsRef.current.length) {
             setMcqComplete(true);
             setTimeout(() => router.push(`/results/${roomCode}`), 1800);
@@ -242,7 +251,8 @@ export default function GamePage({
         { event: "player_answered" },
         ({ payload }: { payload: { userId: string; questionIndex: number } }) => {
           if (payload.questionIndex !== mcqIndexRef.current) return;
-          setTeammateStatus(prev => ({ ...prev, [payload.userId]: true }));
+          setPlayersAnsweredCurrentQ(c => c + 1);
+          if (payload.userId) setTeammateStatus(prev => ({ ...prev, [payload.userId]: true }));
         }
       )
       .subscribe();
@@ -267,15 +277,18 @@ export default function GamePage({
     if (!isMcqMode || mcqQuestions.length === 0) return;
     clearInterval(timerRef.current!);
     timerRef.current = setInterval(() => {
-      // Solo mode: stop as soon as player has answered
-      if (humanTeammates.length === 0 && mcqAnsweredRef.current) {
+      // Solo: stop countdown once the player has answered (Next button handles advance)
+      if (!isMultiplayerSession && mcqAnsweredRef.current) {
         clearInterval(timerRef.current!);
         return;
       }
       setTimeRemaining(t => {
         if (t <= 1) {
           clearInterval(timerRef.current!);
-          if (!mcqAnsweredRef.current) setMcqAnswered(true);
+          if (!mcqAnsweredRef.current) {
+            setMcqAnswered(true);
+            setPlayersAnsweredCurrentQ(c => c + 1); // count timeout as "answered"
+          }
           setMcqTimedOut(true);
           return 0;
         }
@@ -283,36 +296,34 @@ export default function GamePage({
       });
     }, 1000);
     return () => clearInterval(timerRef.current!);
-  }, [isMcqMode, mcqIndex, mcqQuestions.length, humanTeammates.length]);
+  }, [isMcqMode, mcqIndex, mcqQuestions.length, isMultiplayerSession]);
 
   // Solo: auto-advance 3s after timeout
   useEffect(() => {
-    if (!mcqTimedOut || humanTeammates.length > 0) return;
+    if (!mcqTimedOut || isMultiplayerSession) return;
     const id = setTimeout(() => handleMcqNext(), 3000);
     return () => clearTimeout(id);
-  }, [mcqTimedOut, humanTeammates.length]);
+  }, [mcqTimedOut, isMultiplayerSession]);
 
-  // Multiplayer: advance when ALL players have answered/timed out
+  // Multiplayer: advance 1.5s after ALL players have answered (counted via broadcast)
   useEffect(() => {
-    if (!isMcqMode || !mcqAnswered || humanTeammates.length === 0) return;
-    const allDone = humanTeammates.every(t => teammateStatus[t.userId]);
-    if (!allDone) return;
+    if (!isMcqMode || !mcqAnswered || !isMultiplayerSession) return;
+    if (playersAnsweredCurrentQ < totalHumanSlots) return;
     const id = setTimeout(() => handleMcqNext(), 1500);
     return () => clearTimeout(id);
-  }, [mcqAnswered, teammateStatus, isMcqMode, humanTeammates.length]);
+  }, [mcqAnswered, playersAnsweredCurrentQ, isMcqMode, isMultiplayerSession, totalHumanSlots]);
 
-  // Multiplayer fallback: if my timer ran out and teammates still haven't answered
-  // after 20 extra seconds, force advance so no one is stuck waiting
+  // Multiplayer fallback: if my timer ran out and not everyone has answered after 20s, force advance
   useEffect(() => {
-    if (!mcqTimedOut || humanTeammates.length === 0) return;
+    if (!mcqTimedOut || !isMultiplayerSession) return;
     const id = setTimeout(() => handleMcqNext(), 20000);
     return () => clearTimeout(id);
-  }, [mcqTimedOut, humanTeammates.length]);
+  }, [mcqTimedOut, isMultiplayerSession]);
 
   function handleMcqAnswer(isCorrect: boolean, selectedIndex: number) {
-    // In multiplayer, keep timer running (it's the shared clock for when everyone advances)
-    if (humanTeammates.length === 0) clearInterval(timerRef.current!);
+    if (!isMultiplayerSession) clearInterval(timerRef.current!);
     setMcqAnswered(true);
+    setPlayersAnsweredCurrentQ(c => c + 1); // count myself as answered
     setMcqTimedOut(false);
     const q = mcqQuestions[mcqIndex];
     setLastAttempt(q.options[selectedIndex]);
@@ -333,6 +344,7 @@ export default function GamePage({
     if (advancedToRef.current >= nextIdx) return; // teammate already triggered this advance
     advancedToRef.current = nextIdx;
     setTeammateStatus({});
+    setPlayersAnsweredCurrentQ(0);
 
     // Broadcast to all teammates so they advance to the same question
     await roomChannelRef.current?.send({
@@ -638,10 +650,10 @@ export default function GamePage({
                   questionNumber={mcqIndex + 1}
                   totalQuestions={mcqQuestions.length}
                   onAnswer={handleMcqAnswer}
-                  onNext={humanTeammates.length > 0 ? undefined : handleMcqNext}
+                  onNext={isMultiplayerSession ? undefined : handleMcqNext}
                   timedOut={mcqTimedOut}
                 />
-              )
+              )}
               </>
             )}
 
