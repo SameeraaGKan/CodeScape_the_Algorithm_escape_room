@@ -122,15 +122,21 @@ export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer, 
         </div>
       )}
 
-      {/* Next / Finish button */}
+      {/* Next / Finish button — hidden in multiplayer (timer drives advance) */}
       {revealed && (
         <div className="flex justify-end">
-          <button
-            onClick={() => onNext?.()}
-            className="flex items-center gap-2 px-6 py-2 rounded border border-[var(--neon-cyan)] text-[var(--neon-cyan)] text-sm font-semibold hover:bg-[var(--neon-cyan)]/10 transition-all font-[family-name:var(--font-orbitron)]"
-          >
-            {isLast ? "FINISH" : "NEXT"} <ChevronRight className="w-4 h-4" />
-          </button>
+          {onNext ? (
+            <button
+              onClick={onNext}
+              className="flex items-center gap-2 px-6 py-2 rounded border border-[var(--neon-cyan)] text-[var(--neon-cyan)] text-sm font-semibold hover:bg-[var(--neon-cyan)]/10 transition-all font-[family-name:var(--font-orbitron)]"
+            >
+              {isLast ? "FINISH" : "NEXT"} <ChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <span className="text-xs text-muted-foreground tracking-widest animate-pulse">
+              ⏱ WAITING FOR NEXT QUESTION...
+            </span>
+          )}
         </div>
       )}
     </div>

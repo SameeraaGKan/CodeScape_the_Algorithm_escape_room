@@ -100,12 +100,17 @@ export default function GamePage({
   const mcqQuestionsRef = useRef<MCQQuestion[]>([]);
   const advancedToRef = useRef(-1); // guards against double-advance from same index
   const mcqScoreRef = useRef(0);
+  const mcqIndexRef = useRef(0);
+  const mcqAnsweredRef = useRef(false);
+  const currentUserIdRef = useRef<string | null>(null);
+  const currentDisplayNameRef = useRef<string>("");
 
   // Human teammate chat
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentDisplayName, setCurrentDisplayName] = useState<string>("");
   const [humanTeammates, setHumanTeammates] = useState<{ userId: string; displayName: string }[]>([]);
   const [rightPanelTab, setRightPanelTab] = useState<"agents" | "teamchat">("agents");
+  const [teammateStatus, setTeammateStatus] = useState<Record<string, boolean>>({}); // userId → answered
 
   function handleOpeningComplete(fromPersonality: AgentPersonality, message: string) {
     if (peerExchangedRef.current || teamAgents.length < 2) return;
@@ -183,6 +188,24 @@ export default function GamePage({
 
   // Keep refs in sync with state for stable broadcast callbacks
   useEffect(() => { mcqScoreRef.current = mcqScore; }, [mcqScore]);
+  useEffect(() => { mcqIndexRef.current = mcqIndex; }, [mcqIndex]);
+  useEffect(() => { mcqAnsweredRef.current = mcqAnswered; }, [mcqAnswered]);
+  useEffect(() => { currentUserIdRef.current = currentUserId; }, [currentUserId]);
+  useEffect(() => { currentDisplayNameRef.current = currentDisplayName; }, [currentDisplayName]);
+
+  // Broadcast player_answered whenever this player answers (manual or timeout)
+  useEffect(() => {
+    if (!mcqAnswered || !isMcqMode || humanTeammates.length === 0) return;
+    void roomChannelRef.current?.send({
+      type: "broadcast",
+      event: "player_answered",
+      payload: {
+        userId: currentUserIdRef.current ?? "",
+        displayName: currentDisplayNameRef.current,
+        questionIndex: mcqIndexRef.current,
+      },
+    });
+  }, [mcqAnswered, isMcqMode, humanTeammates.length]);
 
   // Room-state broadcast channel — syncs question advances across players
   useEffect(() => {
@@ -197,6 +220,7 @@ export default function GamePage({
           const { toIndex } = payload;
           if (advancedToRef.current >= toIndex) return; // already there
           advancedToRef.current = toIndex;
+          setTeammateStatus({});
           if (toIndex >= mcqQuestionsRef.current.length) {
             setMcqComplete(true);
             setTimeout(() => router.push(`/results/${roomCode}`), 1800);
@@ -211,6 +235,14 @@ export default function GamePage({
             setPeerGreetings({});
             peerExchangedRef.current = false;
           }
+        }
+      )
+      .on(
+        "broadcast",
+        { event: "player_answered" },
+        ({ payload }: { payload: { userId: string; questionIndex: number } }) => {
+          if (payload.questionIndex !== mcqIndexRef.current) return;
+          setTeammateStatus(prev => ({ ...prev, [payload.userId]: true }));
         }
       )
       .subscribe();
@@ -230,15 +262,20 @@ export default function GamePage({
     return () => clearInterval(timerRef.current!);
   }, [isMcqMode, puzzle?.id, submitting, submitResult]);
 
-  // MCQ timer — resets when question index changes
+  // MCQ timer — resets on new question; in multiplayer keeps running even after answering
   useEffect(() => {
-    if (!isMcqMode || mcqAnswered || mcqQuestions.length === 0) return;
+    if (!isMcqMode || mcqQuestions.length === 0) return;
     clearInterval(timerRef.current!);
     timerRef.current = setInterval(() => {
+      // Solo mode: stop as soon as player has answered
+      if (humanTeammates.length === 0 && mcqAnsweredRef.current) {
+        clearInterval(timerRef.current!);
+        return;
+      }
       setTimeRemaining(t => {
         if (t <= 1) {
           clearInterval(timerRef.current!);
-          setMcqAnswered(true);
+          if (!mcqAnsweredRef.current) setMcqAnswered(true);
           setMcqTimedOut(true);
           return 0;
         }
@@ -246,7 +283,7 @@ export default function GamePage({
       });
     }, 1000);
     return () => clearInterval(timerRef.current!);
-  }, [isMcqMode, mcqIndex, mcqAnswered, mcqQuestions.length]);
+  }, [isMcqMode, mcqIndex, mcqQuestions.length, humanTeammates.length]);
 
   // Auto-advance after timeout
   useEffect(() => {
@@ -256,7 +293,8 @@ export default function GamePage({
   }, [mcqTimedOut]);
 
   function handleMcqAnswer(isCorrect: boolean, selectedIndex: number) {
-    clearInterval(timerRef.current!);
+    // In multiplayer, keep timer running (it's the shared clock for when everyone advances)
+    if (humanTeammates.length === 0) clearInterval(timerRef.current!);
     setMcqAnswered(true);
     setMcqTimedOut(false);
     const q = mcqQuestions[mcqIndex];
@@ -277,6 +315,7 @@ export default function GamePage({
     const nextIdx = mcqIndex + 1;
     if (advancedToRef.current >= nextIdx) return; // teammate already triggered this advance
     advancedToRef.current = nextIdx;
+    setTeammateStatus({});
 
     // Broadcast to all teammates so they advance to the same question
     await roomChannelRef.current?.send({
@@ -526,7 +565,40 @@ export default function GamePage({
 
             {/* ── MCQ MODE ─────────────────────────────────────────────── */}
             {isMcqMode && (
-              mcqComplete ? (
+              /* Team status card — multiplayer only */
+              humanTeammates.length > 0 && !mcqComplete && (
+                <div className="p-3 rounded border border-[var(--dark-border)] bg-card">
+                  <p className="text-[10px] text-muted-foreground tracking-widest mb-2.5">TEAM STATUS</p>
+                  <div className="flex flex-wrap gap-x-5 gap-y-2">
+                    <div className="flex items-center gap-1.5">
+                      {mcqAnswered
+                        ? <CheckCircle className="w-3.5 h-3.5 text-[var(--neon-green)]" />
+                        : <span className="block w-3.5 h-3.5 rounded-full border-2 border-[var(--neon-cyan)] animate-pulse" />
+                      }
+                      <span className={`text-xs ${mcqAnswered ? "text-[var(--neon-green)]" : "text-foreground"}`}>
+                        You
+                      </span>
+                    </div>
+                    {humanTeammates.map(t => (
+                      <div key={t.userId} className="flex items-center gap-1.5">
+                        {teammateStatus[t.userId]
+                          ? <CheckCircle className="w-3.5 h-3.5 text-[var(--neon-green)]" />
+                          : <span className="block w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/40 animate-pulse" />
+                        }
+                        <span className={`text-xs ${teammateStatus[t.userId] ? "text-[var(--neon-green)]" : "text-muted-foreground"}`}>
+                          {t.displayName}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {mcqAnswered && (
+                    <p className="text-[10px] text-muted-foreground/70 mt-2 tracking-wide">
+                      waiting for timer · discuss with your team!
+                    </p>
+                  )}
+                </div>
+              )}
+              {mcqComplete ? (
                 <div className="flex flex-col items-center justify-center gap-6 py-20 text-center">
                   <CheckCircle className="w-16 h-16 text-[var(--neon-cyan)]" />
                   <div>
@@ -548,7 +620,7 @@ export default function GamePage({
                   questionNumber={mcqIndex + 1}
                   totalQuestions={mcqQuestions.length}
                   onAnswer={handleMcqAnswer}
-                  onNext={handleMcqNext}
+                  onNext={humanTeammates.length > 0 ? undefined : handleMcqNext}
                   timedOut={mcqTimedOut}
                 />
               )
