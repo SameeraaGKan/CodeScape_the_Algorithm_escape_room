@@ -37,7 +37,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="group inline-flex items-center gap-2 px-8 py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
+              className="group inline-flex items-center gap-2 px-8 py-4 border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
             >
               <Terminal className="w-4 h-4" />
               PLAY WITH A TEAM
@@ -45,7 +45,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/solo"
-              className="group inline-flex items-center gap-2 px-8 py-4 border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
+              className="group inline-flex items-center gap-2 px-8 py-4 border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
             >
               <UserRound className="w-4 h-4" />
               PLAY SOLO
