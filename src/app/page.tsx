@@ -25,21 +25,21 @@ export default function LandingPage() {
             <span className="text-white">CODE</span>
             <span
               className="text-[var(--neon-cyan)]"
-              style={{ textShadow: "0 0 20px var(--neon-cyan), 0 0 60px var(--neon-cyan), 0 0 120px var(--neon-cyan)" }}
+              style={{ textShadow: "0 0 15px var(--neon-cyan), 0 0 40px var(--neon-cyan)" }}
             >ESCAPE</span>
           </h1>
 
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-lg mx-auto mb-4 leading-relaxed px-2">
-            Race the clock on 12 CS topics — solo, with a team, or head-to-head. AI agents included.
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md mx-auto mb-3 leading-relaxed px-2">
+            An escape room for CS students — pick a topic, beat the timer, and bring an AI agent for backup. Solo or squad.
           </p>
-          <p className="text-xs sm:text-sm text-muted-foreground mb-10 sm:mb-12 px-2">
+          <p className="text-xs sm:text-sm text-muted-foreground mb-7 sm:mb-9 px-2">
             Algorithms · ML/AI · Cybersecurity · Databases · Networks · Theory · and more
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2">
             <Link
               href="/register"
-              className="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
+              className="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
             >
               <Terminal className="w-4 h-4" />
               PLAY WITH A TEAM
@@ -56,7 +56,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="relative z-10 mt-16 sm:mt-20 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 max-w-xs sm:max-w-xl w-full px-2">
+        <div className="relative z-10 mt-10 sm:mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 max-w-xs sm:max-w-xl w-full px-2">
           {[
             { label: "Topics",     value: "12+" },
             { label: "Game Modes", value: "2"   },
