@@ -259,6 +259,7 @@ export default function GamePage({
           if (advancedToRef.current >= toIndex) return; // already there
           advancedToRef.current = toIndex;
           setTeammateStatus({});
+          setRaceLeaderboard({});
           setPlayersAnsweredCurrentQ(0);
           if (toIndex >= mcqQuestionsRef.current.length) {
             setMcqComplete(true);
@@ -281,6 +282,7 @@ export default function GamePage({
         { event: "player_answered" },
         ({ payload }: { payload: { userId: string; displayName: string; questionIndex: number; raceScore?: number } }) => {
           if (payload.questionIndex !== mcqIndexRef.current) return;
+          if (payload.userId === currentUserIdRef.current) return; // already counted locally
           setPlayersAnsweredCurrentQ(c => c + 1);
           if (payload.userId) {
             setTeammateStatus(prev => ({ ...prev, [payload.userId]: true }));
@@ -396,10 +398,11 @@ export default function GamePage({
   }
 
   async function handleMcqNext() {
-    const nextIdx = mcqIndex + 1;
+    const nextIdx = mcqIndexRef.current + 1;
     if (advancedToRef.current >= nextIdx) return; // teammate already triggered this advance
     advancedToRef.current = nextIdx;
     setTeammateStatus({});
+    setRaceLeaderboard({});
     setPlayersAnsweredCurrentQ(0);
 
     // Broadcast to all teammates so they advance to the same question

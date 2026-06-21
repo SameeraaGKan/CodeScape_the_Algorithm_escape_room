@@ -30,7 +30,7 @@ function SoloPageContent() {
   useEffect(() => {
     void (async () => {
       const { data } = await getSupabaseBrowser().auth.getUser();
-      if (!data.user) { router.push("/register"); return; }
+      if (!data.user) { setAuthLoading(false); router.push("/register"); return; }
       setUserId(data.user.id);
       setUserName(data.user.email?.split("@")[0] ?? "Player");
       setIsAdmin(data.user.email === "sameeraagk883@gmail.com");
