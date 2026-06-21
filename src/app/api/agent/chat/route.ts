@@ -1,5 +1,7 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { createGroq } from "@ai-sdk/groq";
 import { streamText } from "ai";
+
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 import { NextRequest } from "next/server";
 import { buildSystemPrompt, AGENT_CONFIGS } from "@/lib/ai/personalities";
 import { PUZZLES } from "@/lib/puzzles/data/puzzles";
@@ -68,7 +70,7 @@ export async function POST(request: NextRequest) {
         });
 
     const result = streamText({
-      model: anthropic("claude-sonnet-4-6"),
+      model: groq("llama-3.3-70b-versatile"),
       system: systemPrompt,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
       maxOutputTokens: 350,

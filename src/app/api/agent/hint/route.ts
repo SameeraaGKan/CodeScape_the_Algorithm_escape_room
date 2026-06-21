@@ -1,5 +1,7 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { createGroq } from "@ai-sdk/groq";
 import { generateText } from "ai";
+
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 import { NextRequest, NextResponse } from "next/server";
 import { PUZZLES } from "@/lib/puzzles/data/puzzles";
 import { hintRequestSchema } from "@/lib/security/schemas";
@@ -36,7 +38,7 @@ export async function POST(request: NextRequest) {
     const config = AGENT_CONFIGS[agentPersonality];
 
     const { text } = await generateText({
-      model: anthropic("claude-sonnet-4-6"),
+      model: groq("llama-3.3-70b-versatile"),
       system: `You are ${config.name}, a CS escape room AI teammate. Analyze the student's specific wrong answer and generate ONE targeted hint that addresses exactly what went wrong in their approach — not a generic hint. Do not reveal the answer. Keep it under 80 words.`,
       prompt: `Puzzle: "${puzzle.title}"
 Description: ${puzzle.description}
