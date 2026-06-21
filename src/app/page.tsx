@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { MouseBackground } from "@/components/layout/MouseBackground";
-import { Terminal, Zap, Brain, Users, Lock, ChevronRight, Map, Trophy } from "lucide-react";
+import { Terminal, Zap, Brain, Users, Lock, ChevronRight, Map, Trophy, Swords } from "lucide-react";
 import { AGENT_CONFIGS } from "@/lib/ai/personalities";
 
 export default function LandingPage() {
@@ -27,8 +27,8 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed">
-            A CS challenge platform where you race the clock, answer domain-specific questions,
-            and bring AI agents as teammates — each with their own personality.
+            A CS challenge platform where you pick a topic, choose your game mode —
+            collaborate as a team or race each other for the top spot — and bring AI agents along for the ride.
           </p>
           <p className="text-sm text-muted-foreground mb-12">
             Algorithms · ML/AI · Cybersecurity · Databases · Networks · Theory · and more
@@ -52,11 +52,12 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="relative z-10 mt-20 grid grid-cols-3 gap-8 max-w-lg w-full">
+        <div className="relative z-10 mt-20 grid grid-cols-4 gap-8 max-w-xl w-full">
           {[
-            { label: "Topics", value: "12+" },
-            { label: "AI Agents", value: "4" },
-            { label: "Questions", value: "240+" },
+            { label: "Topics",     value: "12+" },
+            { label: "Game Modes", value: "2"   },
+            { label: "AI Agents",  value: "4"   },
+            { label: "Questions",  value: "240+" },
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
               <div className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-[var(--neon-cyan)] glow-cyan">
@@ -68,14 +69,85 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Game Modes ───────────────────────────────────── */}
+      <section className="py-24 px-4 max-w-5xl mx-auto">
+        <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-4">
+          <span className="text-foreground">PICK YOUR</span>{" "}
+          <span className="text-[var(--neon-cyan)] glow-cyan">BATTLE STYLE</span>
+        </h2>
+        <p className="text-center text-sm text-muted-foreground mb-16 max-w-xl mx-auto">
+          Same questions, different dynamics. Choose how you want to compete before building your team.
+        </p>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Team Mode */}
+          <div className="p-7 rounded border border-[var(--neon-cyan)]/30 bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/60 transition-all">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded flex items-center justify-center text-xl" style={{ background: "var(--neon-cyan)18", border: "1px solid var(--neon-cyan)40" }}>
+                🤝
+              </div>
+              <div>
+                <div className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-[var(--neon-cyan)]">TEAM MODE</div>
+                <div className="text-xs text-muted-foreground italic">Collaborate to conquer</div>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+              Everyone attempts every question at their own pace. The timer is the only thing that advances the game —
+              no one gets left behind. A live status card shows who&apos;s done so teammates can regroup and discuss.
+            </p>
+            <ul className="space-y-2">
+              {[
+                "Live sidebar shows who's done vs still thinking",
+                "Game advances when everyone answers — or time runs out",
+                "Points based on speed + correctness, shared as a team",
+                "Use the team chat to hint without spoiling",
+              ].map(f => (
+                <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <span className="text-[var(--neon-cyan)] mt-0.5 shrink-0">▸</span> {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Race Mode */}
+          <div className="p-7 rounded border border-[var(--neon-green)]/30 bg-[var(--dark-card)] hover:border-[var(--neon-green)]/60 transition-all">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded flex items-center justify-center text-xl" style={{ background: "#00ff8818", border: "1px solid #00ff8840" }}>
+                ⚡
+              </div>
+              <div>
+                <div className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-[var(--neon-green)]">RACE MODE</div>
+                <div className="text-xs text-muted-foreground italic">Fastest finger wins</div>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+              Every player for themselves. Answer fast and correctly for maximum points.
+              A live leaderboard updates in real time as your opponents lock in their answers — watch the rankings shift.
+            </p>
+            <ul className="space-y-2">
+              {[
+                "Individual leaderboard updates live as players answer",
+                "Speed bonus: answer earlier = more base points",
+                "Correctness multiplier: correct answers score much higher",
+                "Wrong but fast still scores — don't just sit there",
+              ].map(f => (
+                <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <span className="text-[var(--neon-green)] mt-0.5 shrink-0">▸</span> {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* ── How It Works ─────────────────────────────────── */}
-      <section id="how-it-works" className="py-24 px-4 max-w-6xl mx-auto">
+      <section id="how-it-works" className="py-24 px-4 max-w-6xl mx-auto border-t border-[var(--dark-border)]">
         <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-4">
           <span className="text-[var(--neon-cyan)] glow-cyan">HOW IT</span>{" "}
           <span className="text-foreground">WORKS</span>
         </h2>
         <p className="text-center text-sm text-muted-foreground mb-16 max-w-xl mx-auto">
-          Four steps from sign-in to scoreboard — solo or with a crew.
+          Three setup steps, then you&apos;re in.
         </p>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -88,25 +160,25 @@ export default function LandingPage() {
               desc: "Choose from 12+ CS topic tracks — Algorithms, ML/AI, Cybersecurity, Databases, Networks, and more. Or grab a Random Mix for a wildcard session. Each track draws 10 curated questions from a pool of 20+.",
             },
             {
-              icon: <Users className="w-6 h-6" />,
+              icon: <Swords className="w-6 h-6" />,
               step: "02",
+              color: "#00ff88",
+              title: "Choose Your Game Mode",
+              desc: "Team Mode keeps everyone moving together — live status cards, shared score, and time to collaborate. Race Mode flips it competitive — individual leaderboard, speed bonuses, and no mercy.",
+            },
+            {
+              icon: <Users className="w-6 h-6" />,
+              step: "03",
               color: "#a855f7",
               title: "Build Your Team",
               desc: "Go solo or invite friends (up to 6 players). Any open human slot can be filled with an AI agent instead — choose a personality: ARIA (supportive), BYTE (step-by-step), SIGMA (Socratic), or ZAP (casual).",
             },
             {
               icon: <Brain className="w-6 h-6" />,
-              step: "03",
+              step: "04",
               color: "#ff00cc",
               title: "Race the Clock",
-              desc: "Each question has a timer. Answer correctly fast for bonus points — wrong answers cost time. Your AI teammate reacts in real-time: it'll check in if you're quiet, react to wrong answers, and warn you when time is running low.",
-            },
-            {
-              icon: <Zap className="w-6 h-6" />,
-              step: "04",
-              color: "#f59e0b",
-              title: "Track & Improve",
-              desc: "After every session your results, score, and path history are saved to your profile. The leaderboard shows how you stack up. The analytics dashboard surfaces aggregate performance across all players.",
+              desc: "Answer fast and correctly for maximum points. Your AI teammate reacts in real time — checking in if you're quiet, reacting to wrong answers, warning you when time is low. Results and ranking wait on the other side.",
             },
           ].map(({ icon, step, color, title, desc }) => (
             <div
@@ -213,7 +285,6 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
-
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
@@ -225,10 +296,10 @@ export default function LandingPage() {
             <span className="text-[var(--neon-cyan)] glow-cyan">IS THE KEY.</span>
           </h2>
           <p className="text-muted-foreground mb-4 leading-relaxed">
-            Pick a topic, build your crew, and race the clock — with an AI agent that has your back.
+            Pick a topic, pick a mode, build your crew — and race the clock with an AI agent that has your back.
           </p>
           <p className="text-xs text-muted-foreground/60 mb-10 tracking-widest">
-            Powered by Claude AI (claude-sonnet-4-6) · Adaptive difficulty · Real-time leaderboard
+            Powered by Claude AI (claude-sonnet-4-6) · Team & Race Modes · Real-time leaderboard
           </p>
           <Link
             href="/register"
