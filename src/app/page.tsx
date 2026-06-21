@@ -51,12 +51,6 @@ export default function LandingPage() {
               PLAY SOLO
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link
-              href="#how-it-works"
-              className="inline-flex items-center gap-2 px-8 py-4 border border-gray-700 text-muted-foreground hover:border-[var(--neon-cyan)]/50 hover:text-[var(--neon-cyan)] rounded text-sm tracking-widest transition-all"
-            >
-              HOW IT WORKS
-            </Link>
           </div>
         </div>
 

@@ -16,6 +16,7 @@ function SoloPageContent() {
 
   const [userId, setUserId]   = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
   const [selectedPath, setSelectedPath] = useState<PathId | null>(null);
@@ -32,6 +33,7 @@ function SoloPageContent() {
       if (!data.user) { router.push("/register"); return; }
       setUserId(data.user.id);
       setUserName(data.user.email?.split("@")[0] ?? "Player");
+      setIsAdmin(data.user.email === "sameeraagk883@gmail.com");
       setAuthLoading(false);
     })();
   }, [router]);
@@ -127,7 +129,9 @@ function SoloPageContent() {
 
           <div className="space-y-10">
             {PATH_CATEGORIES.map((cat) => {
-              const catPaths = PATHS.filter(p => p.category === cat.id);
+              const catPaths = PATHS.filter(
+                p => p.category === cat.id && (p.category !== "gmat" || isAdmin)
+              );
               if (catPaths.length === 0) return null;
               return (
                 <div key={cat.id}>
