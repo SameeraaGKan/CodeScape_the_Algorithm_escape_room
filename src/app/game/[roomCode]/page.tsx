@@ -285,12 +285,29 @@ export default function GamePage({
     return () => clearInterval(timerRef.current!);
   }, [isMcqMode, mcqIndex, mcqQuestions.length, humanTeammates.length]);
 
-  // Auto-advance after timeout
+  // Solo: auto-advance 3s after timeout
   useEffect(() => {
-    if (!mcqTimedOut) return;
+    if (!mcqTimedOut || humanTeammates.length > 0) return;
     const id = setTimeout(() => handleMcqNext(), 3000);
     return () => clearTimeout(id);
-  }, [mcqTimedOut]);
+  }, [mcqTimedOut, humanTeammates.length]);
+
+  // Multiplayer: advance when ALL players have answered/timed out
+  useEffect(() => {
+    if (!isMcqMode || !mcqAnswered || humanTeammates.length === 0) return;
+    const allDone = humanTeammates.every(t => teammateStatus[t.userId]);
+    if (!allDone) return;
+    const id = setTimeout(() => handleMcqNext(), 1500);
+    return () => clearTimeout(id);
+  }, [mcqAnswered, teammateStatus, isMcqMode, humanTeammates.length]);
+
+  // Multiplayer fallback: if my timer ran out and teammates still haven't answered
+  // after 20 extra seconds, force advance so no one is stuck waiting
+  useEffect(() => {
+    if (!mcqTimedOut || humanTeammates.length === 0) return;
+    const id = setTimeout(() => handleMcqNext(), 20000);
+    return () => clearTimeout(id);
+  }, [mcqTimedOut, humanTeammates.length]);
 
   function handleMcqAnswer(isCorrect: boolean, selectedIndex: number) {
     // In multiplayer, keep timer running (it's the shared clock for when everyone advances)
