@@ -294,7 +294,7 @@ export default function LandingPage() {
       {/* ── Solo Play ─────────────────────────────────────── */}
       <section className="py-16 md:py-24 px-4 bg-[var(--dark-card)] border-y border-[var(--dark-border)]">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-12">
-          <div className="flex-1 w-full">
+          <div className="flex-1 w-full text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--neon-cyan)]/30 text-[var(--neon-cyan)] text-xs tracking-widest mb-6">
               <UserRound className="w-3 h-3" />
               NO TEAM REQUIRED
@@ -307,7 +307,7 @@ export default function LandingPage() {
               No teammates, no waiting for a lobby to fill. Pick a topic, optionally grab an AI agent for company,
               and jump straight into the questions. Your results still count toward your profile and the leaderboard.
             </p>
-            <ul className="space-y-2 mb-8">
+            <ul className="space-y-2 mb-8 text-left">
               {[
                 "Pick any of the 12+ CS topic tracks",
                 "Optional AI agent companion — or go it completely alone",
@@ -328,7 +328,7 @@ export default function LandingPage() {
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex-1 grid grid-cols-2 gap-3 w-full max-w-xs sm:max-w-sm">
+          <div className="flex-1 grid grid-cols-2 gap-3 w-full max-w-xs sm:max-w-sm mx-auto md:mx-0">
             {[
               { emoji: "🧠", label: "Just Me", sub: "No hints. Pure focus." },
               { emoji: "🤖", label: "Me + ARIA", sub: "Supportive & warm" },

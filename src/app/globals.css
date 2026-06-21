@@ -71,7 +71,7 @@
   --secondary: oklch(0.15 0 0);
   --secondary-foreground: oklch(0.88 0 0);
   --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.6 0 0);
+  --muted-foreground: oklch(0.68 0 0);
   --accent: oklch(0.65 0.28 320);        /* neon magenta */
   --accent-foreground: oklch(0.06 0 0);
   --destructive: oklch(0.65 0.25 25);
