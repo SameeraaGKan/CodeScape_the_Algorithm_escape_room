@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { MouseBackground } from "@/components/layout/MouseBackground";
-import { Terminal, Zap, Brain, Users, Lock, ChevronRight, Map, Trophy, Swords } from "lucide-react";
+import { Terminal, Zap, Brain, Users, Lock, ChevronRight, Map, Swords, UserRound } from "lucide-react";
 import { AGENT_CONFIGS } from "@/lib/ai/personalities";
 
 export default function LandingPage() {
@@ -40,7 +40,15 @@ export default function LandingPage() {
               className="group inline-flex items-center gap-2 px-8 py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
             >
               <Terminal className="w-4 h-4" />
-              INITIALIZE TEAM
+              PLAY WITH A TEAM
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/solo"
+              className="group inline-flex items-center gap-2 px-8 py-4 border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
+            >
+              <UserRound className="w-4 h-4" />
+              PLAY SOLO
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
@@ -287,6 +295,60 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Solo Play ─────────────────────────────────────── */}
+      <section className="py-24 px-4 bg-[var(--dark-card)] border-y border-[var(--dark-border)]">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-12">
+          <div className="flex-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--neon-cyan)]/30 text-[var(--neon-cyan)] text-xs tracking-widest mb-6">
+              <UserRound className="w-3 h-3" />
+              NO TEAM REQUIRED
+            </div>
+            <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold mb-4">
+              <span className="text-foreground">FLYING</span>{" "}
+              <span className="text-[var(--neon-cyan)] glow-cyan">SOLO?</span>
+            </h2>
+            <p className="text-muted-foreground leading-relaxed mb-6">
+              No teammates, no waiting for a lobby to fill. Pick a topic, optionally grab an AI agent for company,
+              and jump straight into the questions. Your results still count toward your profile and the leaderboard.
+            </p>
+            <ul className="space-y-2 mb-8">
+              {[
+                "Pick any of the 12+ CS topic tracks",
+                "Optional AI agent companion — or go it completely alone",
+                "Same timer, same scoring, full results page after",
+                "Skip straight from path selection to the game — no team builder",
+              ].map(f => (
+                <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <span className="text-[var(--neon-cyan)] mt-0.5 shrink-0">▸</span> {f}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/solo"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
+            >
+              <UserRound className="w-4 h-4" />
+              START SOLO SESSION
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="flex-1 grid grid-cols-2 gap-3 w-full max-w-sm">
+            {[
+              { emoji: "🧠", label: "Just Me", sub: "No hints. Pure focus." },
+              { emoji: "🤖", label: "Me + ARIA", sub: "Supportive & warm" },
+              { emoji: "⚡", label: "Me + ZAP", sub: "Casual & quick" },
+              { emoji: "🔬", label: "Me + SIGMA", sub: "Socratic method" },
+            ].map(({ emoji, label, sub }) => (
+              <div key={label} className="p-4 rounded border border-[var(--dark-border)] bg-card text-center">
+                <div className="text-2xl mb-2">{emoji}</div>
+                <div className="text-xs font-semibold text-foreground mb-0.5">{label}</div>
+                <div className="text-[11px] text-muted-foreground italic">{sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ───────────────────────────────────────────── */}
       <section className="py-24 px-4 text-center grid-bg border-t border-[var(--dark-border)]">
         <div className="max-w-2xl mx-auto">
@@ -301,14 +363,24 @@ export default function LandingPage() {
           <p className="text-xs text-muted-foreground/60 mb-10 tracking-widest">
             Powered by Claude AI (claude-sonnet-4-6) · Team & Race Modes · Real-time leaderboard
           </p>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 px-10 py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
-          >
-            <Terminal className="w-4 h-4" />
-            BEGIN ESCAPE SEQUENCE
-            <ChevronRight className="w-4 h-4" />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-2 px-10 py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
+            >
+              <Terminal className="w-4 h-4" />
+              PLAY WITH A TEAM
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/solo"
+              className="inline-flex items-center gap-2 px-10 py-4 border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
+            >
+              <UserRound className="w-4 h-4" />
+              PLAY SOLO
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
 

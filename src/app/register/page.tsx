@@ -484,9 +484,7 @@ function RegisterPageContent() {
 
           <div className="space-y-10">
             {PATH_CATEGORIES.map((cat) => {
-              const catPaths = PATHS.filter(
-                (p) => p.category === cat.id && (p.category !== "gmat" || isAdmin)
-              );
+              const catPaths = PATHS.filter((p) => p.category === cat.id);
               if (catPaths.length === 0) return null;
               return (
                 <div key={cat.id}>
