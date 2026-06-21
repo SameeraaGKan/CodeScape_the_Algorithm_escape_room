@@ -30,7 +30,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md mx-auto mb-3 leading-relaxed px-2">
-            An escape room for CS students — pick a topic, beat the timer, and bring an AI agent for backup. Solo or squad.
+            Choose your domain. Beat the clock. Escape with your code.
           </p>
           <p className="text-xs sm:text-sm text-muted-foreground mb-7 sm:mb-9 px-2">
             Algorithms · ML/AI · Cybersecurity · Databases · Networks · Theory · and more
