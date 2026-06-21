@@ -118,6 +118,7 @@ export async function GET(request: NextRequest) {
       session,
       isMcqMode: true,
       selectedPath: session.puzzleSetId,
+      gameTrack: team?.gameTrack ?? "team",
       agentPersonalities,
       humanSlots,
     });

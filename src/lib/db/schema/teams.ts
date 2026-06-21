@@ -41,6 +41,7 @@ export const teams = pgTable("teams", {
   slots: jsonb("slots").$type<TeamSlot[]>().notNull().default([]),
   createdBy: text("created_by").notNull(),
   selectedPath: text("selected_path").default("cs_algorithms"),
+  gameTrack: text("game_track").default("team"),
   status: text("status").notNull().default("forming"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

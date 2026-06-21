@@ -51,6 +51,13 @@ function mcqPoints(difficulty: "easy" | "medium" | "hard", timeRemaining: number
   return base + (timeRemaining > timeLimit * 0.5 ? 5 : 0);
 }
 
+// Race mode scoring: speed-based + correctness bonus
+function racePoints(difficulty: "easy" | "medium" | "hard", timeRemaining: number, timeLimit: number, isCorrect: boolean): number {
+  const base = difficulty === "easy" ? 50 : difficulty === "medium" ? 100 : 150;
+  const speedScore = Math.floor(base * (timeRemaining / timeLimit));
+  return isCorrect ? speedScore + base : Math.floor(speedScore * 0.25);
+}
+
 export default function GamePage({
   params,
 }: {
@@ -115,6 +122,11 @@ export default function GamePage({
   const [totalHumanSlots, setTotalHumanSlots] = useState(1); // total human players in this room
   const [playersAnsweredCurrentQ, setPlayersAnsweredCurrentQ] = useState(0); // how many players (incl. me) have answered
 
+  // Race mode
+  const [isRaceMode, setIsRaceMode] = useState(false);
+  const [raceLeaderboard, setRaceLeaderboard] = useState<Record<string, { displayName: string; score: number }>>({});
+  const mcqScoreForRaceRef = useRef(0); // own cumulative race score, kept in sync for broadcast
+
   function handleOpeningComplete(fromPersonality: AgentPersonality, message: string) {
     if (peerExchangedRef.current || teamAgents.length < 2) return;
     peerExchangedRef.current = true;
@@ -162,6 +174,8 @@ export default function GamePage({
         }
       }
 
+      if (data.gameTrack === "race") setIsRaceMode(true);
+
       if (data.isMcqMode) {
         setIsMcqMode(true);
         setSelectedPathId(data.selectedPath);
@@ -196,6 +210,7 @@ export default function GamePage({
 
   // Keep refs in sync with state for stable broadcast callbacks
   useEffect(() => { mcqScoreRef.current = mcqScore; }, [mcqScore]);
+  useEffect(() => { mcqScoreForRaceRef.current = mcqScore; }, [mcqScore]);
   useEffect(() => { mcqIndexRef.current = mcqIndex; }, [mcqIndex]);
   useEffect(() => { mcqAnsweredRef.current = mcqAnswered; }, [mcqAnswered]);
   useEffect(() => { currentUserIdRef.current = currentUserId; }, [currentUserId]);
@@ -211,6 +226,7 @@ export default function GamePage({
         userId: currentUserIdRef.current ?? "",
         displayName: currentDisplayNameRef.current,
         questionIndex: mcqIndexRef.current,
+        raceScore: mcqScoreForRaceRef.current,
       },
     });
   }, [mcqAnswered, isMcqMode, isMultiplayerSession]);
@@ -263,10 +279,18 @@ export default function GamePage({
       .on(
         "broadcast",
         { event: "player_answered" },
-        ({ payload }: { payload: { userId: string; questionIndex: number } }) => {
+        ({ payload }: { payload: { userId: string; displayName: string; questionIndex: number; raceScore?: number } }) => {
           if (payload.questionIndex !== mcqIndexRef.current) return;
           setPlayersAnsweredCurrentQ(c => c + 1);
-          if (payload.userId) setTeammateStatus(prev => ({ ...prev, [payload.userId]: true }));
+          if (payload.userId) {
+            setTeammateStatus(prev => ({ ...prev, [payload.userId]: true }));
+            if (payload.raceScore !== undefined) {
+              setRaceLeaderboard(prev => ({
+                ...prev,
+                [payload.userId]: { displayName: payload.displayName, score: payload.raceScore! },
+              }));
+            }
+          }
         }
       )
       .subscribe();
@@ -333,15 +357,33 @@ export default function GamePage({
     setMcqTimedOut(false);
     const q = mcqQuestions[mcqIndex];
     setLastAttempt(q.options[selectedIndex]);
-    if (isCorrect) {
-      const limit = timeLimitFor(q.difficulty);
-      const pts = mcqPoints(q.difficulty, timeRemaining, limit);
+    const limit = timeLimitFor(q.difficulty);
+
+    if (isRaceMode) {
+      const pts = racePoints(q.difficulty, timeRemaining, limit, isCorrect);
       const newScore = mcqScore + pts;
+      mcqScoreForRaceRef.current = newScore;
       setMcqScore(newScore);
-      setMcqCorrect(c => c + 1);
+      if (isCorrect) setMcqCorrect(c => c + 1);
+      else setWrongAnswerCount(c => c + 1);
+      // Update own entry in leaderboard immediately
+      if (currentUserId) {
+        setRaceLeaderboard(prev => ({
+          ...prev,
+          [currentUserId]: { displayName: currentDisplayName, score: newScore },
+        }));
+      }
       setSession(s => s ? { ...s, totalScore: newScore } : s);
     } else {
-      setWrongAnswerCount(c => c + 1);
+      if (isCorrect) {
+        const pts = mcqPoints(q.difficulty, timeRemaining, limit);
+        const newScore = mcqScore + pts;
+        setMcqScore(newScore);
+        setMcqCorrect(c => c + 1);
+        setSession(s => s ? { ...s, totalScore: newScore } : s);
+      } else {
+        setWrongAnswerCount(c => c + 1);
+      }
     }
   }
 
@@ -592,36 +634,71 @@ export default function GamePage({
 
       {/* Main layout */}
       <main className="pt-14 pb-16 md:pb-0 h-screen flex overflow-hidden">
-        {/* Team status sidebar — multiplayer MCQ only, desktop only */}
+        {/* Left sidebar — multiplayer MCQ only, desktop only */}
         {isMcqMode && isMultiplayerSession && humanTeammates.length > 0 && !mcqComplete && (
           <div className="hidden md:flex w-44 shrink-0 border-r border-[var(--dark-border)] flex-col p-4 gap-3 overflow-y-auto">
-            <p className="text-[10px] text-muted-foreground tracking-widest">TEAM STATUS</p>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                {mcqAnswered || mcqTimedOut
-                  ? <CheckCircle className="w-3.5 h-3.5 shrink-0 text-[var(--neon-green)]" />
-                  : <span className="block w-3.5 h-3.5 shrink-0 rounded-full border-2 border-[var(--neon-cyan)] animate-pulse" />
-                }
-                <span className={`text-xs truncate ${mcqAnswered || mcqTimedOut ? "text-[var(--neon-green)]" : "text-foreground"}`}>
-                  You
-                </span>
-              </div>
-              {humanTeammates.map(t => (
-                <div key={t.userId} className="flex items-center gap-2">
-                  {teammateStatus[t.userId]
-                    ? <CheckCircle className="w-3.5 h-3.5 shrink-0 text-[var(--neon-green)]" />
-                    : <span className="block w-3.5 h-3.5 shrink-0 rounded-full border-2 border-muted-foreground/40 animate-pulse" />
-                  }
-                  <span className={`text-xs truncate ${teammateStatus[t.userId] ? "text-[var(--neon-green)]" : "text-muted-foreground"}`}>
-                    {t.displayName}
-                  </span>
+            {isRaceMode ? (
+              <>
+                <p className="text-[10px] text-muted-foreground tracking-widest">⚡ LEADERBOARD</p>
+                <div className="flex flex-col gap-2.5">
+                  {(() => {
+                    // Build sorted list: own entry + teammates
+                    const allEntries: { userId: string; displayName: string; score: number; isMe: boolean }[] = [
+                      {
+                        userId: currentUserId ?? "",
+                        displayName: currentDisplayName || "You",
+                        score: mcqScore,
+                        isMe: true,
+                      },
+                      ...humanTeammates.map(t => ({
+                        userId: t.userId,
+                        displayName: t.displayName,
+                        score: raceLeaderboard[t.userId]?.score ?? 0,
+                        isMe: false,
+                      })),
+                    ].sort((a, b) => b.score - a.score);
+
+                    return allEntries.map((entry, rank) => (
+                      <div key={entry.userId} className={`flex items-center gap-2 ${entry.isMe ? "text-[var(--neon-green)]" : "text-muted-foreground"}`}>
+                        <span className="text-[10px] w-4 shrink-0 font-bold">{rank + 1}</span>
+                        <span className="text-xs truncate flex-1">{entry.isMe ? "You" : entry.displayName}</span>
+                        <span className="text-xs font-bold tabular-nums shrink-0">{entry.score}</span>
+                      </div>
+                    ));
+                  })()}
                 </div>
-              ))}
-            </div>
-            {(mcqAnswered || mcqTimedOut) && (
-              <p className="text-[10px] text-muted-foreground/60 tracking-wide leading-relaxed">
-                waiting for timer · help your teammates!
-              </p>
+              </>
+            ) : (
+              <>
+                <p className="text-[10px] text-muted-foreground tracking-widest">TEAM STATUS</p>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    {mcqAnswered || mcqTimedOut
+                      ? <CheckCircle className="w-3.5 h-3.5 shrink-0 text-[var(--neon-green)]" />
+                      : <span className="block w-3.5 h-3.5 shrink-0 rounded-full border-2 border-[var(--neon-cyan)] animate-pulse" />
+                    }
+                    <span className={`text-xs truncate ${mcqAnswered || mcqTimedOut ? "text-[var(--neon-green)]" : "text-foreground"}`}>
+                      You
+                    </span>
+                  </div>
+                  {humanTeammates.map(t => (
+                    <div key={t.userId} className="flex items-center gap-2">
+                      {teammateStatus[t.userId]
+                        ? <CheckCircle className="w-3.5 h-3.5 shrink-0 text-[var(--neon-green)]" />
+                        : <span className="block w-3.5 h-3.5 shrink-0 rounded-full border-2 border-muted-foreground/40 animate-pulse" />
+                      }
+                      <span className={`text-xs truncate ${teammateStatus[t.userId] ? "text-[var(--neon-green)]" : "text-muted-foreground"}`}>
+                        {t.displayName}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {(mcqAnswered || mcqTimedOut) && (
+                  <p className="text-[10px] text-muted-foreground/60 tracking-wide leading-relaxed">
+                    waiting for timer · help your teammates!
+                  </p>
+                )}
+              </>
             )}
           </div>
         )}

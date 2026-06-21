@@ -12,6 +12,7 @@ export const createTeamSchema = z.object({
   maxSize: z.number().int().min(1).max(6),
   creatorName: z.string().min(1).max(50),
   selectedPath: z.enum(PATH_IDS).optional(),
+  gameTrack: z.enum(["team", "race"]).optional(),
   slotConfigs: z
     .array(
       z.object({

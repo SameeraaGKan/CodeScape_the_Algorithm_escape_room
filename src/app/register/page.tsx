@@ -61,9 +61,13 @@ function RegisterPageContent() {
 
   const isAdmin = user?.email === ADMIN_EMAIL;
 
-  // Path selection state (Step 0)
+  // Path selection state (Step 01)
   const [selectedPath, setSelectedPath] = useState<PathId | null>(null);
   const [pathConfirmed, setPathConfirmed] = useState(false);
+
+  // Track selection state (Step 02)
+  const [selectedTrack, setSelectedTrack] = useState<"team" | "race" | null>(null);
+  const [trackConfirmed, setTrackConfirmed] = useState(false);
 
   // Create team state
   const [teamName, setTeamName] = useState("");
@@ -174,6 +178,7 @@ function RegisterPageContent() {
         creatorName: user?.email?.split("@")[0] ?? "Host",
         slotConfigs: agentSlots,
         selectedPath: selectedPath ?? "cs_algorithms",
+        gameTrack: selectedTrack ?? "team",
       }),
     });
     const data = await res.json();
@@ -407,7 +412,7 @@ function RegisterPageContent() {
     );
   }
 
-  // ── Path selection (Step 0) ──────────────────────────────
+  // ── Path selection (Step 01) ─────────────────────────────
   if (!pathConfirmed && !inviteParam) {
     const selectedMeta = selectedPath ? PATHS.find(p => p.id === selectedPath) : null;
     const isGmatFullSelected = selectedPath === "gmat_full_test";
@@ -427,7 +432,7 @@ function RegisterPageContent() {
           <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
-              STEP 01 OF 02
+              STEP 01 OF 03
             </div>
             <div className="flex items-center gap-3">
               {selectedMeta && (
@@ -524,6 +529,154 @@ function RegisterPageContent() {
     );
   }
 
+  // ── Track selection (Step 02) ────────────────────────────
+  if (pathConfirmed && !trackConfirmed && !inviteParam && selectedPath !== "gmat_full_test") {
+    const selectedMeta = PATHS.find(p => p.id === selectedPath);
+
+    const TRACKS = [
+      {
+        id: "team" as const,
+        icon: "🤝",
+        label: "TEAM MODE",
+        tagline: "Collaborate to conquer",
+        description: "Everyone on your team attempts every question. The timer advances the game — no one gets left behind.",
+        color: "var(--neon-cyan)",
+        instructions: [
+          "All players see the same question at the same time",
+          "The timer determines when everyone moves on",
+          "You can answer before the timer — your status updates live for teammates",
+          "Points are based on correctness and how much time was left",
+        ],
+        tips: [
+          "Discuss with your team before committing to an answer",
+          "If you're stuck, watch the team status card — maybe a teammate is done early and can hint",
+          "Every correct answer counts toward the team score",
+        ],
+      },
+      {
+        id: "race" as const,
+        icon: "⚡",
+        label: "RACE MODE",
+        tagline: "Fastest finger wins",
+        description: "It's every player for themselves. Answer fast and correctly for maximum points — a live leaderboard tracks who's winning.",
+        color: "var(--neon-green)",
+        instructions: [
+          "Each player has an individual score tracked live",
+          "Answering early earns more points — speed matters",
+          "Correct answers score significantly higher than wrong ones",
+          "The leaderboard updates in real time as players answer",
+        ],
+        tips: [
+          "Don't guess randomly — a wrong answer still costs you vs. a slower correct one",
+          "Fast + correct is always the best play",
+          "Watch the leaderboard — if you're behind, prioritize speed on easier questions",
+        ],
+      },
+    ];
+
+    return (
+      <>
+        <Navbar />
+
+        {/* Sticky bar */}
+        <div className="fixed top-16 inset-x-0 z-40 border-b border-[var(--dark-border)] bg-background/95 backdrop-blur-md">
+          <div className="max-w-3xl mx-auto px-4 h-12 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
+                STEP 02 OF 03
+              </div>
+              <button
+                onClick={() => setPathConfirmed(false)}
+                className="text-xs text-muted-foreground hover:text-[var(--neon-cyan)] transition-colors tracking-widest"
+              >
+                ← CHANGE PATH
+              </button>
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedMeta && (
+                <span className="text-xs tracking-widest font-semibold text-[var(--neon-cyan)]">
+                  {selectedMeta.icon} {selectedMeta.label}
+                </span>
+              )}
+              <button
+                onClick={() => { if (selectedTrack) setTrackConfirmed(true); }}
+                disabled={!selectedTrack}
+                className="flex items-center gap-2 px-5 py-1.5 text-black font-bold text-xs tracking-widest rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed bg-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/90 box-glow-cyan"
+              >
+                {selectedTrack ? "CONFIRM TRACK →" : "SELECT A TRACK"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <main className="min-h-screen px-4 pt-32 pb-16 max-w-3xl mx-auto animate-slide-up">
+          <div className="mb-10">
+            <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground mb-2">
+              CHOOSE YOUR <span className="text-[var(--neon-cyan)] glow-cyan">GAME MODE</span>
+            </h1>
+            <p className="text-muted-foreground text-sm">How do you want to play? You can&apos;t change this once the game starts.</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-5">
+            {TRACKS.map((track) => {
+              const isSelected = selectedTrack === track.id;
+              return (
+                <button
+                  key={track.id}
+                  onClick={() => setSelectedTrack(track.id)}
+                  className={`text-left p-5 rounded border transition-all hover:scale-[1.01] flex flex-col gap-4 ${
+                    isSelected
+                      ? "border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10"
+                      : "border-[var(--dark-border)] bg-card hover:border-[var(--neon-cyan)]/40"
+                  }`}
+                >
+                  {/* Header */}
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">{track.icon}</span>
+                    <div>
+                      <div className={`font-[family-name:var(--font-orbitron)] text-sm font-bold mb-0.5 ${isSelected ? "text-[var(--neon-cyan)]" : "text-foreground"}`}>
+                        {track.label}
+                      </div>
+                      <div className="text-[11px] text-muted-foreground italic">{track.tagline}</div>
+                    </div>
+                    {isSelected && (
+                      <CheckCircle className="w-4 h-4 text-[var(--neon-cyan)] ml-auto shrink-0 mt-0.5" />
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-xs text-muted-foreground leading-relaxed">{track.description}</p>
+
+                  {/* How it works */}
+                  <div>
+                    <p className="text-[10px] text-muted-foreground/60 tracking-widest mb-2">HOW IT WORKS</p>
+                    <ul className="space-y-1.5">
+                      {track.instructions.map((inst, i) => (
+                        <li key={i} className="flex items-start gap-2 text-[11px] text-muted-foreground">
+                          <span className={`mt-0.5 text-[var(--neon-cyan)] shrink-0 ${isSelected ? "opacity-100" : "opacity-50"}`}>▸</span>
+                          {inst}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Tips */}
+                  <div className={`p-3 rounded text-[11px] leading-relaxed space-y-1 ${isSelected ? "bg-[var(--neon-cyan)]/5 border border-[var(--neon-cyan)]/20" : "bg-white/[0.02] border border-[var(--dark-border)]"}`}>
+                    <p className="text-[10px] tracking-widest text-muted-foreground/60 mb-2">PRO TIPS</p>
+                    {track.tips.map((tip, i) => (
+                      <p key={i} className="text-muted-foreground">💡 {tip}</p>
+                    ))}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </main>
+      </>
+    );
+  }
+
   // ── Main create-team form ────────────────────────────────
   return (
     <>
@@ -577,7 +730,7 @@ function RegisterPageContent() {
             <div className="flex items-center gap-3 mb-4">
               <div className="inline-flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
-                STEP 02 OF 02
+                STEP 03 OF 03
               </div>
               {selectedPath && (
                 <button
@@ -587,17 +740,36 @@ function RegisterPageContent() {
                   ← CHANGE PATH
                 </button>
               )}
+              {selectedTrack && selectedPath !== "gmat_full_test" && (
+                <button
+                  onClick={() => setTrackConfirmed(false)}
+                  className="text-xs text-muted-foreground hover:text-[var(--neon-cyan)] transition-colors tracking-widest"
+                >
+                  ← CHANGE TRACK
+                </button>
+              )}
             </div>
-            {selectedPath && (
-              <div className={`mb-3 inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs tracking-widest ${
-                selectedPath === "gmat_full_test"
-                  ? "border-amber-400/40 bg-amber-400/5 text-amber-400"
-                  : "border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5 text-[var(--neon-cyan)]"
-              }`}>
-                {PATHS.find(p => p.id === selectedPath)?.icon}{" "}
-                {PATHS.find(p => p.id === selectedPath)?.label}
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {selectedPath && (
+                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs tracking-widest ${
+                  selectedPath === "gmat_full_test"
+                    ? "border-amber-400/40 bg-amber-400/5 text-amber-400"
+                    : "border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5 text-[var(--neon-cyan)]"
+                }`}>
+                  {PATHS.find(p => p.id === selectedPath)?.icon}{" "}
+                  {PATHS.find(p => p.id === selectedPath)?.label}
+                </div>
+              )}
+              {selectedTrack && (
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs tracking-widest ${
+                  selectedTrack === "race"
+                    ? "border-[var(--neon-green)]/40 bg-[var(--neon-green)]/5 text-[var(--neon-green)]"
+                    : "border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5 text-[var(--neon-cyan)]"
+                }`}>
+                  {selectedTrack === "race" ? "⚡" : "🤝"} {selectedTrack === "race" ? "RACE MODE" : "TEAM MODE"}
+                </div>
+              )}
+            </div>
             <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-foreground">
               CREATE YOUR <span className="text-[var(--neon-cyan)] glow-cyan">TEAM</span>
             </h1>
