@@ -29,7 +29,7 @@ export default function LandingPage() {
             >ESCAPE</span>
           </h1>
 
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md mx-auto mb-3 leading-relaxed px-2">
+          <p className="text-xs sm:text-sm text-muted-foreground mx-auto mb-3 whitespace-nowrap px-2">
             Choose your domain. Beat the clock. Escape with your code.
           </p>
           <p className="text-xs sm:text-sm text-muted-foreground mb-7 sm:mb-9 px-2">
