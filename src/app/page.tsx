@@ -21,9 +21,9 @@ export default function LandingPage() {
             SYSTEM ONLINE — ESCAPE SEQUENCE INITIALIZED
           </div>
 
-          <h1 className="font-[family-name:var(--font-orbitron)] text-5xl md:text-7xl font-black tracking-tight mb-6">
-            <span className="text-foreground">CODE</span>
-            <span className="text-[var(--neon-cyan)] glow-cyan">ESCAPE</span>
+          <h1 className="font-[family-name:var(--font-orbitron)] text-6xl md:text-8xl font-black tracking-tight mb-6">
+            <span className="text-white">CODE</span>
+            <span className="text-[var(--neon-cyan)] glow-cyan" style={{ textShadow: "0 0 40px var(--neon-cyan), 0 0 80px var(--neon-cyan)40" }}>ESCAPE</span>
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed">
@@ -37,7 +37,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="group inline-flex items-center gap-2 px-8 py-4 border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
+              className="group inline-flex items-center gap-2 px-8 py-4 border border-white/15 text-muted-foreground hover:border-white/30 hover:text-foreground rounded text-sm tracking-widest transition-all"
             >
               <Terminal className="w-4 h-4" />
               PLAY WITH A TEAM
@@ -45,7 +45,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/solo"
-              className="group inline-flex items-center gap-2 px-8 py-4 border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
+              className="group inline-flex items-center gap-2 px-8 py-4 border border-white/15 text-muted-foreground hover:border-white/30 hover:text-foreground rounded text-sm tracking-widest transition-all"
             >
               <UserRound className="w-4 h-4" />
               PLAY SOLO
