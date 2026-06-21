@@ -343,7 +343,15 @@ export default function GamePage({
     return () => clearTimeout(id);
   }, [mcqTimedOut, isMultiplayerSession]);
 
-  // Multiplayer: advance 2s after the timer expires (timer is the only advance trigger)
+  // Multiplayer: advance 1.5s after ALL players have answered
+  useEffect(() => {
+    if (!isMcqMode || !isMultiplayerSession) return;
+    if (playersAnsweredCurrentQ < totalHumanSlots) return;
+    const id = setTimeout(() => handleMcqNext(), 1500);
+    return () => clearTimeout(id);
+  }, [playersAnsweredCurrentQ, isMcqMode, isMultiplayerSession, totalHumanSlots]);
+
+  // Multiplayer fallback: advance 2s after timer expires (in case not everyone answered)
   useEffect(() => {
     if (!mcqTimedOut || !isMultiplayerSession) return;
     const id = setTimeout(() => handleMcqNext(), 2000);

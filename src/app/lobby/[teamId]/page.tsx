@@ -68,13 +68,12 @@ export default function LobbyPage({
     init();
   }, [teamId]);
 
-  // Supabase Realtime — slot fill updates + game-start redirect via broadcast
+  // Supabase Realtime — game-start redirect via broadcast
   useEffect(() => {
     if (!teamId) return;
     const supabase = getSupabaseBrowser();
     const channel = supabase
       .channel(`lobby:${teamId}`)
-      // Primary: host broadcasts game_started when room is created
       .on(
         "broadcast",
         { event: "game_started" },
@@ -86,14 +85,6 @@ export default function LobbyPage({
           }
         }
       )
-      // Fallback: watch for team row status change (may not fire if RLS blocks it)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "teams", filter: `id=eq.${teamId}` },
-        (payload: { new: TeamData }) => {
-          setTeam(payload.new);
-        }
-      )
       .subscribe();
 
     channelRef.current = channel;
@@ -102,6 +93,21 @@ export default function LobbyPage({
       supabase.removeChannel(channel);
     };
   }, [teamId]);
+
+  // Poll for team updates every 2s while there are open human slots
+  useEffect(() => {
+    if (!teamId) return;
+    const openSlots = team?.slots.filter(s => s.type === "human" && !s.userId && s.slotIndex > 0) ?? [];
+    if (openSlots.length === 0) return; // stop polling once all slots filled
+
+    const id = setInterval(async () => {
+      const res = await fetch(`/api/teams?id=${teamId}`);
+      const json = await res.json();
+      if (json.team) setTeam(json.team);
+    }, 2000);
+
+    return () => clearInterval(id);
+  }, [teamId, team]);
 
   async function startGame() {
     if (!team) return;

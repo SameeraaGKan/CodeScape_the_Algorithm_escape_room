@@ -24,7 +24,25 @@ import {
   Mail,
   UserPlus,
   Cpu,
+  Shuffle,
 } from "lucide-react";
+
+const TEAM_NAME_POOL = [
+  "Null Pointer Exception", "Stack Overflow", "Off By One", "Infinite Loop",
+  "Garbage Collectors", "Segmentation Fault", "404 Team Not Found", "Binary Bandits",
+  "Runtime Terror", "The Recursion", "Big O Notation", "Ctrl Alt Elite",
+  "Merge Conflicts", "Cache Money", "The Exception Handlers", "Memory Leak",
+  "Kernel Panic", "Logic Bombers", "Heap Masters", "The Void Pointers",
+  "Dark Mode Enjoyers", "git commit --cry", "We Forgot To Push", "sudo make friends",
+  "The Merge Queue", "NaN and the Boys", "Undefined Behavior", "404: Skill Not Found",
+  "chmod 777 Friends", "The Race Condition",
+];
+
+function pickNameSuggestions(exclude: string): string[] {
+  const pool = TEAM_NAME_POOL.filter(n => n !== exclude);
+  const shuffled = pool.sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 4);
+}
 
 type SlotConfig = {
   slotIndex: number;
@@ -82,6 +100,7 @@ function RegisterPageContent() {
     teamName: string;
   } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [nameSuggestions, setNameSuggestions] = useState<string[]>(() => pickNameSuggestions(""));
 
   // Init auth listener
   useEffect(() => {
@@ -779,7 +798,7 @@ function RegisterPageContent() {
           </div>
 
           {/* Team name */}
-          <section className="space-y-4">
+          <section className="space-y-3">
             <label className="text-xs text-muted-foreground tracking-widest block">
               TEAM NAME
             </label>
@@ -791,6 +810,27 @@ function RegisterPageContent() {
               placeholder="e.g. Null Pointer Exception"
               className="w-full px-4 py-3 bg-card border border-[var(--dark-border)] rounded text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors"
             />
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] text-muted-foreground/50 tracking-widest shrink-0">SUGGESTIONS</span>
+              {nameSuggestions.map(name => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => setTeamName(name)}
+                  className="text-[11px] px-2.5 py-1 rounded border border-[var(--dark-border)] text-muted-foreground hover:border-[var(--neon-cyan)]/50 hover:text-[var(--neon-cyan)] transition-colors bg-card"
+                >
+                  {name}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setNameSuggestions(pickNameSuggestions(teamName))}
+                className="p-1 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                title="Shuffle suggestions"
+              >
+                <Shuffle className="w-3 h-3" />
+              </button>
+            </div>
           </section>
 
           {/* Solo-only notice for GMAT full test */}
