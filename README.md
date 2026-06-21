@@ -10,7 +10,7 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind_v4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-000?style=for-the-badge&logo=vercel)
 
-**Solve CS algorithm puzzles. Escape the mainframe. Built for CodePath WEB101.**
+**Solve CS algorithm puzzles. Escape the mainframe.**
 
 </div>
 
@@ -30,7 +30,7 @@ This project was built for **CodePath WEB101: Intro to Web Development** as the 
 
 ## Background
 
-This project was developed for **CodePath WEB101 — Intro to Web Development**, Summer 2026 at UT Dallas. It is a ground-up rebuild of an earlier static HTML/CSS/JS event registration page (CodeScape v1) into a production-grade, full-stack Next.js application. The rebuild introduced real interactive gameplay, a live database, AI integration, real-time team sync, and a machine learning adaptive difficulty system — none of which existed in v1.
+This project is a ground-up rebuild of an earlier static HTML/CSS/JS event registration page (CodeScape v1) into a production-grade, full-stack Next.js application. The rebuild introduced real interactive gameplay, a live database, AI integration, real-time team sync, and a machine learning adaptive difficulty system — none of which existed in v1.
 
 ---
 
@@ -238,7 +238,7 @@ Please do not commit `.env.local` or any API keys.
 
 ## Acknowledgments
 
-CodePath WEB101 curriculum · Anthropic Claude API · Supabase · Vercel · Upstash
+Anthropic Claude API · Supabase · Vercel · Upstash
 
 ---
 
