@@ -201,7 +201,7 @@ export default function GamePage({
   useEffect(() => { currentUserIdRef.current = currentUserId; }, [currentUserId]);
   useEffect(() => { currentDisplayNameRef.current = currentDisplayName; }, [currentDisplayName]);
 
-  // Broadcast player_answered whenever this player answers (manual or timeout)
+  // Broadcast player_answered whenever this player answers
   useEffect(() => {
     if (!mcqAnswered || !isMcqMode || !isMultiplayerSession) return;
     void roomChannelRef.current?.send({
@@ -214,6 +214,20 @@ export default function GamePage({
       },
     });
   }, [mcqAnswered, isMcqMode, isMultiplayerSession]);
+
+  // Broadcast player_answered when timer runs out without answering (so teammates' status cards update)
+  useEffect(() => {
+    if (!mcqTimedOut || mcqAnswered || !isMcqMode || !isMultiplayerSession) return;
+    void roomChannelRef.current?.send({
+      type: "broadcast",
+      event: "player_answered",
+      payload: {
+        userId: currentUserIdRef.current ?? "",
+        displayName: currentDisplayNameRef.current,
+        questionIndex: mcqIndexRef.current,
+      },
+    });
+  }, [mcqTimedOut, mcqAnswered, isMcqMode, isMultiplayerSession]);
 
   // Room-state broadcast channel — syncs question advances across players
   useEffect(() => {
@@ -305,18 +319,10 @@ export default function GamePage({
     return () => clearTimeout(id);
   }, [mcqTimedOut, isMultiplayerSession]);
 
-  // Multiplayer: advance 1.5s after ALL players have answered (counted via broadcast)
-  useEffect(() => {
-    if (!isMcqMode || !mcqAnswered || !isMultiplayerSession) return;
-    if (playersAnsweredCurrentQ < totalHumanSlots) return;
-    const id = setTimeout(() => handleMcqNext(), 1500);
-    return () => clearTimeout(id);
-  }, [mcqAnswered, playersAnsweredCurrentQ, isMcqMode, isMultiplayerSession, totalHumanSlots]);
-
-  // Multiplayer fallback: if my timer ran out and not everyone has answered after 20s, force advance
+  // Multiplayer: advance 2s after the timer expires (timer is the only advance trigger)
   useEffect(() => {
     if (!mcqTimedOut || !isMultiplayerSession) return;
-    const id = setTimeout(() => handleMcqNext(), 20000);
+    const id = setTimeout(() => handleMcqNext(), 2000);
     return () => clearTimeout(id);
   }, [mcqTimedOut, isMultiplayerSession]);
 
@@ -586,6 +592,40 @@ export default function GamePage({
 
       {/* Main layout */}
       <main className="pt-14 pb-16 md:pb-0 h-screen flex overflow-hidden">
+        {/* Team status sidebar — multiplayer MCQ only, desktop only */}
+        {isMcqMode && isMultiplayerSession && humanTeammates.length > 0 && !mcqComplete && (
+          <div className="hidden md:flex w-44 shrink-0 border-r border-[var(--dark-border)] flex-col p-4 gap-3 overflow-y-auto">
+            <p className="text-[10px] text-muted-foreground tracking-widest">TEAM STATUS</p>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                {mcqAnswered || mcqTimedOut
+                  ? <CheckCircle className="w-3.5 h-3.5 shrink-0 text-[var(--neon-green)]" />
+                  : <span className="block w-3.5 h-3.5 shrink-0 rounded-full border-2 border-[var(--neon-cyan)] animate-pulse" />
+                }
+                <span className={`text-xs truncate ${mcqAnswered || mcqTimedOut ? "text-[var(--neon-green)]" : "text-foreground"}`}>
+                  You
+                </span>
+              </div>
+              {humanTeammates.map(t => (
+                <div key={t.userId} className="flex items-center gap-2">
+                  {teammateStatus[t.userId]
+                    ? <CheckCircle className="w-3.5 h-3.5 shrink-0 text-[var(--neon-green)]" />
+                    : <span className="block w-3.5 h-3.5 shrink-0 rounded-full border-2 border-muted-foreground/40 animate-pulse" />
+                  }
+                  <span className={`text-xs truncate ${teammateStatus[t.userId] ? "text-[var(--neon-green)]" : "text-muted-foreground"}`}>
+                    {t.displayName}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {(mcqAnswered || mcqTimedOut) && (
+              <p className="text-[10px] text-muted-foreground/60 tracking-wide leading-relaxed">
+                waiting for timer · help your teammates!
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Left: puzzle / MCQ panel */}
         <div
           className={`flex-1 overflow-y-auto p-4 md:p-6 ${activeTab !== "puzzle" ? "hidden md:block" : ""}`}
@@ -595,39 +635,6 @@ export default function GamePage({
             {/* ── MCQ MODE ─────────────────────────────────────────────── */}
             {isMcqMode && (
               <>
-                {/* Team status card — multiplayer only */}
-                {humanTeammates.length > 0 && !mcqComplete && (
-                  <div className="p-3 rounded border border-[var(--dark-border)] bg-card">
-                    <p className="text-[10px] text-muted-foreground tracking-widest mb-2.5">TEAM STATUS</p>
-                    <div className="flex flex-wrap gap-x-5 gap-y-2">
-                      <div className="flex items-center gap-1.5">
-                        {mcqAnswered
-                          ? <CheckCircle className="w-3.5 h-3.5 text-[var(--neon-green)]" />
-                          : <span className="block w-3.5 h-3.5 rounded-full border-2 border-[var(--neon-cyan)] animate-pulse" />
-                        }
-                        <span className={`text-xs ${mcqAnswered ? "text-[var(--neon-green)]" : "text-foreground"}`}>
-                          You
-                        </span>
-                      </div>
-                      {humanTeammates.map(t => (
-                        <div key={t.userId} className="flex items-center gap-1.5">
-                          {teammateStatus[t.userId]
-                            ? <CheckCircle className="w-3.5 h-3.5 text-[var(--neon-green)]" />
-                            : <span className="block w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/40 animate-pulse" />
-                          }
-                          <span className={`text-xs ${teammateStatus[t.userId] ? "text-[var(--neon-green)]" : "text-muted-foreground"}`}>
-                            {t.displayName}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    {mcqAnswered && (
-                      <p className="text-[10px] text-muted-foreground/70 mt-2 tracking-wide">
-                        waiting for timer · discuss with your team!
-                      </p>
-                    )}
-                  </div>
-                )}
                 {mcqComplete ? (
                 <div className="flex flex-col items-center justify-center gap-6 py-20 text-center">
                   <CheckCircle className="w-16 h-16 text-[var(--neon-cyan)]" />
