@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, teams, gameSessions } from "@/lib/db";
 import { eq, and, desc } from "drizzle-orm";
-import { createSupabaseServerClient } from "@/lib/db/supabase.server";
+import { createSupabaseServerClient, getUserFromRequest } from "@/lib/db/supabase.server";
 import { validateAnswer, calculateScore } from "@/lib/puzzles/validator";
 import { PUZZLES, getPuzzleOrder } from "@/lib/puzzles/data/puzzles";
 import { submitAnswerSchema } from "@/lib/security/schemas";
@@ -68,6 +68,11 @@ export async function POST(request: NextRequest) {
 // GET /api/rooms?code=XXXXXX — get current game state
 // GET /api/rooms?teamId=UUID — get active room code for a team (used by lobby redirect)
 export async function GET(request: NextRequest) {
+  const user = await getUserFromRequest(request);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const teamId = searchParams.get("teamId");

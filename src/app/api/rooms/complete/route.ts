@@ -26,6 +26,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
 
+  // Idempotency: if already completed, don't overwrite with a different player's score
+  if (session.status === "completed") {
+    return NextResponse.json({ success: true });
+  }
+
   await db
     .update(gameSessions)
     .set({ status: "completed", totalScore: finalScore, completedAt: new Date() })

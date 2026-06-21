@@ -749,7 +749,7 @@ function RegisterPageContent() {
             <div className="flex items-center gap-3 mb-4">
               <div className="inline-flex items-center gap-2 text-xs text-[var(--neon-cyan)] tracking-widest">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
-                STEP 03 OF 03
+                {selectedPath === "gmat_full_test" ? "STEP 02 OF 02" : "STEP 03 OF 03"}
               </div>
               {selectedPath && (
                 <button

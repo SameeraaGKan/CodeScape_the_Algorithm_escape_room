@@ -143,10 +143,12 @@ export default function GamePage({
 
   async function loadRoom(code: string) {
     try {
-      const { data: { user } } = await getSupabaseBrowser().auth.getUser();
+      const { data: { user, session } } = await getSupabaseBrowser().auth.getSession();
       setCurrentUserId(user?.id ?? null);
 
-      const res = await fetch(`/api/rooms?code=${code}`);
+      const res = await fetch(`/api/rooms?code=${code}`, {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
       const data = await res.json();
       if (!res.ok) {
         setLoadError(data.error ?? "Could not load game room.");

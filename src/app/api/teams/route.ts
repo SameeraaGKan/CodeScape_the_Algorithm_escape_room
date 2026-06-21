@@ -11,6 +11,16 @@ function generateInviteCode(): string {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
+async function generateUniqueInviteCode(): Promise<string> {
+  for (let i = 0; i < 5; i++) {
+    const code = generateInviteCode();
+    const [existing] = await db.select({ id: teams.id }).from(teams).where(eq(teams.inviteCode, code));
+    if (!existing) return code;
+  }
+  // Fallback: longer code to reduce collision chance
+  return Math.random().toString(36).substring(2, 10).toUpperCase();
+}
+
 // POST /api/teams — create a new team
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { teamName, maxSize, creatorName, slotConfigs, selectedPath, gameTrack } = parsed.data;
-    const inviteCode = generateInviteCode();
+    const inviteCode = await generateUniqueInviteCode();
 
     const baseSlots = Array.from({ length: maxSize }, (_, i) => ({
       slotIndex: i,
@@ -91,6 +101,11 @@ export async function POST(request: NextRequest) {
 
 // GET /api/teams?invite=CODE or ?id=TEAMID
 export async function GET(request: NextRequest) {
+  const user = await getUserFromRequest(request);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const inviteCode = searchParams.get("invite");
   const teamId = searchParams.get("id");

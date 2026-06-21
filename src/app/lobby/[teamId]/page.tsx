@@ -57,10 +57,13 @@ export default function LobbyPage({
   // Load current user + team data
   useEffect(() => {
     async function init() {
-      const { data } = await getSupabaseBrowser().auth.getUser();
-      setCurrentUserId(data.user?.id ?? null);
+      const supabase = getSupabaseBrowser();
+      const { data: { user, session } } = await supabase.auth.getSession();
+      setCurrentUserId(user?.id ?? null);
 
-      const res = await fetch(`/api/teams?id=${teamId}`);
+      const res = await fetch(`/api/teams?id=${teamId}`, {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
       const json = await res.json();
       if (json.team) setTeam(json.team);
       setLoading(false);
@@ -100,13 +103,20 @@ export default function LobbyPage({
     const openSlots = team?.slots.filter(s => s.type === "human" && !s.userId && s.slotIndex > 0) ?? [];
     if (openSlots.length === 0) return; // stop polling once all slots filled
 
+    let active = true;
     const id = setInterval(async () => {
-      const res = await fetch(`/api/teams?id=${teamId}`);
-      const json = await res.json();
-      if (json.team) setTeam(json.team);
+      try {
+        const { data: { session } } = await getSupabaseBrowser().auth.getSession();
+        const res = await fetch(`/api/teams?id=${teamId}`, {
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+        });
+        if (!res.ok) return; // stop silently on auth failure rather than crash
+        const json = await res.json();
+        if (active && json.team) setTeam(json.team);
+      } catch { /* network hiccup — next tick will retry */ }
     }, 2000);
 
-    return () => clearInterval(id);
+    return () => { active = false; clearInterval(id); };
   }, [teamId, team]);
 
   async function startGame() {
@@ -171,11 +181,7 @@ export default function LobbyPage({
 
   const isHost = team.slots[0]?.userId === currentUserId;
   const slots = team.slots as SlotData[];
-  const filledHumanSlots = slots.filter((s) => s.type === "human" && s.userId);
   const openHumanSlots = slots.filter((s) => s.type === "human" && !s.userId);
-  const agentSlots = slots.filter((s) => s.type === "agent");
-  const allReady =
-    openHumanSlots.length === 0 || agentSlots.length + filledHumanSlots.length >= 1;
   const inviteLink = `${typeof window !== "undefined" ? window.location.origin : ""}/register?invite=${team.inviteCode}`;
 
   return (
