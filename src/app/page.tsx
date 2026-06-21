@@ -15,13 +15,13 @@ export default function LandingPage() {
       <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-16 overflow-hidden">
         <MouseBackground />
 
-        <div className="relative z-10 text-center max-w-4xl animate-slide-up">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] text-xs tracking-widest mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
-            SYSTEM ONLINE — ESCAPE SEQUENCE INITIALIZED
+        <div className="relative z-10 text-center max-w-4xl w-full animate-slide-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] text-[10px] sm:text-xs tracking-widest mb-8 max-w-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse shrink-0" />
+            <span className="truncate">SYSTEM ONLINE — ESCAPE SEQUENCE INITIALIZED</span>
           </div>
 
-          <h1 className="font-[family-name:var(--font-orbitron)] text-6xl md:text-8xl font-black tracking-tight mb-6">
+          <h1 className="font-[family-name:var(--font-orbitron)] text-4xl sm:text-6xl md:text-8xl font-black tracking-tight mb-6 leading-none">
             <span className="text-white">CODE</span>
             <span
               className="text-[var(--neon-cyan)]"
@@ -29,17 +29,17 @@ export default function LandingPage() {
             >ESCAPE</span>
           </h1>
 
-          <p className="text-base text-muted-foreground max-w-lg mx-auto mb-4 leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-lg mx-auto mb-4 leading-relaxed px-2">
             Race the clock on 12 CS topics — solo, with a team, or head-to-head. AI agents included.
           </p>
-          <p className="text-sm text-muted-foreground mb-12">
+          <p className="text-xs sm:text-sm text-muted-foreground mb-10 sm:mb-12 px-2">
             Algorithms · ML/AI · Cybersecurity · Databases · Networks · Theory · and more
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2">
             <Link
               href="/register"
-              className="group inline-flex items-center gap-2 px-8 py-4 border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
+              className="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
             >
               <Terminal className="w-4 h-4" />
               PLAY WITH A TEAM
@@ -47,7 +47,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/solo"
-              className="group inline-flex items-center gap-2 px-8 py-4 border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
+              className="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
             >
               <UserRound className="w-4 h-4" />
               PLAY SOLO
@@ -56,7 +56,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="relative z-10 mt-20 grid grid-cols-4 gap-8 max-w-xl w-full">
+        <div className="relative z-10 mt-16 sm:mt-20 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 max-w-xs sm:max-w-xl w-full px-2">
           {[
             { label: "Topics",     value: "12+" },
             { label: "Game Modes", value: "2"   },
@@ -64,30 +64,30 @@ export default function LandingPage() {
             { label: "Questions",  value: "240+" },
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
-              <div className="font-[family-name:var(--font-orbitron)] text-3xl font-black text-[var(--neon-cyan)] glow-cyan">
+              <div className="font-[family-name:var(--font-orbitron)] text-2xl sm:text-3xl font-black text-[var(--neon-cyan)] glow-cyan">
                 {value}
               </div>
-              <div className="text-xs text-muted-foreground tracking-widest mt-1">{label.toUpperCase()}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground tracking-widest mt-1">{label.toUpperCase()}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Game Modes ───────────────────────────────────── */}
-      <section className="py-24 px-4 max-w-5xl mx-auto">
-        <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-4">
+      <section className="py-16 md:py-24 px-4 max-w-5xl mx-auto">
+        <h2 className="font-[family-name:var(--font-orbitron)] text-2xl sm:text-3xl font-bold text-center mb-4">
           <span className="text-foreground">PICK YOUR</span>{" "}
           <span className="text-[var(--neon-cyan)] glow-cyan">BATTLE STYLE</span>
         </h2>
-        <p className="text-center text-sm text-muted-foreground mb-16 max-w-xl mx-auto">
+        <p className="text-center text-sm text-muted-foreground mb-10 sm:mb-16 max-w-xl mx-auto">
           Same questions, different dynamics. Choose how you want to compete before building your team.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
           {/* Team Mode */}
-          <div className="p-7 rounded border border-[var(--neon-cyan)]/30 bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/60 transition-all">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded flex items-center justify-center text-xl" style={{ background: "var(--neon-cyan)18", border: "1px solid var(--neon-cyan)40" }}>
+          <div className="p-5 sm:p-7 rounded border border-[var(--neon-cyan)]/30 bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/60 transition-all">
+            <div className="flex items-center gap-3 mb-4 sm:mb-5">
+              <div className="w-10 h-10 rounded flex items-center justify-center text-xl shrink-0" style={{ background: "var(--neon-cyan)18", border: "1px solid var(--neon-cyan)40" }}>
                 🤝
               </div>
               <div>
@@ -95,7 +95,7 @@ export default function LandingPage() {
                 <div className="text-xs text-muted-foreground italic">Collaborate to conquer</div>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4 sm:mb-5">
               Everyone attempts every question at their own pace. The timer is the only thing that advances the game —
               no one gets left behind. A live status card shows who&apos;s done so teammates can regroup and discuss.
             </p>
@@ -114,9 +114,9 @@ export default function LandingPage() {
           </div>
 
           {/* Race Mode */}
-          <div className="p-7 rounded border border-[var(--neon-green)]/30 bg-[var(--dark-card)] hover:border-[var(--neon-green)]/60 transition-all">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded flex items-center justify-center text-xl" style={{ background: "#00ff8818", border: "1px solid #00ff8840" }}>
+          <div className="p-5 sm:p-7 rounded border border-[var(--neon-green)]/30 bg-[var(--dark-card)] hover:border-[var(--neon-green)]/60 transition-all">
+            <div className="flex items-center gap-3 mb-4 sm:mb-5">
+              <div className="w-10 h-10 rounded flex items-center justify-center text-xl shrink-0" style={{ background: "#00ff8818", border: "1px solid #00ff8840" }}>
                 ⚡
               </div>
               <div>
@@ -124,7 +124,7 @@ export default function LandingPage() {
                 <div className="text-xs text-muted-foreground italic">Fastest finger wins</div>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4 sm:mb-5">
               Every player for themselves. Answer fast and correctly for maximum points.
               A live leaderboard updates in real time as your opponents lock in their answers — watch the rankings shift.
             </p>
@@ -145,16 +145,16 @@ export default function LandingPage() {
       </section>
 
       {/* ── How It Works ─────────────────────────────────── */}
-      <section id="how-it-works" className="py-24 px-4 max-w-6xl mx-auto border-t border-[var(--dark-border)]">
-        <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-4">
+      <section id="how-it-works" className="py-16 md:py-24 px-4 max-w-6xl mx-auto border-t border-[var(--dark-border)]">
+        <h2 className="font-[family-name:var(--font-orbitron)] text-2xl sm:text-3xl font-bold text-center mb-4">
           <span className="text-[var(--neon-cyan)] glow-cyan">HOW IT</span>{" "}
           <span className="text-foreground">WORKS</span>
         </h2>
-        <p className="text-center text-sm text-muted-foreground mb-16 max-w-xl mx-auto">
+        <p className="text-center text-sm text-muted-foreground mb-10 sm:mb-16 max-w-xl mx-auto">
           Three setup steps, then you&apos;re in.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
           {[
             {
               icon: <Map className="w-6 h-6" />,
@@ -187,7 +187,7 @@ export default function LandingPage() {
           ].map(({ icon, step, color, title, desc }) => (
             <div
               key={step}
-              className="relative p-7 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/30 transition-all"
+              className="relative p-5 sm:p-7 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/30 transition-all"
             >
               <div className="flex items-start gap-4">
                 <div
@@ -210,21 +210,21 @@ export default function LandingPage() {
       </section>
 
       {/* ── Agent Roster ─────────────────────────────────── */}
-      <section className="py-24 px-4 bg-[var(--dark-card)] border-y border-[var(--dark-border)]">
+      <section className="py-16 md:py-24 px-4 bg-[var(--dark-card)] border-y border-[var(--dark-border)]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-4">
+          <h2 className="font-[family-name:var(--font-orbitron)] text-2xl sm:text-3xl font-bold text-center mb-4">
             <span className="text-foreground">CHOOSE YOUR</span>{" "}
             <span className="text-[var(--neon-magenta)] glow-magenta">AI AGENTS</span>
           </h2>
-          <p className="text-muted-foreground text-center text-sm mb-16 max-w-lg mx-auto">
+          <p className="text-muted-foreground text-center text-sm mb-10 sm:mb-16 max-w-lg mx-auto">
             Each agent has a distinct personality. Pick the style that matches how you want to be helped.
           </p>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {agents.map(([key, config]) => (
               <div
                 key={key}
-                className="p-5 rounded border border-[var(--dark-border)] bg-card hover:scale-[1.02] transition-all"
+                className="p-4 sm:p-5 rounded border border-[var(--dark-border)] bg-card hover:scale-[1.02] transition-all"
               >
                 <div className="text-3xl mb-3">{config.emoji}</div>
                 <div
@@ -248,16 +248,16 @@ export default function LandingPage() {
       </section>
 
       {/* ── Topic Tracks ──────────────────────────────────── */}
-      <section className="py-24 px-4 max-w-6xl mx-auto">
-        <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold text-center mb-4">
+      <section className="py-16 md:py-24 px-4 max-w-6xl mx-auto">
+        <h2 className="font-[family-name:var(--font-orbitron)] text-2xl sm:text-3xl font-bold text-center mb-4">
           <span className="text-[var(--neon-cyan)] glow-cyan">12 TRACKS.</span>{" "}
           <span className="text-foreground">ONE ESCAPE ROOM.</span>
         </h2>
-        <p className="text-center text-sm text-muted-foreground mb-16 max-w-xl mx-auto">
+        <p className="text-center text-sm text-muted-foreground mb-10 sm:mb-16 max-w-xl mx-auto">
           Every track pulls 10 randomized questions from a curated bank. No two sessions are the same.
         </p>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[
             { icon: "⚡", label: "Algorithms & Data Structures", diff: "Intermediate", color: "#05b9b6" },
             { icon: "∞", label: "Computational Theory",          diff: "Advanced",     color: "#05b9b6" },
@@ -274,11 +274,11 @@ export default function LandingPage() {
           ].map(({ icon, label, diff, color }) => (
             <div
               key={label}
-              className="flex items-center gap-3 p-4 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/30 transition-all"
+              className="flex items-center gap-3 p-3 sm:p-4 rounded border border-[var(--dark-border)] bg-[var(--dark-card)] hover:border-[var(--neon-cyan)]/30 transition-all"
             >
               <span className="text-xl shrink-0">{icon}</span>
               <div className="flex-1 min-w-0">
-                <div className="text-sm text-foreground font-medium truncate">{label}</div>
+                <div className="text-xs sm:text-sm text-foreground font-medium truncate">{label}</div>
               </div>
               <span
                 className="text-[10px] px-1.5 py-0.5 rounded border shrink-0 tracking-widest"
@@ -292,18 +292,18 @@ export default function LandingPage() {
       </section>
 
       {/* ── Solo Play ─────────────────────────────────────── */}
-      <section className="py-24 px-4 bg-[var(--dark-card)] border-y border-[var(--dark-border)]">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-12">
-          <div className="flex-1">
+      <section className="py-16 md:py-24 px-4 bg-[var(--dark-card)] border-y border-[var(--dark-border)]">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-12">
+          <div className="flex-1 w-full">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--neon-cyan)]/30 text-[var(--neon-cyan)] text-xs tracking-widest mb-6">
               <UserRound className="w-3 h-3" />
               NO TEAM REQUIRED
             </div>
-            <h2 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold mb-4">
+            <h2 className="font-[family-name:var(--font-orbitron)] text-2xl sm:text-3xl font-bold mb-4">
               <span className="text-foreground">FLYING</span>{" "}
               <span className="text-[var(--neon-cyan)] glow-cyan">SOLO?</span>
             </h2>
-            <p className="text-muted-foreground leading-relaxed mb-6">
+            <p className="text-muted-foreground leading-relaxed mb-6 text-sm sm:text-base">
               No teammates, no waiting for a lobby to fill. Pick a topic, optionally grab an AI agent for company,
               and jump straight into the questions. Your results still count toward your profile and the leaderboard.
             </p>
@@ -321,21 +321,21 @@ export default function LandingPage() {
             </ul>
             <Link
               href="/solo"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
+              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
             >
               <UserRound className="w-4 h-4" />
               START SOLO SESSION
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex-1 grid grid-cols-2 gap-3 w-full max-w-sm">
+          <div className="flex-1 grid grid-cols-2 gap-3 w-full max-w-xs sm:max-w-sm">
             {[
               { emoji: "🧠", label: "Just Me", sub: "No hints. Pure focus." },
               { emoji: "🤖", label: "Me + ARIA", sub: "Supportive & warm" },
               { emoji: "⚡", label: "Me + ZAP", sub: "Casual & quick" },
               { emoji: "🔬", label: "Me + SIGMA", sub: "Socratic method" },
             ].map(({ emoji, label, sub }) => (
-              <div key={label} className="p-4 rounded border border-[var(--dark-border)] bg-card text-center">
+              <div key={label} className="p-3 sm:p-4 rounded border border-[var(--dark-border)] bg-card text-center">
                 <div className="text-2xl mb-2">{emoji}</div>
                 <div className="text-xs font-semibold text-foreground mb-0.5">{label}</div>
                 <div className="text-[11px] text-muted-foreground italic">{sub}</div>
@@ -346,23 +346,23 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="py-24 px-4 text-center grid-bg border-t border-[var(--dark-border)]">
+      <section className="py-16 md:py-24 px-4 text-center grid-bg border-t border-[var(--dark-border)]">
         <div className="max-w-2xl mx-auto">
-          <Lock className="w-12 h-12 text-[var(--neon-cyan)] mx-auto mb-6 animate-pulse-glow" />
-          <h2 className="font-[family-name:var(--font-orbitron)] text-4xl font-black mb-6">
+          <Lock className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--neon-cyan)] mx-auto mb-6 animate-pulse-glow" />
+          <h2 className="font-[family-name:var(--font-orbitron)] text-2xl sm:text-4xl font-black mb-6">
             <span className="text-foreground">YOUR KNOWLEDGE</span>{" "}
             <span className="text-[var(--neon-cyan)] glow-cyan">IS THE KEY.</span>
           </h2>
-          <p className="text-muted-foreground mb-4 leading-relaxed">
+          <p className="text-muted-foreground mb-4 leading-relaxed text-sm sm:text-base">
             Pick a topic, pick a mode, build your crew — and race the clock with an AI agent that has your back.
           </p>
-          <p className="text-xs text-muted-foreground/60 mb-10 tracking-widest">
+          <p className="text-xs text-muted-foreground/60 mb-8 sm:mb-10 tracking-widest">
             Powered by Claude AI (claude-sonnet-4-6) · Team & Race Modes · Real-time leaderboard
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 px-10 py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
+              className="inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-3 sm:py-4 bg-[var(--neon-cyan)] text-black font-bold rounded text-sm tracking-widest hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan"
             >
               <Terminal className="w-4 h-4" />
               PLAY WITH A TEAM
@@ -370,7 +370,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/solo"
-              className="inline-flex items-center gap-2 px-10 py-4 border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
+              className="inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-3 sm:py-4 border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 rounded text-sm tracking-widest transition-all"
             >
               <UserRound className="w-4 h-4" />
               PLAY SOLO
@@ -380,7 +380,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-[var(--dark-border)] py-8 px-4 text-center text-xs text-muted-foreground">
+      <footer className="border-t border-[var(--dark-border)] py-6 sm:py-8 px-4 text-center text-xs text-muted-foreground">
         <p className="font-[family-name:var(--font-orbitron)] text-[var(--neon-cyan)]/40 mb-2">CODEESCAPE</p>
         <p>Built with Next.js 15 · Supabase · Claude AI (claude-sonnet-4-6) · Tailwind CSS · Vercel</p>
         <p className="mt-2">
