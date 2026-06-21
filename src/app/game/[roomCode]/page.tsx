@@ -565,40 +565,41 @@ export default function GamePage({
 
             {/* ── MCQ MODE ─────────────────────────────────────────────── */}
             {isMcqMode && (
-              /* Team status card — multiplayer only */
-              humanTeammates.length > 0 && !mcqComplete && (
-                <div className="p-3 rounded border border-[var(--dark-border)] bg-card">
-                  <p className="text-[10px] text-muted-foreground tracking-widest mb-2.5">TEAM STATUS</p>
-                  <div className="flex flex-wrap gap-x-5 gap-y-2">
-                    <div className="flex items-center gap-1.5">
-                      {mcqAnswered
-                        ? <CheckCircle className="w-3.5 h-3.5 text-[var(--neon-green)]" />
-                        : <span className="block w-3.5 h-3.5 rounded-full border-2 border-[var(--neon-cyan)] animate-pulse" />
-                      }
-                      <span className={`text-xs ${mcqAnswered ? "text-[var(--neon-green)]" : "text-foreground"}`}>
-                        You
-                      </span>
-                    </div>
-                    {humanTeammates.map(t => (
-                      <div key={t.userId} className="flex items-center gap-1.5">
-                        {teammateStatus[t.userId]
+              <>
+                {/* Team status card — multiplayer only */}
+                {humanTeammates.length > 0 && !mcqComplete && (
+                  <div className="p-3 rounded border border-[var(--dark-border)] bg-card">
+                    <p className="text-[10px] text-muted-foreground tracking-widest mb-2.5">TEAM STATUS</p>
+                    <div className="flex flex-wrap gap-x-5 gap-y-2">
+                      <div className="flex items-center gap-1.5">
+                        {mcqAnswered
                           ? <CheckCircle className="w-3.5 h-3.5 text-[var(--neon-green)]" />
-                          : <span className="block w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/40 animate-pulse" />
+                          : <span className="block w-3.5 h-3.5 rounded-full border-2 border-[var(--neon-cyan)] animate-pulse" />
                         }
-                        <span className={`text-xs ${teammateStatus[t.userId] ? "text-[var(--neon-green)]" : "text-muted-foreground"}`}>
-                          {t.displayName}
+                        <span className={`text-xs ${mcqAnswered ? "text-[var(--neon-green)]" : "text-foreground"}`}>
+                          You
                         </span>
                       </div>
-                    ))}
+                      {humanTeammates.map(t => (
+                        <div key={t.userId} className="flex items-center gap-1.5">
+                          {teammateStatus[t.userId]
+                            ? <CheckCircle className="w-3.5 h-3.5 text-[var(--neon-green)]" />
+                            : <span className="block w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/40 animate-pulse" />
+                          }
+                          <span className={`text-xs ${teammateStatus[t.userId] ? "text-[var(--neon-green)]" : "text-muted-foreground"}`}>
+                            {t.displayName}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    {mcqAnswered && (
+                      <p className="text-[10px] text-muted-foreground/70 mt-2 tracking-wide">
+                        waiting for timer · discuss with your team!
+                      </p>
+                    )}
                   </div>
-                  {mcqAnswered && (
-                    <p className="text-[10px] text-muted-foreground/70 mt-2 tracking-wide">
-                      waiting for timer · discuss with your team!
-                    </p>
-                  )}
-                </div>
-              )}
-              {mcqComplete ? (
+                )}
+                {mcqComplete ? (
                 <div className="flex flex-col items-center justify-center gap-6 py-20 text-center">
                   <CheckCircle className="w-16 h-16 text-[var(--neon-cyan)]" />
                   <div>
@@ -624,6 +625,7 @@ export default function GamePage({
                   timedOut={mcqTimedOut}
                 />
               )
+              </>
             )}
 
             {/* ── LEGACY PUZZLE MODE ───────────────────────────────────── */}
