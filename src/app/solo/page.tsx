@@ -32,7 +32,7 @@ function SoloPageContent() {
       const { data } = await getSupabaseBrowser().auth.getUser();
       if (!data.user) { setAuthLoading(false); router.push("/register"); return; }
       setUserId(data.user.id);
-      setUserName(data.user.email?.split("@")[0] ?? "Player");
+      setUserName((data.user.user_metadata?.full_name as string | undefined) ?? data.user.email?.split("@")[0] ?? "Player");
       setIsAdmin(data.user.email === "sameeraagk883@gmail.com");
       setAuthLoading(false);
     })();
@@ -77,7 +77,11 @@ function SoloPageContent() {
     const roomData = await roomRes.json();
     if (!roomRes.ok) { setError(roomData.error ?? "Failed to start game."); setStarting(false); return; }
 
-    router.push(`/game/${roomData.roomCode}`);
+    if (selectedPath === "gmat_full_test" || selectedPath.startsWith("gmat_test_")) {
+      router.push(`/gmat-test/${roomData.roomCode}`);
+    } else {
+      router.push(`/game/${roomData.roomCode}`);
+    }
   }
 
   if (authLoading) {
@@ -142,6 +146,8 @@ function SoloPageContent() {
                     {catPaths.map((path) => {
                       const isSelected = selectedPath === path.id;
                       const isGmatFull = path.id === "gmat_full_test";
+                      const isGmatTest = path.id.startsWith("gmat_test_");
+                      const isMultiSection = isGmatFull || isGmatTest;
                       return (
                         <button
                           key={path.id}
@@ -157,7 +163,7 @@ function SoloPageContent() {
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <span className="text-2xl">{path.icon}</span>
                             <span className="text-[10px] tracking-widest text-muted-foreground border border-[var(--dark-border)] rounded px-1.5 py-0.5">
-                              {isGmatFull ? "3 Sections · 64Q" : `${path.questionCount}Q`}
+                              {isMultiSection ? "3 Sections · 64Q" : `${path.questionCount}Q`}
                             </span>
                           </div>
                           <div className={`font-[family-name:var(--font-orbitron)] text-xs font-bold mb-1 ${isSelected ? "text-[var(--neon-cyan)]" : "text-foreground"}`}>

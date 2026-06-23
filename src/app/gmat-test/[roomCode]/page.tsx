@@ -89,8 +89,9 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   // Filtered pools for the selected test (stored in a ref so they're stable across renders)
   const filteredPoolsRef = useRef<[MCQQuestion[], MCQQuestion[], MCQQuestion[]]>([[], [], []]);
 
-  // Test selector
+  // Test selector — null means show the picker; set to 1–10 to lock a specific test
   const [testNum, setTestNum] = useState(1);
+  const [lockedTestNum, setLockedTestNum] = useState<number | null>(null);
 
   // Current section
   const [sIdx, setSIdx] = useState(0);
@@ -130,6 +131,16 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
       try {
         const res = await fetch(`/api/rooms?code=${roomCode}`);
         if (!res.ok) { setLoadError("Session not found."); return; }
+        const roomInfo = await res.json();
+
+        // Auto-select test if launched from a specific practice test card
+        if (typeof roomInfo.selectedPath === "string" && roomInfo.selectedPath.startsWith("gmat_test_")) {
+          const n = parseInt(roomInfo.selectedPath.replace("gmat_test_", ""), 10);
+          if (n >= 1 && n <= 10) {
+            setTestNum(n);
+            setLockedTestNum(n);
+          }
+        }
 
         const [qRes, vRes, dRes] = await Promise.all([
           fetch("/api/questions?path=gmat_quant"),
@@ -304,31 +315,37 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
             <p className="text-sm text-muted-foreground">3 sections · 64 questions · 2h 15m total</p>
           </div>
 
-          {/* Test selector */}
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground tracking-widest">SELECT TEST</p>
-            <div className="grid grid-cols-5 gap-2">
-              {GMAT_TEST_CONFIGS.map(cfg => (
-                <button
-                  key={cfg.testNum}
-                  onClick={() => setTestNum(cfg.testNum)}
-                  className={`p-3 rounded border text-center transition-all
-                    ${testNum === cfg.testNum
-                      ? "border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10 text-[var(--neon-cyan)]"
-                      : "border-[var(--dark-border)] text-muted-foreground hover:border-[var(--neon-cyan)]/50"
-                    }`}
-                >
-                  <div className="text-lg font-black font-[family-name:var(--font-orbitron)]">{cfg.testNum}</div>
-                  <div className="text-[9px] leading-tight mt-0.5 hidden sm:block">
-                    {cfg.label.split("—")[1]?.trim().split(" ")[0]}
-                  </div>
-                </button>
-              ))}
+          {/* Test selector — hidden when launched from a specific practice test card */}
+          {lockedTestNum === null ? (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground tracking-widest">SELECT TEST</p>
+              <div className="grid grid-cols-5 gap-2">
+                {GMAT_TEST_CONFIGS.map(cfg => (
+                  <button
+                    key={cfg.testNum}
+                    onClick={() => setTestNum(cfg.testNum)}
+                    className={`p-3 rounded border text-center transition-all
+                      ${testNum === cfg.testNum
+                        ? "border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10 text-[var(--neon-cyan)]"
+                        : "border-[var(--dark-border)] text-muted-foreground hover:border-[var(--neon-cyan)]/50"
+                      }`}
+                  >
+                    <div className="text-lg font-black font-[family-name:var(--font-orbitron)]">{cfg.testNum}</div>
+                    <div className="text-[9px] leading-tight mt-0.5 hidden sm:block">
+                      {cfg.label.split("—")[1]?.trim().split(" ")[0]}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {GMAT_TEST_CONFIGS.find(c => c.testNum === testNum)?.label}
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {GMAT_TEST_CONFIGS.find(c => c.testNum === testNum)?.label}
-            </p>
-          </div>
+          ) : (
+            <div className="p-3 rounded border border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5 text-xs text-[var(--neon-cyan)] tracking-widest">
+              {GMAT_TEST_CONFIGS.find(c => c.testNum === lockedTestNum)?.label}
+            </div>
+          )}
 
           {/* Section overview */}
           <div className="space-y-3">

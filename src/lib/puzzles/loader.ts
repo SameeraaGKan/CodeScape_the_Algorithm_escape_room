@@ -41,7 +41,13 @@ const ALL_CS_QUESTIONS: MCQQuestion[] = [
   ...gmatDataInsightsQuestions,
 ].forEach(q => { ALL_MCQ_BY_ID[q.id] = q; });
 
-const QUESTION_BANK: Record<Exclude<PathId, "cs_random" | "gmat_full_test">, MCQQuestion[]> = {
+type BankPathId = Exclude<PathId,
+  | "cs_random" | "gmat_full_test"
+  | "gmat_test_1" | "gmat_test_2" | "gmat_test_3" | "gmat_test_4" | "gmat_test_5"
+  | "gmat_test_6" | "gmat_test_7" | "gmat_test_8" | "gmat_test_9" | "gmat_test_10"
+>;
+
+const QUESTION_BANK: Record<BankPathId, MCQQuestion[]> = {
   cs_algorithms: algorithmsQuestions,
   cs_theory: theoryQuestions,
   cs_discrete_math: discreteMathQuestions,
@@ -106,12 +112,12 @@ export function getQuestionsForPath(path: PathId, count?: number, seed?: string)
   if (path === "cs_random") {
     return shuffleFn(ALL_CS_QUESTIONS).slice(0, count ?? 20);
   }
-  if (path === "gmat_full_test") {
-    // Not used directly — GMAT test page loads sections individually
+  if (path === "gmat_full_test" || path.startsWith("gmat_test_")) {
+    // Not used directly — GMAT test page loads sections individually by path
     return [];
   }
 
-  const pool = QUESTION_BANK[path];
+  const pool = QUESTION_BANK[path as BankPathId];
 
   // CS topics: always shuffle and serve 10 from the pool (pool may be 20+)
   if (CS_PATH_IDS.has(path)) {

@@ -17,7 +17,17 @@ export type PathId =
   | "gmat_verbal"
   | "gmat_data_insights"
   | "cs_random"
-  | "gmat_full_test";
+  | "gmat_full_test"
+  | "gmat_test_1"
+  | "gmat_test_2"
+  | "gmat_test_3"
+  | "gmat_test_4"
+  | "gmat_test_5"
+  | "gmat_test_6"
+  | "gmat_test_7"
+  | "gmat_test_8"
+  | "gmat_test_9"
+  | "gmat_test_10";
 
 export type MCQQuestion = {
   id: string;
