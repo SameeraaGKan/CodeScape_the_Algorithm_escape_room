@@ -58,8 +58,8 @@ export default function LobbyPage({
   useEffect(() => {
     async function init() {
       const supabase = getSupabaseBrowser();
-      const { data: { user, session } } = await supabase.auth.getSession();
-      setCurrentUserId(user?.id ?? null);
+      const { data: { session } } = await supabase.auth.getSession();
+      setCurrentUserId(session?.user?.id ?? null);
 
       const res = await fetch(`/api/teams?id=${teamId}`, {
         headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
