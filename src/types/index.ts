@@ -22,6 +22,7 @@ export type PathId =
 export type MCQQuestion = {
   id: string;
   path: PathId;
+  passage?: string; // RC passage displayed above question text
   question: string;
   options: readonly [string, string, string, string] | readonly [string, string, string, string, string];
   answer: number;

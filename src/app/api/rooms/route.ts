@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
     .insert(gameSessions)
     .values({
       teamId,
+      userId: user.id,
       roomCode,
       puzzleSetId,
       currentPuzzleIndex: 0,

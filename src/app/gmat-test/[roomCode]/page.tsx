@@ -7,8 +7,9 @@ import type { UserResponse } from "@supabase/supabase-js";
 import type { MCQQuestion } from "@/types";
 import {
   Clock, Flag, ChevronLeft, ChevronRight, CheckCircle,
-  AlertCircle, SkipForward, BookOpen, Loader2,
+  AlertCircle, SkipForward, BookOpen, Loader2, ChevronDown, ChevronUp,
 } from "lucide-react";
+import { GMAT_TEST_CONFIGS, getTestConfig } from "@/lib/puzzles/data/gmat/test-configs";
 
 // ── GMAT Focus Edition constants ──────────────────────────────────────────────
 const SECTIONS = [
@@ -17,20 +18,12 @@ const SECTIONS = [
   { pathId: "gmat_data_insights",  label: "Data Insights",          count: 20, timeSecs: 45 * 60 },
 ] as const;
 
-const BREAK_SECS = 10 * 60; // 10 minutes
+const BREAK_SECS = 10 * 60;
 const DIFFICULTY_WEIGHTS = { easy: 0.8, medium: 1.0, hard: 1.3 } as const;
 
 // ── Types ────────────────────────────────────────────────────────────────────
 type QEntry = { question: MCQQuestion; answer: number | null; flagged: boolean };
-
-type Phase =
-  | "loading"
-  | "intro"
-  | "section"
-  | "review"
-  | "break"
-  | "results";
-
+type Phase = "loading" | "intro" | "section" | "review" | "break" | "results";
 type SectionResult = { label: string; score: number; correct: number; total: number };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -58,7 +51,6 @@ function sectionScore(entries: QEntry[]): number {
 }
 
 function totalScore(scores: number[]): number {
-  // Official GMAT Focus Edition: 205–805, all values end in 5, equally weighted sections
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
   const raw = ((avg - 60) / 30) * 600 + 205;
   const rounded = Math.round((raw - 5) / 10) * 10 + 5;
@@ -67,16 +59,14 @@ function totalScore(scores: number[]): number {
 
 type GradeBand = { label: string; percentile: string; color: string; bg: string; border: string };
 
-// Percentile bands from official GMAC data (Aug 2024)
-// 505 ≈ 28th · 555 ≈ 49th · 605 ≈ 72nd · 655 ≈ 91st · 705+ ≈ 98th+
 function gradeFor(score: number): GradeBand {
-  if (score >= 705) return { label: "Exceptional", percentile: "98th+ percentile", color: "#ff00cc", bg: "rgba(255,0,204,0.08)",  border: "rgba(255,0,204,0.4)"  };
-  if (score >= 655) return { label: "Excellent",   percentile: "91st–97th percentile", color: "#0066ff", bg: "rgba(0,102,255,0.08)",  border: "rgba(0,102,255,0.4)"  };
-  if (score >= 605) return { label: "Strong",      percentile: "72nd–90th percentile", color: "#05b9b6", bg: "rgba(5,185,182,0.08)",  border: "rgba(5,185,182,0.4)"  };
-  if (score >= 555) return { label: "Competitive", percentile: "49th–71st percentile", color: "#f59e0b", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.4)" };
-  if (score >= 505) return { label: "Average",     percentile: "28th–48th percentile", color: "#94a3b8", bg: "rgba(148,163,184,0.06)", border: "rgba(148,163,184,0.3)" };
-  if (score >= 455) return { label: "Below Avg",   percentile: "12th–27th percentile", color: "#f97316", bg: "rgba(249,115,22,0.06)",  border: "rgba(249,115,22,0.3)"  };
-  return               { label: "Developing",  percentile: "Below 12th percentile",color: "#64748b", bg: "rgba(100,116,139,0.06)", border: "rgba(100,116,139,0.3)" };
+  if (score >= 705) return { label: "Exceptional", percentile: "98th+ percentile",      color: "#ff00cc", bg: "rgba(255,0,204,0.08)",   border: "rgba(255,0,204,0.4)"  };
+  if (score >= 655) return { label: "Excellent",   percentile: "91st–97th percentile",  color: "#0066ff", bg: "rgba(0,102,255,0.08)",   border: "rgba(0,102,255,0.4)"  };
+  if (score >= 605) return { label: "Strong",      percentile: "72nd–90th percentile",  color: "#05b9b6", bg: "rgba(5,185,182,0.08)",   border: "rgba(5,185,182,0.4)"  };
+  if (score >= 555) return { label: "Competitive", percentile: "49th–71st percentile",  color: "#f59e0b", bg: "rgba(245,158,11,0.08)",  border: "rgba(245,158,11,0.4)" };
+  if (score >= 505) return { label: "Average",     percentile: "28th–48th percentile",  color: "#94a3b8", bg: "rgba(148,163,184,0.06)", border: "rgba(148,163,184,0.3)" };
+  if (score >= 455) return { label: "Below Avg",   percentile: "12th–27th percentile",  color: "#f97316", bg: "rgba(249,115,22,0.06)",  border: "rgba(249,115,22,0.3)"  };
+  return               { label: "Developing",  percentile: "Below 12th percentile", color: "#64748b", bg: "rgba(100,116,139,0.06)", border: "rgba(100,116,139,0.3)" };
 }
 
 function fmtTime(s: number) {
@@ -93,8 +83,14 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   const [phase, setPhase] = useState<Phase>("loading");
   const [loadError, setLoadError] = useState("");
 
-  // Question pools (one per section)
+  // Raw question pools from API (one per section)
   const [pools, setPools] = useState<[MCQQuestion[], MCQQuestion[], MCQQuestion[]]>([[], [], []]);
+
+  // Filtered pools for the selected test (stored in a ref so they're stable across renders)
+  const filteredPoolsRef = useRef<[MCQQuestion[], MCQQuestion[], MCQQuestion[]]>([[], [], []]);
+
+  // Test selector
+  const [testNum, setTestNum] = useState(1);
 
   // Current section
   const [sIdx, setSIdx] = useState(0);
@@ -104,6 +100,12 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   const sectionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [secTimer, setSecTimer] = useState(45 * 60);
 
+  // Double-submit guard
+  const submittingRef = useRef(false);
+
+  // Per-section entries for wrong-answer review
+  const [sectionEntries, setSectionEntries] = useState<QEntry[][]>([]);
+
   // Break
   const breakTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [breakTimer, setBreakTimer] = useState(BREAK_SECS);
@@ -112,6 +114,9 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   // Results
   const [results, setResults] = useState<SectionResult[]>([]);
 
+  // Wrong-answer review expansion state
+  const [expandedSection, setExpandedSection] = useState<number | null>(null);
+
   // Admin-only guard
   useEffect(() => {
     getSupabaseBrowser().auth.getUser().then(({ data: { user } }: UserResponse) => {
@@ -119,12 +124,12 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
     });
   }, [router]);
 
-  // Init: load session + all 3 question pools
+  // Load question pools
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch(`/api/rooms?code=${roomCode}`);
-        if (!res.ok) { setLoadError("Session not found."); setPhase("loading"); return; }
+        if (!res.ok) { setLoadError("Session not found."); return; }
 
         const [qRes, vRes, dRes] = await Promise.all([
           fetch("/api/questions?path=gmat_quant"),
@@ -146,11 +151,7 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
     clearInterval(sectionTimerRef.current!);
     sectionTimerRef.current = setInterval(() => {
       setSecTimer(t => {
-        if (t <= 1) {
-          clearInterval(sectionTimerRef.current!);
-          setPhase("review"); // time expired → force review
-          return 0;
-        }
+        if (t <= 1) { clearInterval(sectionTimerRef.current!); setPhase("review"); return 0; }
         return t - 1;
       });
     }, 1000);
@@ -164,11 +165,7 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
     clearInterval(breakTimerRef.current!);
     breakTimerRef.current = setInterval(() => {
       setBreakTimer(t => {
-        if (t <= 1) {
-          clearInterval(breakTimerRef.current!);
-          setBreakExpired(true);
-          return 0;
-        }
+        if (t <= 1) { clearInterval(breakTimerRef.current!); setBreakExpired(true); return 0; }
         return t - 1;
       });
     }, 1000);
@@ -178,18 +175,42 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   // ── Section management ──────────────────────────────────────────────────────
   function beginSection(idx: number) {
     clearInterval(sectionTimerRef.current!);
+    submittingRef.current = false;
     setSIdx(idx);
     setSkillLevel(0);
     setSecTimer(SECTIONS[idx].timeSecs);
 
-    const pool = pools[idx];
+    const pool = filteredPoolsRef.current[idx];
     const first = adaptivePick(pool, new Set(), 0);
     setServed(first ? [{ question: first, answer: null, flagged: false }] : []);
     setCurQ(0);
     setPhase("section");
   }
 
+  function startTest() {
+    // Compute filtered pools for the selected test number
+    const config = getTestConfig(testNum);
+    if (config) {
+      const qSet = new Set(config.quantIds);
+      const vSet = new Set(config.verbalIds);
+      const dSet = new Set(config.dataInsightsIds);
+      filteredPoolsRef.current = [
+        pools[0].filter(q => qSet.has(q.id)),
+        pools[1].filter(q => vSet.has(q.id)),
+        pools[2].filter(q => dSet.has(q.id)),
+      ];
+    } else {
+      filteredPoolsRef.current = pools as [MCQQuestion[], MCQQuestion[], MCQQuestion[]];
+    }
+    setSectionEntries([]);
+    setResults([]);
+    beginSection(0);
+  }
+
   function submitSection() {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+
     clearInterval(sectionTimerRef.current!);
     const sec = SECTIONS[sIdx];
     const score = sectionScore(served);
@@ -197,9 +218,11 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
     const result: SectionResult = { label: sec.label, score, correct, total: served.length };
     const newResults = [...results, result];
     setResults(newResults);
+    setSectionEntries(prev => [...prev, [...served]]);
 
     if (sIdx < 2) {
       setBreakTimer(BREAK_SECS);
+      submittingRef.current = false;
       setPhase("break");
     } else {
       finalizeTest(newResults);
@@ -208,13 +231,16 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
 
   async function finalizeTest(finalResults: SectionResult[]) {
     const scores = finalResults.map(r => r.score);
-    while (scores.length < 3) scores.push(60); // pad incomplete test
+    while (scores.length < 3) scores.push(60);
     const total = totalScore(scores);
-    await fetch("/api/rooms/complete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomCode, finalScore: total }),
-    });
+    try {
+      await fetch("/api/rooms/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomCode, finalScore: total }),
+      });
+    } catch { /* non-fatal */ }
+    submittingRef.current = false;
     setPhase("results");
   }
 
@@ -224,7 +250,6 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
     const old = updated[curQ].answer;
     updated[curQ] = { ...updated[curQ], answer: idx };
     setServed(updated);
-    // Update skill based on correctness change
     const q = updated[curQ].question;
     const wasCorrect = old === q.answer;
     const isCorrect = idx === q.answer;
@@ -241,17 +266,11 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   }
 
   function goNext() {
-    if (curQ < served.length - 1) {
-      setCurQ(c => c + 1);
-      return;
-    }
+    if (curQ < served.length - 1) { setCurQ(c => c + 1); return; }
     const targetCount = SECTIONS[sIdx].count;
-    if (served.length >= targetCount) {
-      setPhase("review");
-      return;
-    }
+    if (served.length >= targetCount) { setPhase("review"); return; }
     const usedIds = new Set(served.map(e => e.question.id));
-    const next = adaptivePick(pools[sIdx], usedIds, skillLevel);
+    const next = adaptivePick(filteredPoolsRef.current[sIdx], usedIds, skillLevel);
     if (!next) { setPhase("review"); return; }
     setServed(prev => [...prev, { question: next, answer: null, flagged: false }]);
     setCurQ(c => c + 1);
@@ -262,7 +281,7 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   const timerPct = (secTimer / SECTIONS[Math.min(sIdx, 2)].timeSecs) * 100;
   const timerColor = timerPct > 50 ? "var(--neon-cyan)" : timerPct > 20 ? "#f59e0b" : "#dc2626";
 
-  // ── Render phases ─────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
   if (phase === "loading") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
@@ -285,6 +304,32 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
             <p className="text-sm text-muted-foreground">3 sections · 64 questions · 2h 15m total</p>
           </div>
 
+          {/* Test selector */}
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground tracking-widest">SELECT TEST</p>
+            <div className="grid grid-cols-5 gap-2">
+              {GMAT_TEST_CONFIGS.map(cfg => (
+                <button
+                  key={cfg.testNum}
+                  onClick={() => setTestNum(cfg.testNum)}
+                  className={`p-3 rounded border text-center transition-all
+                    ${testNum === cfg.testNum
+                      ? "border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10 text-[var(--neon-cyan)]"
+                      : "border-[var(--dark-border)] text-muted-foreground hover:border-[var(--neon-cyan)]/50"
+                    }`}
+                >
+                  <div className="text-lg font-black font-[family-name:var(--font-orbitron)]">{cfg.testNum}</div>
+                  <div className="text-[9px] leading-tight mt-0.5 hidden sm:block">
+                    {cfg.label.split("—")[1]?.trim().split(" ")[0]}
+                  </div>
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {GMAT_TEST_CONFIGS.find(c => c.testNum === testNum)?.label}
+            </p>
+          </div>
+
           {/* Section overview */}
           <div className="space-y-3">
             {SECTIONS.map((s, i) => (
@@ -294,8 +339,7 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
                   <div className="text-xs text-muted-foreground mt-0.5">{s.count} questions · Adaptive difficulty</div>
                 </div>
                 <div className="flex items-center gap-2 text-[var(--neon-cyan)] text-sm font-[family-name:var(--font-orbitron)]">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>45:00</span>
+                  <Clock className="w-3.5 h-3.5" /><span>45:00</span>
                 </div>
               </div>
             ))}
@@ -310,14 +354,15 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
               <li>Flag questions for review before submitting a section</li>
               <li>Optional 10-minute break between sections</li>
               <li>No agent assistance — this is solo mode</li>
+              <li>Wrong-answer review with explanations shown after the test</li>
             </ul>
           </div>
 
           <button
-            onClick={() => beginSection(0)}
+            onClick={startTest}
             className="w-full py-4 bg-[var(--neon-cyan)] text-black font-black tracking-widest text-sm rounded hover:bg-[var(--neon-cyan)]/90 transition-all box-glow-cyan font-[family-name:var(--font-orbitron)]"
           >
-            BEGIN TEST →
+            BEGIN TEST {testNum} →
           </button>
         </div>
       </div>
@@ -329,12 +374,10 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
     const entry = served[curQ];
     const answeredCount = served.filter(e => e.answer !== null).length;
     const flaggedCount = served.filter(e => e.flagged).length;
-    const isDS = entry?.question.options.length === 5;
 
     if (phase === "review") {
       return (
         <div className="min-h-screen bg-background flex flex-col">
-          {/* Review header */}
           <div className="border-b border-[var(--dark-border)] bg-background/90 px-6 py-4">
             <div className="max-w-3xl mx-auto flex items-center justify-between">
               <div>
@@ -349,7 +392,6 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
 
           <div className="flex-1 overflow-y-auto p-6">
             <div className="max-w-3xl mx-auto space-y-6">
-              {/* Navigator grid */}
               <div className="p-4 rounded border border-[var(--dark-border)] bg-card">
                 <p className="text-xs text-muted-foreground tracking-widest mb-3">QUESTION OVERVIEW — click to revisit</p>
                 <div className="flex flex-wrap gap-2">
@@ -362,7 +404,6 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
                       <button
                         key={i}
                         onClick={() => { if (isServed) { setCurQ(i); setPhase("section"); } }}
-                        title={`Q${i + 1}${isFlagged ? " (flagged)" : ""}${!hasAnswer && isServed ? " (unanswered)" : ""}`}
                         className={`w-10 h-10 rounded text-xs font-bold font-[family-name:var(--font-orbitron)] border transition-all
                           ${!isServed ? "border-[var(--dark-border)] text-muted-foreground/30 cursor-not-allowed" :
                           isFlagged ? "border-amber-400 bg-amber-400/10 text-amber-400" :
@@ -381,11 +422,10 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
                 </div>
               </div>
 
-              {/* Unanswered warning */}
               {answeredCount < served.length && (
                 <div className="flex items-center gap-2 p-3 rounded border border-amber-400/30 bg-amber-400/5 text-amber-400 text-sm">
                   <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{served.length - answeredCount} question{served.length - answeredCount !== 1 ? "s" : ""} unanswered. You can go back and answer them.</span>
+                  <span>{served.length - answeredCount} question{served.length - answeredCount !== 1 ? "s" : ""} unanswered.</span>
                 </div>
               )}
 
@@ -409,14 +449,13 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
       );
     }
 
-    // Active section view
+    // Active section
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        {/* Section header */}
         <header className="border-b border-[var(--dark-border)] bg-background/90 backdrop-blur-md sticky top-0 z-40">
           <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-4">
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] text-muted-foreground tracking-widest">SECTION {sIdx + 1} OF 3</div>
+              <div className="text-[10px] text-muted-foreground tracking-widest">SECTION {sIdx + 1} OF 3 · TEST {testNum}</div>
               <div className="font-[family-name:var(--font-orbitron)] text-xs font-bold text-foreground truncate">{sec.label}</div>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
@@ -433,13 +472,10 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
           </div>
         </header>
 
-        {/* Main layout: question + navigator */}
         <div className="flex flex-1 overflow-hidden max-w-5xl mx-auto w-full">
-          {/* Question area */}
           <div className="flex-1 overflow-y-auto p-5 space-y-5">
             {entry && (
               <>
-                {/* Difficulty badge */}
                 <div className="flex items-center justify-between">
                   <span className={`text-xs px-2 py-0.5 rounded border uppercase tracking-wider font-[family-name:var(--font-orbitron)]
                     ${entry.question.difficulty === "easy" ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10" :
@@ -455,13 +491,21 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
                   )}
                 </div>
 
+                {/* RC passage */}
+                {entry.question.passage && (
+                  <div className="p-4 rounded border border-[var(--neon-cyan)]/20 bg-[var(--neon-cyan)]/5">
+                    <div className="text-[10px] text-[var(--neon-cyan)] tracking-[0.25em] mb-2 font-[family-name:var(--font-orbitron)]">READ THE PASSAGE</div>
+                    <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">{entry.question.passage}</p>
+                  </div>
+                )}
+
                 {/* Question text */}
                 <div className="p-5 rounded border border-[var(--dark-border)] bg-card">
                   <p className="text-foreground leading-relaxed whitespace-pre-line text-sm">{entry.question.question}</p>
                 </div>
 
                 {/* Options */}
-                <div className={`grid gap-3 ${isDS ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"}`}>
+                <div className="grid gap-3 grid-cols-1">
                   {entry.question.options.map((opt, i) => {
                     const isSelected = entry.answer === i;
                     return (
@@ -610,73 +654,132 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
     const total = scores.length === 3 ? totalScore(scores) : null;
     const sectionSum = scores.reduce((a, b) => a + b, 0);
     const grade = total !== null ? gradeFor(total) : null;
+
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <div className="max-w-lg w-full space-y-8">
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-2xl mx-auto space-y-8">
           <div className="text-center space-y-2">
-            <div className="text-xs text-[var(--neon-cyan)] tracking-[0.3em] font-[family-name:var(--font-orbitron)]">GMAT FOCUS EDITION</div>
+            <div className="text-xs text-[var(--neon-cyan)] tracking-[0.3em] font-[family-name:var(--font-orbitron)]">GMAT FOCUS EDITION · TEST {testNum}</div>
             <h1 className="text-3xl font-black font-[family-name:var(--font-orbitron)] text-foreground">YOUR SCORES</h1>
+          </div>
 
-            {total !== null && grade !== null && (
-              <div
-                className="mt-4 p-6 rounded border-2"
-                style={{ background: grade.bg, borderColor: grade.border }}
-              >
-                {/* Total score */}
-                <div className="text-xs text-muted-foreground tracking-widest mb-1">TOTAL SCORE</div>
-                <div
-                  className="text-7xl font-black font-[family-name:var(--font-orbitron)] tabular-nums leading-none"
-                  style={{ color: grade.color }}
-                >
-                  {total}
+          {total !== null && grade !== null && (
+            <div className="p-6 rounded border-2" style={{ background: grade.bg, borderColor: grade.border }}>
+              <div className="text-xs text-muted-foreground tracking-widest mb-1">TOTAL SCORE</div>
+              <div className="text-7xl font-black font-[family-name:var(--font-orbitron)] tabular-nums leading-none" style={{ color: grade.color }}>
+                {total}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">out of 805 &nbsp;·&nbsp; section sum {sectionSum} / {scores.length * 90}</div>
+              <div className="mt-4 pt-4 border-t flex items-center justify-between" style={{ borderColor: grade.border }}>
+                <div>
+                  <div className="text-[10px] text-muted-foreground tracking-widest mb-0.5">PERFORMANCE BAND</div>
+                  <div className="text-xl font-black font-[family-name:var(--font-orbitron)] tracking-wide" style={{ color: grade.color }}>
+                    {grade.label.toUpperCase()}
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">out of 805 &nbsp;·&nbsp; section sum {sectionSum} / {scores.length * 90}</div>
-
-                {/* Grade band */}
-                <div className="mt-4 pt-4 border-t flex items-center justify-between" style={{ borderColor: grade.border }}>
-                  <div>
-                    <div className="text-[10px] text-muted-foreground tracking-widest mb-0.5">PERFORMANCE BAND</div>
-                    <div
-                      className="text-xl font-black font-[family-name:var(--font-orbitron)] tracking-wide"
-                      style={{ color: grade.color }}
-                    >
-                      {grade.label.toUpperCase()}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[10px] text-muted-foreground tracking-widest mb-0.5">PERCENTILE (GMAC 2024)</div>
-                    <div className="text-sm font-semibold" style={{ color: grade.color }}>
-                      {grade.percentile}
-                    </div>
-                  </div>
+                <div className="text-right">
+                  <div className="text-[10px] text-muted-foreground tracking-widest mb-0.5">PERCENTILE (GMAC 2024)</div>
+                  <div className="text-sm font-semibold" style={{ color: grade.color }}>{grade.percentile}</div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Section breakdowns */}
           <div className="space-y-3">
             {results.map((r, i) => (
-              <div key={i} className="p-4 rounded border border-[var(--dark-border)] bg-card flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-muted-foreground tracking-widest">SECTION {i + 1}</div>
-                  <div className="font-semibold text-foreground text-sm">{r.label}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{r.correct} / {r.total} correct</div>
+              <div key={i} className="rounded border border-[var(--dark-border)] bg-card overflow-hidden">
+                <div className="p-4 flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground tracking-widest">SECTION {i + 1}</div>
+                    <div className="font-semibold text-foreground text-sm">{r.label}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{r.correct} / {r.total} correct</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-2xl font-black font-[family-name:var(--font-orbitron)] text-[var(--neon-cyan)]">{r.score}</div>
+                      <div className="text-[10px] text-muted-foreground">/ 90</div>
+                    </div>
+                    {sectionEntries[i] && (
+                      <button
+                        onClick={() => setExpandedSection(expandedSection === i ? null : i)}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded border border-[var(--dark-border)] text-xs text-muted-foreground hover:border-[var(--neon-cyan)] hover:text-[var(--neon-cyan)] transition-all"
+                      >
+                        Review {expandedSection === i ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-black font-[family-name:var(--font-orbitron)] text-[var(--neon-cyan)]">{r.score}</div>
-                  <div className="text-[10px] text-muted-foreground">/ 90</div>
-                </div>
+
+                {/* Wrong-answer review */}
+                {expandedSection === i && sectionEntries[i] && (() => {
+                  const wrong = sectionEntries[i].filter(e => e.answer !== e.question.answer);
+                  return (
+                    <div className="border-t border-[var(--dark-border)] p-4 space-y-4 bg-background/40">
+                      <div className="text-xs text-muted-foreground tracking-widest">
+                        WRONG ANSWERS ({wrong.length}) — REVIEW &amp; EXPLANATIONS
+                      </div>
+                      {wrong.length === 0 ? (
+                        <p className="text-sm text-emerald-400">Perfect section! No wrong answers.</p>
+                      ) : (
+                        wrong.map((e, j) => (
+                          <div key={j} className="space-y-2 pb-4 border-b border-[var(--dark-border)] last:border-0 last:pb-0">
+                            {/* Passage snippet for RC */}
+                            {e.question.passage && (
+                              <div className="p-3 rounded bg-[var(--neon-cyan)]/5 border border-[var(--neon-cyan)]/15">
+                                <div className="text-[10px] text-[var(--neon-cyan)] tracking-widest mb-1">PASSAGE</div>
+                                <p className="text-xs text-foreground/80 leading-relaxed line-clamp-4">{e.question.passage}</p>
+                              </div>
+                            )}
+                            <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{e.question.question}</p>
+                            <div className="grid grid-cols-1 gap-1.5">
+                              {e.question.options.map((opt, oi) => {
+                                const isYours = e.answer === oi;
+                                const isCorrect = e.question.answer === oi;
+                                return (
+                                  <div
+                                    key={oi}
+                                    className={`flex items-start gap-2 p-2 rounded text-xs
+                                      ${isCorrect ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400" :
+                                       isYours ? "bg-red-500/10 border border-red-500/30 text-red-400" :
+                                       "border border-transparent text-muted-foreground"}`}
+                                  >
+                                    <span className="font-bold shrink-0">{String.fromCharCode(65 + oi)}.</span>
+                                    <span>{opt}</span>
+                                    {isCorrect && <span className="ml-auto shrink-0 font-bold">✓ Correct</span>}
+                                    {isYours && !isCorrect && <span className="ml-auto shrink-0 font-bold">✗ Your answer</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <div className="p-3 rounded border border-[var(--dark-border)] bg-card">
+                              <div className="text-[10px] text-[var(--neon-cyan)] tracking-widest mb-1">EXPLANATION</div>
+                              <p className="text-xs text-muted-foreground leading-relaxed">{e.question.explanation}</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             ))}
           </div>
 
-          <button
-            onClick={() => router.push("/")}
-            className="w-full py-3 rounded border border-[var(--dark-border)] text-foreground text-sm hover:border-[var(--neon-cyan)] hover:text-[var(--neon-cyan)] transition-all tracking-widest font-[family-name:var(--font-orbitron)]"
-          >
-            RETURN HOME
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => { setPhase("intro"); setResults([]); setSectionEntries([]); }}
+              className="flex-1 py-3 rounded border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)] text-sm hover:bg-[var(--neon-cyan)]/5 transition-all tracking-widest font-[family-name:var(--font-orbitron)]"
+            >
+              TAKE ANOTHER TEST
+            </button>
+            <button
+              onClick={() => router.push("/")}
+              className="flex-1 py-3 rounded border border-[var(--dark-border)] text-foreground text-sm hover:border-[var(--neon-cyan)] hover:text-[var(--neon-cyan)] transition-all tracking-widest font-[family-name:var(--font-orbitron)]"
+            >
+              RETURN HOME
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -6,6 +6,7 @@ export const gameSessions = pgTable("game_sessions", {
   teamId: uuid("team_id")
     .notNull()
     .references(() => teams.id, { onDelete: "cascade" }),
+  userId: text("user_id"), // Supabase auth user ID of the session creator
   roomCode: text("room_code").notNull().unique(),
   puzzleSetId: text("puzzle_set_id").notNull().default("default_set"),
   currentPuzzleIndex: integer("current_puzzle_index").notNull().default(0),

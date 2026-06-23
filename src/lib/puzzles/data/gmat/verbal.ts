@@ -1,492 +1,239 @@
 import type { MCQQuestion } from "@/types";
 
+// GMAT Focus Edition — Verbal Reasoning
+// 230 questions across 10 tests (23 per test)
+// RC questions carry full passage text in the `passage` field so they're self-contained.
+
+// ── Shared passages (reused within a test's RC set) ──────────────────────
+const P_BEHAVIORAL_ECON = "Behavioral economics challenges traditional models that assume rational actors. Kahneman and Tversky showed humans exhibit systematic biases: loss aversion (valuing losses ~2× more than equivalent gains) and anchoring (over-relying on the first number encountered). These insights inform 'nudge' policy — guiding choices without restricting them.";
+
+const P_GIG_ECONOMY = "The gig economy has expanded rapidly, offering workers flexibility but reducing job security and benefits. Proponents argue it democratizes entrepreneurship. Critics contend it externalizes business risk onto workers who lack negotiating power.";
+
+const P_AI_EMERGENCE = "Artificial intelligence systems trained on large datasets can exhibit emergent capabilities — behaviors not explicitly programmed and not present in smaller models. This unpredictability complicates safety testing: engineers cannot enumerate all inputs that might trigger harmful outputs. Proponents argue emergence enables unprecedented problem-solving; critics counter that opaque, emergent systems are inherently ungovernable.";
+
+const P_MICROPLASTICS = "Microplastics — particles smaller than 5 mm — have been detected in oceans, soil, drinking water, and human tissue. While their prevalence is undisputed, long-term health impacts remain poorly understood. Studies on marine animals show cellular damage, but extrapolating to humans is scientifically contested. Regulatory bodies have called for precautionary limits, while industry groups argue current evidence is insufficient to justify restrictive policy.";
+
+const P_REMOTE_WORK = "Studies of remote work during the pandemic produced contradictory findings. Some researchers reported productivity gains of 10–15%, attributing them to reduced commute time and fewer office interruptions. Others found declines in collaboration quality and innovation, arguing that serendipitous in-person interactions are irreplaceable. A third cluster of studies found no significant productivity change, suggesting individual and organizational factors mediate outcomes.";
+
+const P_URBAN_HEAT = "Urban heat islands arise when cities absorb and re-emit more heat than surrounding rural areas, primarily due to impervious surfaces, low vegetation, and waste heat from transportation. Temperatures in urban cores can exceed rural areas by 2–5°C, increasing energy demand, worsening air quality, and raising heat-related mortality. Green roofs, reflective pavements, and urban forests have been proposed as mitigation strategies, though each carries distinct cost and feasibility trade-offs.";
+
+const P_ANTIBIOTIC_RESIST = "Antibiotic resistance is accelerating globally, driven by overuse in human medicine and agriculture. When bacteria survive antibiotic exposure, resistant strains propagate; plasmids can transfer resistance genes between species rapidly. The WHO classifies antimicrobial resistance as one of the top global public health threats. Development of new antibiotics has slowed dramatically since the 1980s, as pharmaceutical companies find the business model unattractive relative to drugs taken chronically.";
+
+const P_CARBON_CAPTURE = "Carbon capture and storage (CCS) involves removing CO₂ from emission sources or the atmosphere and sequestering it underground. Proponents see CCS as essential to meeting net-zero targets alongside renewable energy. Critics argue CCS is costly, energy-intensive, and provides cover for continued fossil fuel use. A 2023 meta-analysis found that existing CCS projects capture roughly 40 million tonnes annually — less than 0.1% of global emissions.";
+
+const P_SOCIAL_MEDIA_TEEN = "A longitudinal study tracked 5,000 adolescents over four years, measuring social media use and self-reported well-being. Heavier users reported lower life satisfaction, though the effect size was small (r = 0.12). Critics of the study noted that reverse causation — unhappy teens seeking social media — was not ruled out, and that correlational findings should not drive policy. Proponents argued the precautionary principle justified action even under uncertainty.";
+
+const P_SUPPLY_CHAIN = "Global supply chains became more fragile when COVID-19 exposed the vulnerability of just-in-time (JIT) manufacturing. JIT, which minimizes inventory to reduce holding costs, depends on reliable, rapid delivery from geographically dispersed suppliers. Disruptions in one node can cascade globally. Post-pandemic, firms are debating reshoring (moving production domestically), nearshoring (moving to nearby countries), and buffer stock strategies — each with different cost and resilience trade-offs.";
+
 export const gmatVerbalQuestions: MCQQuestion[] = [
-  // ── Sentence Correction ──────────────────────────────────
-  {
-    id: "gv_sc_01",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: Choose the best version of the underlined portion.\n\"Between you and ___, this project will fail.\"",
-    options: ["I, this project will fail.", "me, this project will fail.", "myself, this project will fail.", "I, this project will be failing."],
-    answer: 1,
-    explanation: "Prepositions take object pronouns. 'Between you and me' is correct. 'I' is a subject pronoun and cannot follow a preposition. 'Myself' is a reflexive pronoun used for emphasis or reflexive actions.",
-    difficulty: "easy",
-  },
-  {
-    id: "gv_sc_02",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"Neither the students nor the teacher ___ finished the exam.\"",
-    options: ["have", "has", "have been", "will have"],
-    answer: 1,
-    explanation: "With 'neither...nor', the verb agrees with the subject closest to it. The closest subject is 'teacher' (singular), so the correct verb is 'has'.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_sc_03",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"Each of the reports ___ submitted on time.\"",
-    options: ["are", "is", "have been", "were"],
-    answer: 1,
-    explanation: "'Each' is always singular and takes a singular verb. The prepositional phrase 'of the reports' modifies 'each' but does not change subject-verb agreement.",
-    difficulty: "easy",
-  },
-  {
-    id: "gv_sc_04",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"The company, along with its subsidiaries, ___ filing for bankruptcy.\"",
-    options: ["are", "is", "were", "have been"],
-    answer: 1,
-    explanation: "'Along with its subsidiaries' is a parenthetical phrase. The true subject is 'company' (singular), so the correct verb is 'is'.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_sc_05",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"If she ___ harder, she would have passed.\"",
-    options: ["would have studied", "had studied", "studied", "would study"],
-    answer: 1,
-    explanation: "In a past counterfactual conditional, the 'if' clause uses past perfect ('had studied') and the result clause uses 'would have + past participle'. 'Would have studied' in the if-clause is incorrect.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_sc_06",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"The board of directors ___ meeting tomorrow to discuss the merger.\"",
-    options: ["are", "is", "have been", "were"],
-    answer: 1,
-    explanation: "In American English, collective nouns like 'board,' 'committee,' and 'team' take singular verbs when acting as a single unit: 'The board is meeting.'",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_sc_07",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"The data ___ that temperatures have risen steadily.\"",
-    options: ["shows", "show", "is showing", "has shown"],
-    answer: 1,
-    explanation: "In formal GMAT usage, 'data' is treated as plural (it is the plural of 'datum'). Therefore 'data show' is preferred. 'Data shows' treats it as a mass noun, which is less formal.",
-    difficulty: "hard",
-  },
-  {
-    id: "gv_sc_08",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"Scientists named the species after the explorer ___ they believe found it first.\"",
-    options: ["which", "whom", "who", "that"],
-    answer: 2,
-    explanation: "'Who' is the subject of the relative clause (the explorer 'who found it'). 'Whom' would be used if the explorer were the object: 'the explorer whom they contacted.' Here the explorer is the subject of 'found.'",
-    difficulty: "hard",
-  },
-  // ── Critical Reasoning ───────────────────────────────────
-  {
-    id: "gv_cr_01",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"Sales of electric vehicles increased 40% over two years. Therefore, fossil fuel car sales will soon decline.\"\n\nWhat assumption does this argument rely on?",
-    options: [
-      "Electric vehicles are cheaper than fossil fuel cars.",
-      "The total car market is static, so EV gains come at the expense of fossil fuel vehicles.",
-      "Government subsidies drive all EV growth.",
-      "Fossil fuel prices will increase dramatically.",
-    ],
-    answer: 1,
-    explanation: "The argument assumes EV sales and fossil fuel sales compete for the same fixed market. Without this assumption, both could grow simultaneously in an expanding market.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_cr_02",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"Students who use e-readers score higher on reading comprehension. Therefore, schools should switch to e-readers.\"\n\nWhich of the following most weakens this argument?",
-    options: [
-      "E-readers can hold hundreds of books.",
-      "Students who choose e-readers are already stronger readers, introducing selection bias.",
-      "E-readers reduce paper waste.",
-      "Reading comprehension is the most important academic skill.",
-    ],
-    answer: 1,
-    explanation: "If e-reader users are inherently better readers, correlation doesn't imply causation. The higher scores may be due to the students' pre-existing ability, not the e-reader itself.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_cr_03",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"Every marathon runner in this city trained for at least 6 months. Jordan trained for 8 months. Therefore, Jordan is a marathon runner.\"\n\nThis argument is flawed because it:",
-    options: [
-      "Uses anecdotal evidence",
-      "Confuses a necessary condition (training ≥6 months) with a sufficient one",
-      "Commits an ad hominem fallacy",
-      "Relies on circular reasoning",
-    ],
-    answer: 1,
-    explanation: "Training for 6+ months is necessary to be a marathon runner in this city, but it is not sufficient. Jordan may have trained but never run a marathon.",
-    difficulty: "hard",
-  },
-  {
-    id: "gv_cr_04",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"Company X's satisfaction scores fell after implementing a new checkout process. The new process must be responsible.\"\n\nWhich assumption best supports this causal claim?",
-    options: [
-      "Satisfaction scores are always reliable.",
-      "No other changes occurred around the same time that could explain the drop.",
-      "The new checkout was implemented company-wide.",
-      "Customers prefer simple processes.",
-    ],
-    answer: 1,
-    explanation: "To conclude causation, the argument must assume no confounding variables. If other changes occurred simultaneously, those could be the true cause.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_cr_05",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"All successful startups pivoted at least once. Therefore, companies should pivot frequently to succeed.\"\n\nThis reasoning is flawed primarily because it:",
-    options: [
-      "Ignores the high cost of pivoting",
-      "Only examines successful companies, ignoring startups that pivoted and still failed",
-      "Doesn't define 'pivot' precisely",
-      "Assumes all markets are the same",
-    ],
-    answer: 1,
-    explanation: "This is survivorship bias: the data only includes successful startups. Many companies that pivoted still failed. The sample is not representative of all startups.",
-    difficulty: "hard",
-  },
-  {
-    id: "gv_cr_06",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"The new drug reduces symptoms in 70% of patients. The argument concludes doctors should prescribe it for all patients.\"\n\nWhat is the most serious flaw in this reasoning?",
-    options: [
-      "70% is not 100%",
-      "The argument ignores side effects and whether benefits outweigh risks",
-      "Other drugs may also work",
-      "Doctors should follow clinical guidelines, not statistics",
-    ],
-    answer: 1,
-    explanation: "A drug's efficacy rate alone cannot justify universal prescription. The argument ignores adverse effects, contraindications, and the risk-benefit comparison for each patient population.",
-    difficulty: "medium",
-  },
-  // ── Reading Comprehension ────────────────────────────────
-  {
-    id: "gv_rc_01",
-    path: "gmat_verbal",
-    question: "READING COMPREHENSION PASSAGE: \"Behavioral economics challenges traditional models that assume rational actors. Kahneman and Tversky showed humans exhibit systematic biases: loss aversion (valuing losses ~2× more than equivalent gains) and anchoring (over-relying on the first number encountered). These insights inform 'nudge' policy — guiding choices without restricting them.\"\n\nAccording to the passage, loss aversion means:",
-    options: [
-      "Avoiding all financial risk",
-      "Valuing losses approximately twice as much as equivalent gains",
-      "Making decisions based on initial information",
-      "Preferring smaller certain rewards over larger uncertain ones",
-    ],
-    answer: 1,
-    explanation: "The passage explicitly states loss aversion involves 'valuing losses ~2× more than equivalent gains.' This is directly from the text.",
-    difficulty: "easy",
-  },
-  {
-    id: "gv_rc_02",
-    path: "gmat_verbal",
-    question: "Using the passage above, which statement would most strengthen the claim that nudges are effective policy tools?",
-    options: [
-      "Traditional economics correctly predicts most human behavior.",
-      "Countries that switched to opt-out organ donation doubled donation rates.",
-      "Kahneman and Tversky received a Nobel Prize.",
-      "Loss aversion affects only certain demographic groups.",
-    ],
-    answer: 1,
-    explanation: "A concrete real-world example showing a nudge (opt-out default) produced a large behavioral change (doubled donation rates) directly supports the claim that nudges work as policy tools.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_rc_03",
-    path: "gmat_verbal",
-    question: "The author's primary purpose in the behavioral economics passage is to:",
-    options: [
-      "Argue that traditional economics is fundamentally wrong",
-      "Describe how behavioral economics challenges rational actor models and has practical applications",
-      "Prove humans always make irrational decisions",
-      "Detail the methodology of Kahneman and Tversky's experiments",
-    ],
-    answer: 1,
-    explanation: "The passage describes behavioral economics, its key findings (loss aversion, anchoring), and its application to policy (nudges). The author's purpose is descriptive and informative, not polemical.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_cr_07",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"Music education improves spatial reasoning. Spatial reasoning correlates with math performance. Therefore, music education improves math performance.\"\n\nThis argument:",
-    options: [
-      "Is valid and sound",
-      "Confuses correlation with causation in the second premise",
-      "Commits an affirming the consequent fallacy",
-      "Provides a false dilemma",
-    ],
-    answer: 1,
-    explanation: "Even if the first two statements are true, 'correlates with' does not mean 'causes.' Spatial reasoning's correlation with math may reflect a third variable (e.g., general intelligence).",
-    difficulty: "hard",
-  },
-  {
-    id: "gv_sc_09",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"The committee ___ their decision at tomorrow's meeting.\"",
-    options: [
-      "will announce",
-      "will announces",
-      "are going to announce",
-      "will be announced",
-    ],
-    answer: 0,
-    explanation: "'Committee' is a collective noun used as a single unit here; 'will announce' (simple future, singular) is correct. 'Are going to announce' treats the committee as plural individuals, which is less appropriate in formal GMAT writing.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_sc_10",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"Having studied for three days, ___ the exam felt manageable.\"",
-    options: [
-      "the exam felt manageable to the student.",
-      "the student found the exam manageable.",
-      "it felt manageable to take the exam.",
-      "the exam was felt manageable by the student.",
-    ],
-    answer: 1,
-    explanation: "The opening participial phrase 'Having studied for three days' must modify the grammatical subject of the main clause. Only option B has 'the student' as the subject, matching the implied doer of the studying.",
-    difficulty: "hard",
-  },
-  {
-    id: "gv_cr_08",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"Our city's recycling rate increased 30% after residents were shown the environmental benefits. To increase national recycling, the government should run environmental education campaigns.\"\n\nWhich of the following, if true, would most weaken this conclusion?",
-    options: [
-      "The city's recycling rate was below average before the campaign.",
-      "Convenience of recycling bins, not education, drove the increase in that city.",
-      "Environmental education campaigns are inexpensive to run.",
-      "Other cities have also seen increased recycling recently.",
-    ],
-    answer: 1,
-    explanation: "If the actual driver was convenient infrastructure rather than education, then replicating the education component nationally would not produce the same result. This undermines the causal mechanism assumed by the argument.",
-    difficulty: "hard",
-  },
-  {
-    id: "gv_rc_04",
-    path: "gmat_verbal",
-    question: "READING COMPREHENSION: \"The gig economy has expanded rapidly, offering workers flexibility but reducing job security and benefits. Proponents argue it democratizes entrepreneurship. Critics contend it externalizes business risk onto workers who lack negotiating power.\"\n\nWhich best describes the author's tone?",
-    options: [
-      "Strongly in favor of the gig economy",
-      "Balanced, presenting both supporting and critical perspectives",
-      "Strongly opposed to gig work",
-      "Indifferent to the topic",
-    ],
-    answer: 1,
-    explanation: "The author presents both sides — proponents' view (democratizes entrepreneurship) and critics' view (externalizes risk) — without advocating for either. The tone is objective and balanced.",
-    difficulty: "easy",
-  },
-  {
-    id: "gv_rc_05",
-    path: "gmat_verbal",
-    question: "Using the gig economy passage above, 'externalizes business risk onto workers' most closely means:",
-    options: [
-      "Companies share profits with gig workers",
-      "Companies transfer financial uncertainty (income variability, lack of benefits) to workers rather than bearing it themselves",
-      "Workers in the gig economy are classified as employees",
-      "External regulations impose costs on businesses",
-    ],
-    answer: 1,
-    explanation: "Traditional employment has firms absorbing demand fluctuations (paying salaries even in slow periods). In the gig economy, workers bear this risk through variable income and no guaranteed hours.",
-    difficulty: "medium",
-  },
-  // ── More Sentence Correction ─────────────────────────────
-  {
-    id: "gv_sc_11",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"The CEO, as well as the board members, ___ responsible for the decision.\"",
-    options: ["are", "is", "were", "have been"],
-    answer: 1,
-    explanation: "'As well as' is a parenthetical phrase, not a coordinating conjunction. The subject remains 'CEO' (singular), so the verb must be singular: 'is.'",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_sc_12",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: Choose the grammatically correct sentence.",
-    options: [
-      "Whoever finishes first will win the prize.",
-      "Whomever finishes first will win the prize.",
-      "Whoever that finishes first will win the prize.",
-      "Him who finishes first will win the prize.",
-    ],
-    answer: 0,
-    explanation: "'Whoever' is the subject of the subordinate clause 'finishes first,' so the nominative form 'whoever' is correct. 'Whomever' is the objective form and would be used in 'Give it to whomever finishes first.'",
-    difficulty: "hard",
-  },
-  {
-    id: "gv_sc_13",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"Unlike her sister, Maria's grades are excellent.\"  What is the error?",
-    options: [
-      "Misplaced modifier — 'unlike her sister' should compare Maria, not Maria's grades",
-      "Subject-verb disagreement",
-      "Incorrect tense",
-      "There is no error",
-    ],
-    answer: 0,
-    explanation: "As written, the sentence compares 'her sister' to 'Maria's grades' — a faulty comparison. It should read: 'Unlike her sister, Maria earns excellent grades,' comparing person to person.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_sc_14",
-    path: "gmat_verbal",
-    question: "SENTENCE CORRECTION: \"The number of applications ___ increased every year for the past decade.\"",
-    options: ["have", "has", "were", "are"],
-    answer: 1,
-    explanation: "'The number' (singular) takes a singular verb — 'has.' Contrast with 'A number of applications have been submitted,' where 'a number' means 'several' and takes a plural verb.",
-    difficulty: "hard",
-  },
-  // ── More Critical Reasoning ──────────────────────────────
-  {
-    id: "gv_cr_09",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"Countries with higher chocolate consumption per capita have more Nobel laureates per capita. Therefore, eating chocolate causes Nobel Prize–winning cognitive performance.\"\n\nThe argument is most vulnerable to which criticism?",
-    options: [
-      "Correlation does not imply causation; wealth likely explains both variables",
-      "Nobel Prizes are not a valid measure of intelligence",
-      "Chocolate consumption data may be inaccurate",
-      "The sample of countries is too small",
-    ],
-    answer: 0,
-    explanation: "Both chocolate consumption and Nobel Prize rates correlate with national wealth. A third variable (GDP, education investment) drives both, making the causal claim spurious.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_cr_10",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"We should ban all single-use plastics. Every piece of plastic ever produced still exists somewhere. Marine ecosystems are severely harmed by plastic waste.\"\n\nWhich assumption is necessary for this argument?",
-    options: [
-      "Banning single-use plastics will significantly reduce overall plastic pollution",
-      "All plastic is single-use plastic",
-      "Marine life is more important than consumer convenience",
-      "Single-use plastics constitute all plastic in oceans",
-    ],
-    answer: 0,
-    explanation: "The argument goes from 'plastic harms ecosystems' to 'ban single-use plastics.' This requires assuming that banning single-use plastics will meaningfully reduce the harm — i.e., they are a major source of pollution.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_cr_11",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"Our new training program reduced employee errors by 30%. We should expand it to all offices.\"\n\nWhich of the following, if true, most strengthens this recommendation?",
-    options: [
-      "The training costs $2,000 per employee.",
-      "The pilot was run in the office with the highest initial error rate; other offices have similar error rates.",
-      "Managers report that trainees feel more confident.",
-      "The training was developed by an external consultant.",
-    ],
-    answer: 1,
-    explanation: "If the pilot was in the highest-error office, one concern is that results won't generalize. Learning that other offices have similar error rates removes this concern and supports expansion.",
-    difficulty: "hard",
-  },
-  {
-    id: "gv_cr_12",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"A study found people who sleep less than 6 hours have higher cortisol levels. Therefore, poor sleep causes stress.\"\n\nWhat is the most significant alternative explanation the argument ignores?",
-    options: [
-      "Cortisol measurement methods may be inaccurate",
-      "High stress itself causes poor sleep, so causation may run in the opposite direction",
-      "Not all subjects were the same age",
-      "Cortisol is not the only stress hormone",
-    ],
-    answer: 1,
-    explanation: "The relationship could be bidirectional or reversed: existing stress elevates cortisol and disrupts sleep. Without ruling out reverse causation, the causal claim is unjustified.",
-    difficulty: "hard",
-  },
-  {
-    id: "gv_cr_13",
-    path: "gmat_verbal",
-    question: "CRITICAL REASONING: \"Residents near the new highway reported a 25% increase in respiratory problems. The highway must be responsible.\"\n\nWhich fact, if true, most weakens this conclusion?",
-    options: [
-      "Highway construction took two years.",
-      "A large industrial plant opened in the same area at the same time.",
-      "Respiratory problems increase with age.",
-      "The highway runs through a densely populated zone.",
-    ],
-    answer: 1,
-    explanation: "The industrial plant is an alternative cause that could explain the increase. This alternative explanation directly undermines the conclusion that the highway is responsible.",
-    difficulty: "medium",
-  },
-  // ── Reading Comprehension: Artificial Intelligence Passage ──
-  {
-    id: "gv_rc_06",
-    path: "gmat_verbal",
-    question: "READING COMPREHENSION PASSAGE: \"Artificial intelligence systems trained on large datasets can exhibit emergent capabilities — behaviors not explicitly programmed and not present in smaller models. This unpredictability complicates safety testing: engineers cannot enumerate all inputs that might trigger harmful outputs. Proponents argue emergence enables unprecedented problem-solving; critics counter that opaque, emergent systems are inherently ungovernable.\"\n\nAccording to the passage, why is safety testing AI systems difficult?",
-    options: [
-      "AI development is expensive and slow.",
-      "Engineers cannot exhaustively identify all inputs that may produce harmful outputs.",
-      "Emergent capabilities appear only in very large models.",
-      "Critics oppose safety testing budgets.",
-    ],
-    answer: 1,
-    explanation: "The passage explicitly states: 'engineers cannot enumerate all inputs that might trigger harmful outputs.' This is the direct textual support for the difficulty of safety testing.",
-    difficulty: "easy",
-  },
-  {
-    id: "gv_rc_07",
-    path: "gmat_verbal",
-    question: "Using the AI passage above, which title best captures the passage's main idea?",
-    options: [
-      "How to Train Large Language Models",
-      "The Promise and Peril of Emergent AI Capabilities",
-      "Why Critics Are Wrong About AI Safety",
-      "Dataset Size and Model Performance",
-    ],
-    answer: 1,
-    explanation: "The passage presents both the upside (unprecedented problem-solving) and downside (ungovernable, opaque systems) of emergence. 'Promise and Peril' captures this balanced treatment.",
-    difficulty: "easy",
-  },
-  {
-    id: "gv_rc_08",
-    path: "gmat_verbal",
-    question: "In the AI passage, 'opaque, emergent systems are inherently ungovernable' is presented as:",
-    options: [
-      "The author's own conclusion",
-      "The view of critics, which the author implies is correct",
-      "The view of critics, stated without the author endorsing it",
-      "A regulatory definition from AI policy documents",
-    ],
-    answer: 2,
-    explanation: "The passage attributes this claim to 'critics' and does not signal agreement or disagreement. The author presents both sides (proponents vs. critics) neutrally.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_rc_09",
-    path: "gmat_verbal",
-    question: "Which additional fact would most strengthen the critics' position in the AI passage?",
-    options: [
-      "Large AI models have solved previously unsolvable mathematical proofs.",
-      "A deployed AI system caused a large financial loss through an unpredicted emergent behavior.",
-      "The training datasets used for large models cost millions of dollars.",
-      "Most engineers prefer interpretable models.",
-    ],
-    answer: 1,
-    explanation: "A real-world incident where emergent behavior caused harm is direct evidence that opaque, emergent systems can be dangerous and difficult to govern — directly supporting the critics' position.",
-    difficulty: "medium",
-  },
-  {
-    id: "gv_rc_10",
-    path: "gmat_verbal",
-    question: "In the AI passage, 'emergent capabilities' refers to:",
-    options: [
-      "Programmed features that appear after deployment",
-      "Behaviors arising in large models that were not explicitly designed and are absent in smaller versions",
-      "Hardware improvements in AI chips",
-      "Regulations that emerge from government oversight",
-    ],
-    answer: 1,
-    explanation: "The passage defines emergent capabilities as 'behaviors not explicitly programmed and not present in smaller models' — they arise from scale, not design.",
-    difficulty: "easy",
-  },
-  {
-    id: "gv_rc_11",
-    path: "gmat_verbal",
-    question: "The structure of the AI passage is best described as:",
-    options: [
-      "Problem → solution → conclusion",
-      "Phenomenon described → safety implication explained → two contrasting perspectives presented",
-      "Historical overview → modern analysis → prediction",
-      "Thesis argued → counterarguments refuted → thesis restated",
-    ],
-    answer: 1,
-    explanation: "The passage describes a phenomenon (emergence), explains its safety implications (unpredictability), then presents opposing viewpoints (proponents vs. critics) without resolving them.",
-    difficulty: "medium",
-  },
+  // ════════════════════════════════════════════
+  // TEST 1 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  // CR
+  { id:"gv_t1_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'Sales of electric vehicles increased 40% over two years. Therefore, fossil fuel car sales will soon decline.' What assumption does this argument rely on?", options:["EVs are cheaper than fossil fuel cars.","The total car market is static, so EV gains come at the expense of fossil fuel vehicles.","Government subsidies drive all EV growth.","Fossil fuel prices will increase dramatically."], answer:1, explanation:"The argument assumes EV and fossil fuel sales compete in a fixed market. Without this, both could grow simultaneously.", difficulty:"medium" },
+  { id:"gv_t1_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'Students who use e-readers score higher on reading comprehension. Therefore, schools should switch to e-readers.' Which most weakens this argument?", options:["E-readers can hold hundreds of books.","Students who choose e-readers are already stronger readers, introducing selection bias.","E-readers reduce paper waste.","Reading comprehension is the most important academic skill."], answer:1, explanation:"Selection bias: e-reader users may be inherently stronger readers, so the e-reader itself may not cause higher scores.", difficulty:"medium" },
+  { id:"gv_t1_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'Every marathon runner in this city trained for at least 6 months. Jordan trained for 8 months. Therefore, Jordan is a marathon runner.' This argument is flawed because it:", options:["Uses anecdotal evidence","Confuses a necessary condition with a sufficient one","Commits an ad hominem fallacy","Relies on circular reasoning"], answer:1, explanation:"Training ≥6 months is necessary but not sufficient to be a marathon runner.", difficulty:"hard" },
+  { id:"gv_t1_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'Company X's satisfaction scores fell after implementing a new checkout process. The new process must be responsible.' Which assumption best supports this causal claim?", options:["Satisfaction scores are always reliable.","No other changes occurred simultaneously that could explain the drop.","The new checkout was implemented company-wide.","Customers prefer simple processes."], answer:1, explanation:"Causation requires ruling out confounding variables that could have caused the drop.", difficulty:"medium" },
+  { id:"gv_t1_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'All successful startups pivoted at least once. Therefore, companies should pivot frequently to succeed.' This reasoning is flawed primarily because it:", options:["Ignores the high cost of pivoting","Only examines successful companies, ignoring startups that pivoted and failed","Doesn't define 'pivot' precisely","Assumes all markets are the same"], answer:1, explanation:"Survivorship bias: the data only includes successful startups, ignoring failed ones that also pivoted.", difficulty:"hard" },
+  { id:"gv_t1_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'Countries with higher chocolate consumption have more Nobel laureates. Therefore, eating chocolate causes Nobel Prize–winning cognitive performance.' The argument is most vulnerable because:", options:["Correlation does not imply causation; wealth likely explains both","Nobel Prizes are not a valid measure of intelligence","Chocolate consumption data may be inaccurate","The sample of countries is too small"], answer:0, explanation:"A third variable (national wealth) drives both chocolate consumption and Nobel Prize rates.", difficulty:"medium" },
+  { id:"gv_t1_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'Our new training program reduced employee errors by 30%. We should expand it to all offices.' Which most strengthens this recommendation?", options:["The training costs $2,000 per employee.","The pilot was run in the office with the highest initial error rate; other offices have similar error rates.","Managers report trainees feel more confident.","The training was developed by an external consultant."], answer:1, explanation:"If other offices have similar error rates, the pilot results likely generalize, supporting expansion.", difficulty:"hard" },
+  // RC – Passage 1: Behavioral Economics (4 Qs)
+  { id:"gv_t1_rc01", path:"gmat_verbal", passage:P_BEHAVIORAL_ECON, question:"According to the passage, loss aversion means:", options:["Avoiding all financial risk","Valuing losses approximately twice as much as equivalent gains","Making decisions based on initial information","Preferring smaller certain rewards over larger uncertain ones"], answer:1, explanation:"The passage explicitly states loss aversion involves 'valuing losses ~2× more than equivalent gains.'", difficulty:"easy" },
+  { id:"gv_t1_rc02", path:"gmat_verbal", passage:P_BEHAVIORAL_ECON, question:"Which statement would most strengthen the claim that nudges are effective policy tools?", options:["Traditional economics correctly predicts most human behavior.","Countries that switched to opt-out organ donation doubled donation rates.","Kahneman and Tversky received a Nobel Prize.","Loss aversion affects only certain demographic groups."], answer:1, explanation:"A concrete real-world example showing a nudge (opt-out default) produced a large behavioral change directly supports the claim.", difficulty:"medium" },
+  { id:"gv_t1_rc03", path:"gmat_verbal", passage:P_BEHAVIORAL_ECON, question:"The author's primary purpose is to:", options:["Argue that traditional economics is fundamentally wrong","Describe how behavioral economics challenges rational actor models and has practical applications","Prove humans always make irrational decisions","Detail Kahneman and Tversky's experimental methodology"], answer:1, explanation:"The passage describes behavioral economics, its key findings, and its policy applications — descriptive and informative.", difficulty:"medium" },
+  { id:"gv_t1_rc04", path:"gmat_verbal", passage:P_BEHAVIORAL_ECON, question:"According to the passage, 'anchoring' refers to:", options:["Becoming emotionally attached to a position","Over-relying on the first number or piece of information encountered","Adjusting estimates downward under uncertainty","Refusing to update beliefs after new evidence"], answer:1, explanation:"The passage defines anchoring as 'over-relying on the first number encountered.'", difficulty:"easy" },
+  // RC – Passage 2: Gig Economy (4 Qs)
+  { id:"gv_t1_rc05", path:"gmat_verbal", passage:P_GIG_ECONOMY, question:"Which best describes the author's tone?", options:["Strongly in favor of the gig economy","Balanced, presenting both supporting and critical perspectives","Strongly opposed to gig work","Indifferent to the topic"], answer:1, explanation:"The author presents both proponents' view (democratizes entrepreneurship) and critics' view (externalizes risk) without advocacy.", difficulty:"easy" },
+  { id:"gv_t1_rc06", path:"gmat_verbal", passage:P_GIG_ECONOMY, question:"'Externalizes business risk onto workers' most closely means:", options:["Companies share profits with gig workers","Companies transfer financial uncertainty to workers rather than bearing it themselves","Workers in the gig economy are classified as employees","External regulations impose costs on businesses"], answer:1, explanation:"Traditional employment has firms absorbing demand fluctuations; in the gig economy, workers bear this risk.", difficulty:"medium" },
+  { id:"gv_t1_rc07", path:"gmat_verbal", passage:P_GIG_ECONOMY, question:"Proponents of the gig economy would most likely agree that:", options:["Workers bear too much risk in gig arrangements","Flexible work democratizes access to entrepreneurship","Traditional employment is always preferable","Gig work primarily benefits corporations"], answer:1, explanation:"The passage attributes to proponents the view that gig work 'democratizes entrepreneurship.'", difficulty:"easy" },
+  { id:"gv_t1_rc08", path:"gmat_verbal", passage:P_GIG_ECONOMY, question:"Which would most undermine critics' argument about gig workers lacking negotiating power?", options:["Gig platforms charge high service fees","Legislation passes requiring platforms to provide benefits to gig workers","Gig workers form a collective bargaining union that successfully raises their rates","Most gig workers have other sources of income"], answer:2, explanation:"If gig workers unionize and successfully bargain, they gain negotiating power — directly refuting the critics' claim.", difficulty:"hard" },
+
+  // ════════════════════════════════════════════
+  // TEST 2 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  { id:"gv_t2_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'Music education improves spatial reasoning. Spatial reasoning correlates with math performance. Therefore, music education improves math performance.' This argument:", options:["Is valid and sound","Confuses correlation with causation in the second premise","Commits affirming the consequent","Provides a false dilemma"], answer:1, explanation:"'Correlates with' does not mean 'causes.' A third variable may drive both spatial reasoning and math performance.", difficulty:"hard" },
+  { id:"gv_t2_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'Our city's recycling rate increased 30% after showing residents environmental benefits. To increase national recycling, the government should run education campaigns.' Which most weakens this?", options:["The city's recycling rate was below average before.","Convenience of recycling bins, not education, drove the increase.","Environmental campaigns are inexpensive.","Other cities have also seen increased recycling."], answer:1, explanation:"If infrastructure, not education, drove the increase, replicating the education component nationally won't work.", difficulty:"hard" },
+  { id:"gv_t2_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'A study found people who sleep less than 6 hours have higher cortisol levels. Therefore, poor sleep causes stress.' What is the most significant alternative explanation?", options:["Cortisol measurement methods may be inaccurate","High stress itself causes poor sleep — causation may run the opposite direction","Not all subjects were the same age","Cortisol is not the only stress hormone"], answer:1, explanation:"The relationship could be reversed: existing stress elevates cortisol and disrupts sleep.", difficulty:"hard" },
+  { id:"gv_t2_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'We should ban all single-use plastics. Every piece of plastic ever produced still exists. Marine ecosystems are severely harmed by plastic waste.' Which assumption is necessary?", options:["Banning single-use plastics will significantly reduce overall plastic pollution","All plastic is single-use","Marine life is more important than consumer convenience","Single-use plastics constitute all plastic in oceans"], answer:0, explanation:"The argument requires assuming banning single-use plastics will meaningfully reduce the marine plastic harm.", difficulty:"medium" },
+  { id:"gv_t2_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'Residents near the new highway reported a 25% increase in respiratory problems. The highway must be responsible.' Which fact most weakens this?", options:["Highway construction took two years.","A large industrial plant opened in the same area at the same time.","Respiratory problems increase with age.","The highway runs through a densely populated zone."], answer:1, explanation:"The industrial plant is an alternative cause that directly undermines the conclusion about the highway.", difficulty:"medium" },
+  { id:"gv_t2_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'A poll found 65% of consumers prefer Brand A. Therefore, Brand A will outsell Brand B.' Which assumption does this rely on?", options:["Price is the only factor in purchasing decisions","Consumer preferences in polls reliably predict actual purchase behavior","Brand B has inferior quality","Brand A spends more on advertising"], answer:1, explanation:"The argument assumes stated preferences translate into actual buying behavior — a gap between poll and market.", difficulty:"medium" },
+  { id:"gv_t2_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'Increasing minimum wage will reduce poverty because low-income workers will have more money.' Which would most weaken this?", options:["Many poor households have no employed members","Some minimum wage earners are teenagers in middle-class families","Minimum wage increases are popular with voters","Inflation has eroded real wages over time"], answer:0, explanation:"If many poor households have no employed members, a minimum wage increase won't reach them, weakening the poverty reduction claim.", difficulty:"hard" },
+  // RC – Passage 1: AI Emergence (4 Qs)
+  { id:"gv_t2_rc01", path:"gmat_verbal", passage:P_AI_EMERGENCE, question:"According to the passage, why is safety testing AI systems difficult?", options:["AI development is expensive and slow.","Engineers cannot exhaustively identify all inputs that may produce harmful outputs.","Emergent capabilities appear only in very large models.","Critics oppose safety testing budgets."], answer:1, explanation:"The passage explicitly states 'engineers cannot enumerate all inputs that might trigger harmful outputs.'", difficulty:"easy" },
+  { id:"gv_t2_rc02", path:"gmat_verbal", passage:P_AI_EMERGENCE, question:"Which title best captures the passage's main idea?", options:["How to Train Large Language Models","The Promise and Peril of Emergent AI Capabilities","Why Critics Are Wrong About AI Safety","Dataset Size and Model Performance"], answer:1, explanation:"The passage presents both upside (problem-solving) and downside (ungovernable) of emergence — 'Promise and Peril.'", difficulty:"easy" },
+  { id:"gv_t2_rc03", path:"gmat_verbal", passage:P_AI_EMERGENCE, question:"'Opaque, emergent systems are inherently ungovernable' is presented as:", options:["The author's own conclusion","The view of critics, which the author endorses","The view of critics, stated without the author endorsing it","A regulatory definition from AI policy documents"], answer:2, explanation:"The passage attributes this to 'critics' without signaling agreement — the author presents both sides neutrally.", difficulty:"medium" },
+  { id:"gv_t2_rc04", path:"gmat_verbal", passage:P_AI_EMERGENCE, question:"In the passage, 'emergent capabilities' refers to:", options:["Programmed features that appear after deployment","Behaviors arising in large models that were not explicitly designed and are absent in smaller versions","Hardware improvements in AI chips","Regulations emerging from government oversight"], answer:1, explanation:"The passage defines emergent capabilities as 'behaviors not explicitly programmed and not present in smaller models.'", difficulty:"easy" },
+  // RC – Passage 2: Microplastics (4 Qs)
+  { id:"gv_t2_rc05", path:"gmat_verbal", passage:P_MICROPLASTICS, question:"According to the passage, what is the main reason microplastic health impacts remain uncertain?", options:["Microplastics are too small to detect accurately","Long-term human health impacts are poorly understood and extrapolating from animal studies is scientifically contested","Industry groups have suppressed research","Regulatory bodies have not commissioned studies"], answer:1, explanation:"The passage states long-term impacts are 'poorly understood' and extrapolating from marine animal studies 'is scientifically contested.'", difficulty:"easy" },
+  { id:"gv_t2_rc06", path:"gmat_verbal", passage:P_MICROPLASTICS, question:"Industry groups' argument in the passage most closely mirrors which logical stance?", options:["Precautionary principle: act before all evidence is in","Evidentiary sufficiency: restrictive policy requires strong proof","Cost-benefit: policy costs exceed benefits","Moral imperative: environmental protection trumps economics"], answer:1, explanation:"Industry groups argue 'current evidence is insufficient to justify restrictive policy' — an evidentiary sufficiency position.", difficulty:"medium" },
+  { id:"gv_t2_rc07", path:"gmat_verbal", passage:P_MICROPLASTICS, question:"Which finding, if true, would most support regulatory bodies' precautionary stance?", options:["Microplastics are found in remote Arctic ice.","A 20-year longitudinal study finds elevated cancer rates in populations with high microplastic exposure.","Microplastics are larger than previously estimated.","Plastic production declined 5% last year."], answer:1, explanation:"Longitudinal evidence linking microplastic exposure to cancer directly supports precautionary limits on human health grounds.", difficulty:"medium" },
+  { id:"gv_t2_rc08", path:"gmat_verbal", passage:P_MICROPLASTICS, question:"The structure of the passage is best described as:", options:["Problem stated → solution proposed → objections rebutted","Phenomenon described → evidence noted → contrasting regulatory views presented","History traced → modern application → future prediction","Argument made → counterargument → synthesis"], answer:1, explanation:"The passage describes the microplastic phenomenon, notes health evidence, then contrasts regulatory and industry views.", difficulty:"medium" },
+
+  // ════════════════════════════════════════════
+  // TEST 3 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  { id:"gv_t3_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'The drug reduces symptoms in 70% of patients. Doctors should prescribe it for all patients.' What is the most serious flaw?", options:["70% is not 100%","The argument ignores side effects and whether benefits outweigh risks","Other drugs may also work","Doctors should follow clinical guidelines, not statistics"], answer:1, explanation:"Efficacy alone cannot justify universal prescription; side effects, contraindications, and risk-benefit must be considered.", difficulty:"medium" },
+  { id:"gv_t3_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'Employee satisfaction surveys show 80% of staff are happy. Therefore, morale is high and productivity will increase.' Which assumption is required?", options:["Employee satisfaction reliably predicts actual productivity","80% is above the industry average","The survey was anonymous","Managers were not surveyed"], answer:0, explanation:"The argument assumes satisfaction predicts productivity — this link is the key unstated premise.", difficulty:"medium" },
+  { id:"gv_t3_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'College graduates earn more than non-graduates on average. Going to college causes higher earnings.' Which best identifies the flaw?", options:["The data is outdated","Causation vs. correlation: motivated, high-ability people both attend college and earn more","College is too expensive","Not all graduates earn more"], answer:1, explanation:"A confounding variable (innate ability/motivation) may drive both college attendance and higher earnings.", difficulty:"hard" },
+  { id:"gv_t3_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'Sales fell 20% after we redesigned our website. The new design is hurting conversions.' Which, if true, most strengthens this conclusion?", options:["A competitor also launched a new website at the same time.","No other marketing changes, pricing changes, or external market events occurred during that period.","Web traffic increased 10% after the redesign.","Customer service complaints increased after the redesign."], answer:1, explanation:"Ruling out alternative explanations makes the website design the most plausible cause of the sales decline.", difficulty:"medium" },
+  { id:"gv_t3_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'We should not invest in renewable energy because the technology is not yet mature.' Which response most effectively challenges this?", options:["Renewable energy is popular with voters.","No technology begins mature; early investment is how maturity is achieved.","Fossil fuel prices are high.","Renewable energy companies are profitable."], answer:1, explanation:"This directly challenges the implicit assumption that maturity is a prerequisite for investment, not a result of it.", difficulty:"hard" },
+  { id:"gv_t3_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'A country's HDI improved after increasing public education spending. Therefore, education spending causes development.' What alternative explanation is most plausible?", options:["HDI is a flawed metric","Overall economic growth simultaneously funded education and drove HDI improvements","Education is universally valued","The government was newly elected"], answer:1, explanation:"Economic growth could be the common driver of both increased education spending and HDI improvements.", difficulty:"hard" },
+  { id:"gv_t3_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'Our product has a 4.8-star rating with 500 reviews. It must be excellent.' Which most weakens this inference?", options:["500 reviews is statistically significant.","The company filters out negative reviews before publishing.","Stars are subjective.","Competitors also have high ratings."], answer:1, explanation:"If negative reviews are filtered, the rating is a biased sample, making the inference of excellence unjustified.", difficulty:"medium" },
+  // RC – Passage 1: Remote Work (4 Qs)
+  { id:"gv_t3_rc01", path:"gmat_verbal", passage:P_REMOTE_WORK, question:"The passage's main purpose is to:", options:["Argue that remote work is more productive than office work","Present contradictory research findings on remote work productivity","Advise companies to implement hybrid work models","Criticize methodological flaws in pandemic-era studies"], answer:1, explanation:"The passage presents three clusters of contradictory research findings without advocating a position.", difficulty:"easy" },
+  { id:"gv_t3_rc02", path:"gmat_verbal", passage:P_REMOTE_WORK, question:"Researchers who found productivity gains attributed them to:", options:["Better technology and tools","Reduced commute time and fewer office interruptions","Improved management practices","Longer working hours at home"], answer:1, explanation:"The passage states productivity gain researchers attributed results to 'reduced commute time and fewer office interruptions.'", difficulty:"easy" },
+  { id:"gv_t3_rc03", path:"gmat_verbal", passage:P_REMOTE_WORK, question:"Which finding would most support the view that individual factors mediate remote work outcomes?", options:["All companies in the sample reported the same productivity change.","Employees with dedicated home offices reported gains while those without reported declines.","Government policy mandated remote work uniformly.","Productivity was measured differently across studies."], answer:1, explanation:"Variation based on home office access suggests individual circumstances shape outcomes, consistent with the mediating-factors view.", difficulty:"medium" },
+  { id:"gv_t3_rc04", path:"gmat_verbal", passage:P_REMOTE_WORK, question:"The phrase 'serendipitous in-person interactions' refers to:", options:["Planned brainstorming sessions","Unplanned, chance encounters that spark creative collaboration","Digital communication tools","Remote meetings that happen to be productive"], answer:1, explanation:"Serendipitous means accidental/chance — the passage argues these unplanned face-to-face moments drive innovation.", difficulty:"medium" },
+  // RC – Passage 2: Urban Heat Island (4 Qs)
+  { id:"gv_t3_rc05", path:"gmat_verbal", passage:P_URBAN_HEAT, question:"According to the passage, which factor does NOT contribute to urban heat islands?", options:["Impervious surfaces","Low vegetation","Waste heat from transportation","High altitude above sea level"], answer:3, explanation:"The passage lists impervious surfaces, low vegetation, and waste heat as causes — altitude is not mentioned.", difficulty:"easy" },
+  { id:"gv_t3_rc06", path:"gmat_verbal", passage:P_URBAN_HEAT, question:"What inference about urban heat islands is best supported by the passage?", options:["They are exclusively a problem in tropical cities.","They worsen multiple related urban problems simultaneously.","Green roofs are the most cost-effective solution.","The temperature difference between urban and rural is uniform globally."], answer:1, explanation:"The passage states urban heat increases energy demand, worsens air quality, and raises mortality — multiple simultaneous harms.", difficulty:"medium" },
+  { id:"gv_t3_rc07", path:"gmat_verbal", passage:P_URBAN_HEAT, question:"The author's attitude toward proposed mitigation strategies is best described as:", options:["Enthusiastically supportive","Dismissive","Neutral — acknowledging each carries distinct trade-offs","Skeptical that any strategy will work"], answer:2, explanation:"The passage notes each strategy 'carries distinct cost and feasibility trade-offs' — a neutral, balanced framing.", difficulty:"medium" },
+  { id:"gv_t3_rc08", path:"gmat_verbal", passage:P_URBAN_HEAT, question:"Which additional fact would most support prioritizing urban forests as a heat island mitigation strategy?", options:["Trees are aesthetically pleasing to most residents.","Studies show urban trees reduce ambient temperature by 3–5°C within a 100m radius at lower cost than reflective pavements.","Urban forests increase property values.","Trees absorb CO₂."], answer:1, explanation:"Empirical data showing trees outperform alternatives on the two relevant dimensions (effectiveness and cost) directly supports prioritizing them.", difficulty:"hard" },
+
+  // ════════════════════════════════════════════
+  // TEST 4 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  { id:"gv_t4_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'Since installing the new traffic lights, accident rates dropped 25%. The lights improved safety.' Which, if true, most weakens this?", options:["The new lights are more visible at night.","A major road construction project simultaneously reduced traffic volume by 40%.","The previous lights were 20 years old.","Adjacent intersections also had safety improvements."], answer:1, explanation:"If reduced traffic volume explains fewer accidents, the traffic lights may not be the cause.", difficulty:"medium" },
+  { id:"gv_t4_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'Organic food costs more, so it must be healthier.' Which reasoning error is made?", options:["Ad hominem","False cause — price does not imply nutritional quality","Straw man","Appeal to authority"], answer:1, explanation:"Price is not causally linked to nutritional quality; the argument assumes a connection that hasn't been established.", difficulty:"medium" },
+  { id:"gv_t4_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'A policy limiting executive pay to 20× average worker salary would improve income inequality.' Which assumption does this require?", options:["Executives are the primary cause of income inequality","Executives would not shift compensation to non-salary forms to evade the limit","Income inequality reduces economic growth","Workers support the policy"], answer:1, explanation:"If executives shift to non-salary compensation (stock, bonuses), the pay ratio cap doesn't reduce their total income or inequality.", difficulty:"hard" },
+  { id:"gv_t4_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'The candidate's economic plan is flawed because she received donations from banks.' This argument commits which fallacy?", options:["Ad hominem — attacking the source rather than the argument","Straw man","False dilemma","Appeal to tradition"], answer:0, explanation:"The argument dismisses the plan based on the candidate's funding sources, not on logical or empirical grounds — ad hominem.", difficulty:"easy" },
+  { id:"gv_t4_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'People who eat breakfast are more productive. Therefore, companies should provide free breakfast to increase productivity.' Which assumption is central?", options:["Employees would use the breakfast benefit","Providing breakfast is the most cost-effective productivity intervention","The correlation between breakfast and productivity reflects a causal relationship","Companies that provide breakfast have better culture"], answer:2, explanation:"The recommendation requires that eating breakfast actually causes productivity, not merely correlates with it.", difficulty:"hard" },
+  { id:"gv_t4_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'Homicides increased 10% in cities that adopted police reform. Police reform causes more homicides.' Which is the strongest objection?", options:["10% is a small increase","The reforms may have been adopted precisely because crime was already rising (reverse causality)","Some cities did not adopt reform","Homicide is only one type of crime"], answer:1, explanation:"If reforms were adopted in high-crime cities, rising crime may have preceded and caused the adoption of reform, not the reverse.", difficulty:"hard" },
+  { id:"gv_t4_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'Airline A has the fewest complaints per flight among major carriers. Airline A provides the best service.' Which weakens this conclusion most?", options:["Airline A has the lowest complaint rates across all metrics.","Airline A's customers skew toward frequent flyers who rarely complain regardless of service quality.","Airline A charges premium prices.","Airline A operates only domestic routes."], answer:1, explanation:"If Airline A's customers are less likely to complain by nature, low complaint rates reflect passenger type, not service quality.", difficulty:"medium" },
+  // RC – Passage 1: Antibiotic Resistance (4 Qs)
+  { id:"gv_t4_rc01", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"According to the passage, why has antibiotic development slowed since the 1980s?", options:["Regulatory hurdles have increased.","Pharmaceutical companies find the business model unattractive relative to chronically taken drugs.","Scientists lack understanding of bacterial resistance mechanisms.","Governments have cut research funding."], answer:1, explanation:"The passage states companies find the antibiotic 'business model unattractive relative to drugs taken chronically.'", difficulty:"easy" },
+  { id:"gv_t4_rc02", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"The passage implies that antibiotic resistance spreads rapidly partly because:", options:["Patients refuse to complete antibiotic courses.","Plasmids can transfer resistance genes between bacterial species.","Hospitals overuse disinfectants.","Antibiotics are available without prescription."], answer:1, explanation:"The passage states 'plasmids can transfer resistance genes between species rapidly.'", difficulty:"easy" },
+  { id:"gv_t4_rc03", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"Which policy would most directly address the business-model problem described in the passage?", options:["Requiring longer antibiotic courses","Government subsidies or guaranteed purchase agreements to make antibiotic development commercially viable","Banning antibiotic use in agriculture","Educating patients about antibiotic resistance"], answer:1, explanation:"If the problem is commercial unattractiveness, government financial support would correct the market incentive.", difficulty:"medium" },
+  { id:"gv_t4_rc04", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"The WHO classifying antimicrobial resistance as a 'top global health threat' most likely serves to:", options:["Blame pharmaceutical companies for inaction","Establish urgency and signal that coordinated global response is needed","Justify restricting antibiotic use to hospitals only","Discredit agricultural antibiotic use"], answer:1, explanation:"WHO classifications are international signals that mobilize coordinated global action — establishing urgency and priority.", difficulty:"medium" },
+  // RC – Passage 2: Carbon Capture (4 Qs)
+  { id:"gv_t4_rc05", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"Critics of CCS most likely believe it:", options:["Cannot technically remove CO₂","Is cost-effective but underutilized","Provides political cover for continued fossil fuel use without solving the climate problem","Is the only viable path to net-zero"], answer:2, explanation:"The passage states critics argue CCS 'provides cover for continued fossil fuel use.'", difficulty:"easy" },
+  { id:"gv_t4_rc06", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"The 2023 meta-analysis finding is most likely cited to:", options:["Support CCS as an essential climate tool","Highlight the current gap between CCS capacity and the scale of global emissions","Discredit renewable energy","Demonstrate that CCS is improving year over year"], answer:1, explanation:"Capturing 40 million tonnes vs. global emissions makes the current scale gap starkly evident — it contextualizes the challenge.", difficulty:"medium" },
+  { id:"gv_t4_rc07", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"Which would most support CCS proponents' argument that it is essential for net-zero?", options:["A new CCS technology reduces capture cost by 80%.","Modeling studies show net-zero is mathematically impossible without carbon removal even with full renewable deployment.","A country achieves net-zero without CCS.","CCS has been used commercially since the 1970s."], answer:1, explanation:"If net-zero is impossible without carbon removal regardless of renewables, CCS becomes logically necessary.", difficulty:"hard" },
+  { id:"gv_t4_rc08", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"The passage presents CCS as:", options:["Undisputedly effective and widely deployed","A contested tool with significant proponents and critics","A failed technology with no future","Primarily applicable to emerging economies"], answer:1, explanation:"The passage explicitly presents both proponents and critics, treating CCS as contested rather than settled.", difficulty:"easy" },
+
+  // ════════════════════════════════════════════
+  // TEST 5 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  { id:"gv_t5_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'Taxes on sugary beverages in City X reduced soda sales by 15%. Therefore, a national tax would reduce obesity.' Identify the main logical gap.", options:["15% is not statistically significant.","Reducing soda sales does not necessarily reduce caloric intake — consumers may substitute other high-calorie items.","City X is not representative of the nation.","The tax was too low to be effective."], answer:1, explanation:"Even if soda sales drop, consumers may substitute other caloric beverages or foods, leaving obesity unchanged.", difficulty:"medium" },
+  { id:"gv_t5_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'Our app has a daily active user rate of 60%. Competitor apps average 40%. Our app is clearly better.' The conclusion is questionable because:", options:["DAU rates are not a valid metric.","Better DAU could reflect addictive dark patterns rather than genuine quality.","The competitor apps have different target audiences.","60% is not significantly higher than 40%."], answer:1, explanation:"High engagement can reflect manipulative design rather than quality, undermining the quality conclusion.", difficulty:"hard" },
+  { id:"gv_t5_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'No study has proved that cell phone radiation causes cancer. Therefore, cell phones are safe.' Which type of flawed reasoning is this?", options:["Appeal to ignorance — absence of evidence is not evidence of absence","Hasty generalization","False analogy","Circular reasoning"], answer:0, explanation:"Absence of proof of harm is not the same as proof of safety — the argument treats unknown as known-safe.", difficulty:"medium" },
+  { id:"gv_t5_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'Older employees have lower absenteeism. To reduce absenteeism, companies should hire more older workers.' Which is the strongest objection?", options:["Older workers cost more in benefits.","The lower absenteeism may reflect work ethic developed over time, which new older hires may not possess to the same degree, or stem from other generational factors.","Absenteeism is not the most important HR metric.","Younger workers provide more energy."], answer:1, explanation:"The correlation may not hold for new hires; it may reflect seniority or cohort effects not attributable to age alone.", difficulty:"hard" },
+  { id:"gv_t5_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'This investment strategy outperformed the market for 5 consecutive years. It will outperform next year.' This argument assumes:", options:["Past market performance is publicly available.","Past performance reliably predicts future performance.","The manager is skilled, not lucky.","5 years is a long track record."], answer:1, explanation:"The argument implicitly assumes past returns predict future returns — a classically flawed financial assumption.", difficulty:"medium" },
+  { id:"gv_t5_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'Libraries are less used now than in 2000. Libraries should be defunded.' Which assumption is necessary for this argument?", options:["Libraries serve no purpose that cannot be served by the internet.","Usage is the only valid measure of a public institution's value.","Library budgets have increased since 2000.","Book publishing has declined."], answer:1, explanation:"The argument requires treating usage as the sole measure of value — ignoring other social, educational, or equity functions.", difficulty:"hard" },
+  { id:"gv_t5_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'Adding warning labels to junk food reduced purchases by 12% in a pilot. The policy should be implemented nationally.' Which best strengthens this recommendation?", options:["Warning labels are inexpensive to implement.","The pilot was conducted across demographically diverse regions that are representative of the national population.","Consumers reported reading the labels.","Competing brands did not change their marketing during the pilot."], answer:1, explanation:"Demographic representativeness of the pilot increases the likelihood that national implementation will yield similar results.", difficulty:"medium" },
+  // RC – Passage 1: Social Media and Teens (4 Qs)
+  { id:"gv_t5_rc01", path:"gmat_verbal", passage:P_SOCIAL_MEDIA_TEEN, question:"Critics of the study mentioned in the passage would most likely argue:", options:["The sample size of 5,000 is too small.","The correlation may be explained by reverse causation — unhappy teens may use social media more, not the reverse.","Social media use has no effect on teen well-being.","The self-report method is reliable."], answer:1, explanation:"The passage explicitly states critics noted 'reverse causation — unhappy teens seeking social media — was not ruled out.'", difficulty:"easy" },
+  { id:"gv_t5_rc02", path:"gmat_verbal", passage:P_SOCIAL_MEDIA_TEEN, question:"The study found an effect size of r = 0.12. What does this suggest about the relationship?", options:["The relationship is very strong and accounts for most of the variance.","The relationship is statistically present but relatively small.","No meaningful relationship exists.","A causal relationship is confirmed."], answer:1, explanation:"r=0.12 is a small correlation — statistically detectable but explaining only ~1.4% of variance, suggesting a weak relationship.", difficulty:"medium" },
+  { id:"gv_t5_rc03", path:"gmat_verbal", passage:P_SOCIAL_MEDIA_TEEN, question:"Proponents of action in the passage invoke the precautionary principle. This principle states that:", options:["All risks require complete scientific certainty before action","Action may be justified to prevent potential harm even when causation is not fully established","Correlation always implies causation","Longitudinal studies always prove causality"], answer:1, explanation:"The precautionary principle justifies protective action in the face of uncertainty — consistent with the proponents' position in the passage.", difficulty:"medium" },
+  { id:"gv_t5_rc04", path:"gmat_verbal", passage:P_SOCIAL_MEDIA_TEEN, question:"Which additional research design would most effectively address critics' reverse-causation concern?", options:["A larger cross-sectional survey","A randomized controlled trial assigning teens to different social media usage levels","A qualitative interview study","A comparison across different countries"], answer:1, explanation:"Only an RCT that controls initial conditions (randomly assigning usage) can rule out reverse causation in this context.", difficulty:"hard" },
+  // RC – Passage 2: Supply Chain (4 Qs)
+  { id:"gv_t5_rc05", path:"gmat_verbal", passage:P_SUPPLY_CHAIN, question:"According to the passage, JIT manufacturing's vulnerability stems from:", options:["High production costs","Its dependence on reliable, rapid delivery from dispersed global suppliers","Overreliance on domestic suppliers","Excessive inventory accumulation"], answer:1, explanation:"The passage states JIT 'depends on reliable, rapid delivery from geographically dispersed suppliers' — this creates fragility.", difficulty:"easy" },
+  { id:"gv_t5_rc06", path:"gmat_verbal", passage:P_SUPPLY_CHAIN, question:"Reshoring and nearshoring differ primarily in that:", options:["Reshoring is cheaper than nearshoring","Reshoring brings production to the firm's home country while nearshoring moves it to a nearby country","Nearshoring applies only to digital services","Reshoring is a new concept while nearshoring is established"], answer:1, explanation:"The passage explicitly defines reshoring as 'moving production domestically' and nearshoring as 'moving to nearby countries.'", difficulty:"easy" },
+  { id:"gv_t5_rc07", path:"gmat_verbal", passage:P_SUPPLY_CHAIN, question:"A firm that adds buffer stock to its supply chain is primarily trying to:", options:["Eliminate the need for suppliers","Create resilience against disruptions by maintaining excess inventory","Reduce storage costs","Implement JIT more rigorously"], answer:1, explanation:"Buffer stock is explicitly listed as a strategy aimed at resilience — the opposite of JIT's just-in-time inventory minimization.", difficulty:"medium" },
+  { id:"gv_t5_rc08", path:"gmat_verbal", passage:P_SUPPLY_CHAIN, question:"The phrase 'disruptions in one node can cascade globally' implies that global supply chains are:", options:["Highly redundant and fault-tolerant","Tightly coupled systems where local failures propagate across the network","Isolated from each other","Efficiently self-correcting"], answer:1, explanation:"Cascading failure describes a tightly coupled system where local disruption propagates — the definition of fragility in networks.", difficulty:"medium" },
+
+  // ════════════════════════════════════════════
+  // TEST 6 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  { id:"gv_t6_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'Every member of the winning team studied for 10+ hours. Therefore, 10+ hours of study guarantees success.' The flaw is:", options:["10 hours is too few for complex exams","Studying the losing team's habits is ignored — 10 hours may be necessary but not sufficient","The data is anecdotal","Study hours are self-reported"], answer:1, explanation:"The winning team may all have studied 10+ hours, but so did many losers — the argument ignores the denominator.", difficulty:"hard" },
+  { id:"gv_t6_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'Citizens should be required to vote. In countries with compulsory voting, voter satisfaction with government is higher.' Which assumption is central?", options:["Compulsory voting eliminates corruption","Higher voter satisfaction results from compulsory voting itself rather than other cultural or institutional factors","Low turnout causes dissatisfaction with government","Compulsory voting reduces election costs"], answer:1, explanation:"Other factors may explain the satisfaction difference — the argument assumes voting compulsion is the causal factor.", difficulty:"hard" },
+  { id:"gv_t6_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'The best way to lose weight is to run, because runners tend to be thin.' Identify the logical error.", options:["Thin people run because they are thin — the direction of causation may be reversed","Correlation always implies causation","Running is the only form of exercise","Thin people live longer"], answer:0, explanation:"It is equally plausible that thin people enjoy running, rather than running making people thin — reversed causality.", difficulty:"medium" },
+  { id:"gv_t6_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'Either we increase advertising spend or revenue will fall. We cannot increase spend. Therefore, revenue will fall.' This argument is valid if:", options:["The disjunction is truly exhaustive (no third option exists)","Advertising always increases revenue","Revenue hasn't fallen before","The company has a strong brand"], answer:0, explanation:"The argument is valid only if the either/or premise is truly complete — no third option (e.g., organic growth) exists.", difficulty:"medium" },
+  { id:"gv_t6_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'The policy has been in place for 50 years. It should be kept.' This appeals to:", options:["Authority","Tradition (argumentum ad antiquitatem)","Popular opinion","False cause"], answer:1, explanation:"Longevity alone is not a logical justification for maintaining a policy — this is the appeal to tradition fallacy.", difficulty:"easy" },
+  { id:"gv_t6_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'Increasing green spaces in cities reduces crime. City X planted trees and crime dropped 18%. All cities should plant trees.' Which most weakens this?", options:["Trees require maintenance.","City X simultaneously increased police patrols and installed street lighting during the tree-planting period.","Crime naturally varies seasonally.","Not all trees suit all climates."], answer:1, explanation:"If confounding interventions occurred simultaneously, trees alone cannot be credited for the crime reduction.", difficulty:"medium" },
+  { id:"gv_t6_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'A study found that people who carry umbrellas get wet less often. Therefore, umbrellas cause dryness.' The deeper flaw is:", options:["Umbrellas are expensive","People carry umbrellas specifically when it is raining or likely to rain — selection bias in when umbrellas are used","The study sample was too small","Umbrella quality varies"], answer:1, explanation:"People are more likely to carry umbrellas on rainy days, so comparing umbrella-carriers to non-carriers in all conditions is biased.", difficulty:"hard" },
+  // RC – Passage 1: Behavioral Economics (4 Qs) – different questions from test 1
+  { id:"gv_t6_rc01", path:"gmat_verbal", passage:P_BEHAVIORAL_ECON, question:"According to the passage, 'nudge' policy works by:", options:["Mandating specific behaviors under penalty","Incentivizing behavior with financial rewards","Guiding choices without restricting individual freedom","Educating consumers about optimal choices"], answer:2, explanation:"The passage defines nudges as 'guiding choices without restricting them' — preserving freedom while shaping behavior.", difficulty:"easy" },
+  { id:"gv_t6_rc02", path:"gmat_verbal", passage:P_BEHAVIORAL_ECON, question:"A finding that would most challenge the behavioral economics framework in this passage is:", options:["Loss aversion is stronger in high-stakes decisions.","A comprehensive study finds humans make consistently rational financial decisions across diverse contexts.","Nudges work better in small countries.","Anchoring is less pronounced among experienced negotiators."], answer:1, explanation:"If humans systematically make rational decisions, the biases (loss aversion, anchoring) that behavioral economics is built on would be undermined.", difficulty:"hard" },
+  { id:"gv_t6_rc03", path:"gmat_verbal", passage:P_BEHAVIORAL_ECON, question:"The passage treats Kahneman and Tversky's research as:", options:["Controversial and largely discredited","Foundational evidence for the existence of systematic human cognitive biases","Primarily relevant to financial markets","Applicable only to Western cultures"], answer:1, explanation:"The passage cites Kahneman and Tversky as having 'showed' the biases — presenting them as established findings.", difficulty:"easy" },
+  { id:"gv_t6_rc04", path:"gmat_verbal", passage:P_BEHAVIORAL_ECON, question:"Which real-world application best exemplifies the 'nudge' policy concept from the passage?", options:["Banning trans fats from restaurants","Making organ donation opt-out rather than opt-in by default","Taxing cigarettes heavily","Requiring caloric information on menus"], answer:1, explanation:"Opt-out organ donation guides behavior (toward donation) without restricting it — the classic nudge example.", difficulty:"medium" },
+  // RC – Passage 2: Antibiotic Resistance (4 Qs) – different questions from test 4
+  { id:"gv_t6_rc05", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"The passage identifies overuse in agriculture as a driver of resistance. This implies:", options:["Agricultural antibiotics are chemically different from medical ones.","Agricultural use allows bacteria to develop resistance that can transfer to human pathogens.","Farmers are the primary cause of resistance.","Antibiotic use in food animals should be completely eliminated."], answer:1, explanation:"Resistance developing in agricultural settings can transfer via plasmids to bacteria that infect humans — a cross-domain risk.", difficulty:"medium" },
+  { id:"gv_t6_rc06", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"Which would most weaken the claim that new antibiotic development is commercially unattractive?", options:["A new antibiotic sells 1 million units in its first year.","A change in patent law allows antibiotics to generate royalties for 30 years.","Hospitals voluntarily adopt antibiotic stewardship programs.","A new antibiotic is approved but rarely prescribed."], answer:1, explanation:"Extended patent protection that generates long-term royalties would improve the commercial return, addressing the business model problem.", difficulty:"hard" },
+  { id:"gv_t6_rc07", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"The passage states resistance is driven by overuse 'in human medicine and agriculture.' This suggests a solution requires:", options:["Focusing exclusively on hospitals","A coordinated approach spanning multiple sectors","Only agricultural reform","Only medical reform"], answer:1, explanation:"With resistance driven in both sectors, effective solutions must address both — a multi-sector approach.", difficulty:"medium" },
+  { id:"gv_t6_rc08", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"The word 'propagate' (as used in 'resistant strains propagate') most nearly means:", options:["Mutate rapidly","Spread and multiply","Die off","Weaken over time"], answer:1, explanation:"In biological context, propagate means to reproduce and spread — resistant strains multiply and spread.", difficulty:"easy" },
+
+  // ════════════════════════════════════════════
+  // TEST 7 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  { id:"gv_t7_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'The best leaders are introverts because they listen more. Therefore, companies should avoid hiring extroverts for leadership roles.' The argument's flaw is:", options:["Introversion is not well-defined.","The conclusion over-generalizes from a tendency (introverts listen more) to a blanket hiring policy that ignores context and individual variation.","Extroverts are better at networking.","Most CEOs are extroverts."], answer:1, explanation:"Even if introverts tend to listen more, individual extroverts may still excel in leadership; a general tendency does not justify a categorical hiring rule.", difficulty:"hard" },
+  { id:"gv_t7_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'Violent video games should be banned because children who play them are more aggressive.' Which response is most logically effective?", options:["Video games are an important art form.","The relationship may be correlational; aggressive children may self-select into violent games rather than the games causing aggression.","Many video games are educational.","Other countries don't ban violent games."], answer:1, explanation:"If aggressive kids choose violent games, the causal direction is reversed — games don't cause aggression, aggression causes game choice.", difficulty:"medium" },
+  { id:"gv_t7_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'Either we outsource IT or we hire 10 more staff. Outsourcing is too expensive.' What does this argument conclude?", options:["We should neither outsource nor hire.","We should hire 10 more staff.","We should find a cheaper IT outsourcing vendor.","We should reduce IT needs."], answer:1, explanation:"The argument uses a disjunctive syllogism: if not A, then B. Since outsourcing is ruled out, the conclusion is to hire.", difficulty:"easy" },
+  { id:"gv_t7_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'Historically, inflation followed large deficits. Today's deficit is large. Therefore, inflation will follow.' Which most weakens this?", options:["Previous deficits were smaller.","The central bank has new tools to control inflation that did not exist in previous periods.","Some countries run deficits without inflation.","The current deficit is financed differently."], answer:1, explanation:"New central bank tools change the context, breaking the historical pattern the argument relies on.", difficulty:"medium" },
+  { id:"gv_t7_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'Every time we offered a sale, foot traffic increased. Our next sale will increase foot traffic.' What type of reasoning is this?", options:["Deductive — necessary conclusion","Inductive — conclusion is probable based on past patterns, but not guaranteed","Abductive — best explanation","Analogical"], answer:1, explanation:"Drawing a general pattern from past observations to predict a future specific instance is inductive reasoning.", difficulty:"medium" },
+  { id:"gv_t7_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'The hospital with the highest mortality rate must provide the worst care.' This inference is flawed because:", options:["Mortality rate is unreliable data.","High-mortality hospitals may receive the sickest patients (selection effect), making raw mortality a poor proxy for care quality.","The hospital may not be accredited.","Nurses at the hospital may be undertrained."], answer:1, explanation:"Case mix severity is a classic confounder in hospital quality assessments — harder cases inflate raw mortality independent of care quality.", difficulty:"hard" },
+  { id:"gv_t7_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'We should not pursue this acquisition. Acquisitions are risky.' What additional information would make this argument strongest?", options:["A list of successful acquisitions by competitors","A rigorous analysis showing this specific acquisition has an unusually high failure probability given its structure and market conditions","The CEO's opinion on acquisitions","Historical acquisition success rates across all industries"], answer:1, explanation:"Specific risk data about this acquisition, not acquisitions in general, is needed to justify rejecting this particular deal.", difficulty:"hard" },
+  // RC – Passage 1: Supply Chain (4 Qs)
+  { id:"gv_t7_rc01", path:"gmat_verbal", passage:P_SUPPLY_CHAIN, question:"The main thesis of the passage is that:", options:["JIT manufacturing should be abandoned globally.","COVID-19 revealed that JIT's efficiency advantages come with fragility, prompting firms to reconsider supply chain design.","Reshoring is always the best response to supply chain disruption.","Global supply chains are too complex to manage."], answer:1, explanation:"The passage uses COVID-19 as a case study revealing JIT's vulnerability and prompting strategic debate — that's the central thesis.", difficulty:"easy" },
+  { id:"gv_t7_rc02", path:"gmat_verbal", passage:P_SUPPLY_CHAIN, question:"According to the passage, what is JIT manufacturing's primary benefit?", options:["Geographic diversification of suppliers","Minimizing inventory to reduce holding costs","Maximizing production volume","Eliminating quality defects"], answer:1, explanation:"The passage explicitly states JIT 'minimizes inventory to reduce holding costs.'", difficulty:"easy" },
+  { id:"gv_t7_rc03", path:"gmat_verbal", passage:P_SUPPLY_CHAIN, question:"A company that nears its JIT model but adds a 2-week emergency inventory buffer is best described as:", options:["Abandoning JIT entirely","Implementing a hybrid strategy combining JIT efficiency with buffer-stock resilience","Reshoring","Nearshoring"], answer:1, explanation:"Maintaining mostly JIT but adding a buffer blends efficiency and resilience — a hybrid approach.", difficulty:"medium" },
+  { id:"gv_t7_rc04", path:"gmat_verbal", passage:P_SUPPLY_CHAIN, question:"Which would a firm most weigh when choosing between reshoring and nearshoring?", options:["Executive preference","Relative labor costs, logistics expenses, and political stability of domestic vs. nearby-country production","Historical brand perception","Which option was adopted by competitors"], answer:1, explanation:"The passage implies each option has 'different cost and resilience trade-offs' — cost and resilience are the relevant dimensions.", difficulty:"medium" },
+  // RC – Passage 2: Carbon Capture (4 Qs)
+  { id:"gv_t7_rc05", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"According to the passage, what does the 2023 meta-analysis reveal about existing CCS projects?", options:["They have met all projected capture targets.","They capture roughly 40 million tonnes annually, less than 0.1% of global emissions.","They are more expensive than alternative technologies.","They have been shut down due to regulatory issues."], answer:1, explanation:"The passage cites the meta-analysis as finding '~40 million tonnes annually — less than 0.1% of global emissions.'", difficulty:"easy" },
+  { id:"gv_t7_rc06", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"Proponents of CCS would argue that the current deployment scale is:", options:["Evidence that CCS is ineffective and should be abandoned","A starting point that can be scaled up with investment and policy support","Sufficient to meet net-zero targets","The maximum physically achievable"], answer:1, explanation:"Proponents 'see CCS as essential' — they would view current small scale as a policy and investment challenge, not a technological ceiling.", difficulty:"medium" },
+  { id:"gv_t7_rc07", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"The description of CCS as 'energy-intensive' is relevant because it suggests:", options:["CCS cannot work in cold climates.","The energy used in capturing CO₂ may itself generate emissions, partially offsetting the benefit.","CCS requires large physical infrastructure.","Energy costs make CCS unaffordable."], answer:1, explanation:"If CCS requires energy and that energy comes from fossil fuels, net CO₂ reduction is less than the gross capture — an internal contradiction.", difficulty:"hard" },
+  { id:"gv_t7_rc08", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"The word 'sequestering' in the passage most nearly means:", options:["Filtering","Storing permanently in an isolated location","Transforming into a harmless substance","Releasing gradually"], answer:1, explanation:"In CCS terminology, sequestration means long-term isolation/storage of CO₂ underground.", difficulty:"easy" },
+
+  // ════════════════════════════════════════════
+  // TEST 8 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  { id:"gv_t8_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'Sleep deprivation reduces cognitive performance by 30%. Our employees sleep an average of 6.5 hours. We must intervene.' Which assumption is required?", options:["6.5 hours is below the threshold where performance begins to decline.","Sleep deprivation affects only certain cognitive tasks.","Employees are aware of their sleep deficit.","Office lighting affects sleep quality."], answer:0, explanation:"The argument only holds if 6.5 hours is enough to impair performance; this threshold linkage is the key unstated premise.", difficulty:"hard" },
+  { id:"gv_t8_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'Wind energy is unreliable because the wind doesn't blow all the time.' Which response most effectively challenges this?", options:["Wind energy is free once infrastructure is built.","Modern grids combine multiple renewable sources, storage, and interconnection so intermittency does not require grid-level unreliability.","Wind energy emits no CO₂.","Wind capacity has grown significantly."], answer:1, explanation:"Grid integration and storage solutions address intermittency at the system level — the argument ignores how modern grids function.", difficulty:"medium" },
+  { id:"gv_t8_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'Raising the driving age to 18 will reduce teen auto fatalities. Data shows teens 16–17 have 3× higher fatality rates than 18-year-olds.' What assumption does this require?", options:["18-year-olds have fully matured brains.","16–17-year-olds who simply age two years will drive more safely — experience at any age, not maturity alone, drives the difference.","Teens drive more at night.","The law is enforceable."], answer:1, explanation:"If experience (not age) explains the gap, waiting until 18 without providing supervised driving may not reduce fatalities.", difficulty:"hard" },
+  { id:"gv_t8_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'Investing in infrastructure creates jobs, which stimulates the economy.' This argument's structure is best described as:", options:["A false dilemma","A causal chain where one effect leads to another","An ad hominem","Circular reasoning"], answer:1, explanation:"Infrastructure → jobs → economic stimulus is a causal chain — each step causes the next.", difficulty:"easy" },
+  { id:"gv_t8_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'Private schools produce more college-ready graduates. Therefore, private education is superior.' The most significant objection is:", options:["Some public school graduates attend top universities.","Private schools serve a self-selected, often wealthier population — outcomes reflect student demographics, not school quality alone.","Private schools charge higher fees.","Public schools have larger class sizes."], answer:1, explanation:"Without controlling for socioeconomic background, comparing raw outcomes confounds school quality with student selection.", difficulty:"hard" },
+  { id:"gv_t8_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'If the project is delayed, we will lose the client. We lost the client. Therefore, the project was delayed.' This is an example of:", options:["Modus ponens","Affirming the consequent — a formal logical fallacy","Modus tollens","Hypothetical syllogism"], answer:1, explanation:"Affirming the consequent: 'If P then Q; Q; therefore P' is formally invalid — Q could be true for other reasons.", difficulty:"medium" },
+  { id:"gv_t8_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'We should implement the new software because our main competitor uses it.' This reasoning most closely resembles:", options:["A well-supported business case","Appeal to peer pressure / bandwagon — adoption by a competitor doesn't establish the software's value for your organization","Cost-benefit analysis","A pilot program recommendation"], answer:1, explanation:"The argument provides no evidence the software suits the organization — it appeals to competitor behavior as justification.", difficulty:"medium" },
+  // RC – Passage 1: Urban Heat Island (4 Qs) – different from test 3
+  { id:"gv_t8_rc01", path:"gmat_verbal", passage:P_URBAN_HEAT, question:"Which mitigation strategy, as described in the passage, primarily targets the impervious surface problem?", options:["Urban forests","Green roofs","Reflective pavements","Waste heat reduction"], answer:2, explanation:"Reflective pavements address impervious surface heat absorption by reflecting rather than absorbing solar radiation.", difficulty:"medium" },
+  { id:"gv_t8_rc02", path:"gmat_verbal", passage:P_URBAN_HEAT, question:"The passage claims urban temperatures can exceed rural areas by 2–5°C. The primary significance of this range is:", options:["It is too small to matter practically.","Even a 2°C increase substantially raises energy demand and mortality risk at scale.","The range is too wide to be scientifically meaningful.","Rural areas should adopt urban heat island characteristics."], answer:1, explanation:"Small temperature increases at urban scale affect millions of people, making even 2°C meaningful for energy and health outcomes.", difficulty:"medium" },
+  { id:"gv_t8_rc03", path:"gmat_verbal", passage:P_URBAN_HEAT, question:"If a city can implement only one mitigation strategy, which criterion should guide the choice according to the passage?", options:["Public popularity","Political feasibility","A strategy's specific cost and feasibility trade-offs relative to local conditions","The strategy most used in peer cities"], answer:2, explanation:"The passage explicitly states each strategy 'carries distinct cost and feasibility trade-offs' — these are the decision criteria.", difficulty:"medium" },
+  { id:"gv_t8_rc04", path:"gmat_verbal", passage:P_URBAN_HEAT, question:"The passage implies that waste heat from transportation contributes to urban heat because:", options:["Transportation exhaust reacts with ozone.","Engines and systems release thermal energy directly into the urban environment as a by-product.","More vehicles mean more people, raising urban density.","Transportation infrastructure is built with heat-absorbing materials."], answer:1, explanation:"Waste heat is the thermal energy exhausted from engines and mechanical systems — a direct heat emission into the urban environment.", difficulty:"hard" },
+  // RC – Passage 2: Remote Work (4 Qs) – different from test 3
+  { id:"gv_t8_rc05", path:"gmat_verbal", passage:P_REMOTE_WORK, question:"Which group of researchers would most likely support mandatory return-to-office policies?", options:["Those who found 10–15% productivity gains from remote work","Those who found declines in collaboration quality and innovation","Those who found no significant productivity change","All three groups equally"], answer:1, explanation:"Researchers citing declines in collaboration and innovation would have the strongest empirical basis for supporting in-person work.", difficulty:"easy" },
+  { id:"gv_t8_rc06", path:"gmat_verbal", passage:P_REMOTE_WORK, question:"The fact that three research clusters produced different findings most likely reflects:", options:["Poor data quality in all three groups","That individual and organizational factors (not just remote vs. office location) shape productivity outcomes","A fundamental disagreement about the definition of productivity","Methodological fraud in one of the studies"], answer:1, explanation:"Contradictory findings suggest the relationship depends on context — aligning with the third cluster's finding that mediating factors matter.", difficulty:"medium" },
+  { id:"gv_t8_rc07", path:"gmat_verbal", passage:P_REMOTE_WORK, question:"Which study design would best resolve the contradictions among the three research clusters?", options:["A larger cross-sectional survey","A randomized experiment assigning employees to remote vs. office work, controlling for industry, role, and home environment","Meta-analysis of existing studies","A survey of CEO preferences"], answer:1, explanation:"An RCT with appropriate controls could isolate the effect of remote work from confounding individual and organizational variables.", difficulty:"hard" },
+  { id:"gv_t8_rc08", path:"gmat_verbal", passage:P_REMOTE_WORK, question:"The passage's presentation of three contradictory research clusters primarily suggests that:", options:["Remote work research is methodologically flawed across the board","Simple 'remote work is good or bad' conclusions are not supported by current evidence","Productivity should not be studied empirically","Companies should implement hybrid work immediately"], answer:1, explanation:"Contradictory findings undermine confident universal claims — the passage implicitly argues for nuance rather than blanket conclusions.", difficulty:"medium" },
+
+  // ════════════════════════════════════════════
+  // TEST 9 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  { id:"gv_t9_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'No evidence of extraterrestrial life has been found. Therefore, we are alone in the universe.' The argument makes which error?", options:["Circular reasoning","Argumentum ad ignorantiam — concluding absence from absence of evidence","False analogy","Straw man"], answer:1, explanation:"Lack of evidence for something is not evidence of its absence — our search has covered a tiny fraction of the universe.", difficulty:"medium" },
+  { id:"gv_t9_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'High economic inequality is bad because it makes the rich richer and the poor poorer.' What type of reasoning flaw does this exhibit?", options:["Circular reasoning — uses the claim to prove itself","False dichotomy","Ad hominem","Slippery slope"], answer:0, explanation:"The premise ('it makes the rich richer and poor poorer') essentially restates the conclusion ('inequality is bad') rather than providing independent evidence.", difficulty:"hard" },
+  { id:"gv_t9_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'This restaurant has never had a health violation. It must be safe to eat there.' Which assumption is required?", options:["Restaurant inspections catch all hygiene problems.","The absence of past violations indicates present and future food safety.","The restaurant has good reviews.","Health violations are publicly reported."], answer:1, explanation:"The argument requires assuming that the absence of past violations predicts current safety — a gap between record and present state.", difficulty:"medium" },
+  { id:"gv_t9_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'Immigrants take jobs from native workers.' Which evidence most directly weakens this claim?", options:["Immigrants often start businesses that create additional jobs.","Immigrants pay taxes.","Immigration increases cultural diversity.","Most immigrants hold college degrees."], answer:0, explanation:"If immigrants create jobs as entrepreneurs, they are net contributors to employment, directly undermining the 'take jobs' claim.", difficulty:"medium" },
+  { id:"gv_t9_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'Everyone I know thinks this policy is popular. It must be broadly popular.' This is an example of:", options:["Hasty generalization — anecdotal social circle does not represent the broad population","False dilemma","Ad populum","Appeal to authority"], answer:0, explanation:"Drawing population-level conclusions from a personal, unrepresentative social sample is a classic hasty generalization.", difficulty:"easy" },
+  { id:"gv_t9_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'Running helped me recover from depression. Everyone with depression should run.' The most significant objection:", options:["Running is expensive.","Individual recovery experiences may not generalize — depression has varied causes and running may not address all of them.","Running causes injuries.","Depression should only be treated medically."], answer:1, explanation:"Personal anecdote-to-prescription reasoning fails because individual cases may not generalize across depression types, severities, and patients.", difficulty:"medium" },
+  { id:"gv_t9_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'To reduce cyber attacks, companies should require complex passwords.' Which would most strengthen this recommendation?", options:["Employees currently use simple passwords.","Analysis shows that the majority of successful breaches in the industry exploit weak or reused passwords rather than sophisticated attacks.","Complex passwords are hard to remember.","IT security is a growing field."], answer:1, explanation:"Evidence that most breaches exploit the specific vulnerability addressed (weak passwords) directly supports the recommendation.", difficulty:"medium" },
+  // RC – Passage 1: Social Media and Teens (4 Qs) – different questions
+  { id:"gv_t9_rc01", path:"gmat_verbal", passage:P_SOCIAL_MEDIA_TEEN, question:"The passage implies that 'longitudinal' study design is relevant because:", options:["Longitudinal studies are less expensive.","Longitudinal studies track the same participants over time, allowing researchers to observe how social media use and well-being change together.","Longitudinal studies eliminate the need for control groups.","Longitudinal studies produce larger sample sizes."], answer:1, explanation:"Longitudinal design — tracking the same people over time — is essential for observing change and, potentially, temporal sequencing of cause and effect.", difficulty:"medium" },
+  { id:"gv_t9_rc02", path:"gmat_verbal", passage:P_SOCIAL_MEDIA_TEEN, question:"The author presents the study's critics and proponents without explicitly endorsing either side. This suggests the author's role is:", options:["Advocate for restricting teen social media use","Objective presenter of an ongoing empirical debate","Critic of observational research methods","Supporter of the precautionary principle"], answer:1, explanation:"The passage fairly represents both sides without signals of personal endorsement — an objective, balanced framing.", difficulty:"easy" },
+  { id:"gv_t9_rc03", path:"gmat_verbal", passage:P_SOCIAL_MEDIA_TEEN, question:"Which statement is most directly supported by the passage?", options:["Social media causes depression in teenagers.","Higher social media use is associated with lower self-reported life satisfaction, though the effect is small.","Teenagers who use social media are academically underperforming.","The study definitively proves a causal link between social media and teen unhappiness."], answer:1, explanation:"The passage reports an association (r=0.12) between heavier social media use and lower life satisfaction — correlation, small effect.", difficulty:"easy" },
+  { id:"gv_t9_rc04", path:"gmat_verbal", passage:P_SOCIAL_MEDIA_TEEN, question:"If the study's authors published a follow-up showing that when teens reduced social media use their well-being improved, this would:", options:["Prove definitively that social media causes unhappiness","Provide stronger evidence of a causal direction from social media to well-being, though not fully eliminate reverse causation","Disprove the critics' claims entirely","Confirm the precautionary principle is correct"], answer:1, explanation:"Showing improvement after reduction strengthens causality from usage to well-being, but without a randomized design, some reverse-causation concern remains.", difficulty:"hard" },
+  // RC – Passage 2: Microplastics (4 Qs) – different questions
+  { id:"gv_t9_rc05", path:"gmat_verbal", passage:P_MICROPLASTICS, question:"The passage most directly supports which conclusion about microplastic policy?", options:["Strict bans on all plastics are required immediately.","The appropriate regulatory response is contested because scientific evidence is incomplete.","Industry groups are acting in bad faith.","Current precautionary limits are effective."], answer:1, explanation:"The passage describes regulatory uncertainty and opposing views — it supports the contested-response conclusion, not a specific policy action.", difficulty:"medium" },
+  { id:"gv_t9_rc06", path:"gmat_verbal", passage:P_MICROPLASTICS, question:"The fact that microplastics are found in 'human tissue' is most significant because it indicates:", options:["Microplastics are visually detectable.","Human exposure is internal, raising the stakes for health research beyond environmental contamination alone.","Microplastics are biodegradable.","Regulatory limits are currently adequate."], answer:1, explanation:"Internal human tissue presence escalates the concern beyond environmental to direct human health — increasing urgency for health research.", difficulty:"medium" },
+  { id:"gv_t9_rc07", path:"gmat_verbal", passage:P_MICROPLASTICS, question:"Which would most effectively address both the regulatory bodies' concerns and the industry groups' objections?", options:["Immediately ban all single-use plastics","Conduct additional longitudinal human health studies while implementing interim monitoring requirements","Rely solely on existing marine animal research","Accept industry self-regulation"], answer:1, explanation:"Additional research addresses the evidence gap (satisfying industry's evidentiary objection) while interim monitoring shows precautionary action (satisfying regulators).", difficulty:"hard" },
+  { id:"gv_t9_rc08", path:"gmat_verbal", passage:P_MICROPLASTICS, question:"The contrast between 'prevalence is undisputed' and 'health impacts remain poorly understood' serves to:", options:["Dismiss concern about microplastics","Separate the question of exposure (confirmed) from the question of harm (uncertain) to clarify where the debate actually lies","Argue that prevalence implies harm","Suggest that detection technology is inadequate"], answer:1, explanation:"The passage distinguishes detection (settled) from health effect (unsettled) — this is the key epistemic clarification structuring the debate.", difficulty:"hard" },
+
+  // ════════════════════════════════════════════
+  // TEST 10 — 7 CR + 8 RC (2 passages×4)
+  // ════════════════════════════════════════════
+  { id:"gv_t10_cr01", path:"gmat_verbal", question:"CRITICAL REASONING: 'Companies that invest in employee wellness report lower turnover. Therefore, wellness programs reduce turnover.' What would most strengthen this as a causal claim?", options:["Wellness programs are popular with employees.","Companies with lower baseline turnover tend to invest in wellness anyway.","A randomized trial finds companies randomly assigned to wellness programs show lower turnover than control companies.","HR managers endorse wellness programs."], answer:2, explanation:"A randomized controlled experiment eliminates self-selection — if randomly assigned companies show lower turnover, causality is supported.", difficulty:"hard" },
+  { id:"gv_t10_cr02", path:"gmat_verbal", question:"CRITICAL REASONING: 'Our product was tested on 200 users, and 95% rated it excellent. It's ready for mass market launch.' Which concern is most critical?", options:["200 is a large enough sample for statistical significance.","If the 200 testers were recruited from the product's most enthusiastic early adopters, the sample is not representative of the mass market.","Mass market launch is expensive.","The rating scale is subjective."], answer:1, explanation:"Early-adopter bias means testers are unusually motivated and forgiving — their positive ratings may not generalize to a mass market audience.", difficulty:"medium" },
+  { id:"gv_t10_cr03", path:"gmat_verbal", question:"CRITICAL REASONING: 'We should not enter the emerging market because our competitors failed there.' What assumption does this require?", options:["The emerging market will fail all entrants.","Competitors failed for reasons that would apply equally to us — i.e., the failure reflects market conditions rather than competitor-specific mistakes.","Emerging markets are risky by definition.","Our resources are equal to our competitors'."], answer:1, explanation:"If competitors failed due to their specific weaknesses (not market conditions), their failure doesn't predict ours — the assumption requires generalizability.", difficulty:"hard" },
+  { id:"gv_t10_cr04", path:"gmat_verbal", question:"CRITICAL REASONING: 'If we don't acquire Firm Z now, we'll lose our competitive position. Our CEO refuses to acquire Firm Z. Therefore, we'll lose our competitive position.' Evaluate this argument.", options:["Valid — the conclusion follows necessarily from the premises","Valid only if the first premise is true — losing competitive position requires that acquisition is the only way to maintain it","Invalid because the CEO may be wrong","Valid because acquisitions always improve competitive position"], answer:1, explanation:"The argument is valid in form (modus ponens), but the first premise — that acquisition is the only path — is contestable and unstated.", difficulty:"medium" },
+  { id:"gv_t10_cr05", path:"gmat_verbal", question:"CRITICAL REASONING: 'Raising cigarette taxes reduces smoking. Raising alcohol taxes should therefore reduce drinking.' This analogical argument requires that:", options:["Cigarettes and alcohol have identical price elasticity.","The demand for alcohol responds to price changes in the same way that demand for cigarettes does.","Both products are equally harmful.","Tax revenues from both are equivalent."], answer:1, explanation:"Analogical reasoning from one product to another requires that the relevant mechanism (price responsiveness) is comparable between them.", difficulty:"medium" },
+  { id:"gv_t10_cr06", path:"gmat_verbal", question:"CRITICAL REASONING: 'We surveyed customers after the new policy and satisfaction dropped. The policy must have hurt satisfaction.' What is the strongest alternative explanation?", options:["Survey response rates were low.","An external event (economic downturn, competitor action) coincided with the policy and independently affected customer satisfaction.","Customers were told about the policy before being surveyed.","The survey questions were changed."], answer:1, explanation:"Any contemporaneous external event that independently affected satisfaction is an alternative cause that undermines the attribution to the policy.", difficulty:"medium" },
+  { id:"gv_t10_cr07", path:"gmat_verbal", question:"CRITICAL REASONING: 'All managers in our top-performing business unit have MBAs. Therefore, MBA graduates make better managers.' The central flaw is:", options:["MBAs are expensive.","The sample is limited to one high-performing unit; we don't know the MBA rate among managers in lower-performing units or whether the MBAs caused performance.","Not all MBAs manage well.","Correlation between MBA and performance in one unit is statistically significant."], answer:1, explanation:"Without comparing MBA rates across performance levels and without ruling out that other factors explain performance, no causal claim is justified.", difficulty:"hard" },
+  // RC – Passage 1: Antibiotic Resistance (4 Qs) – new questions
+  { id:"gv_t10_rc01", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"The passage most strongly implies that the antibiotic pipeline problem is partly a market failure because:", options:["Governments refuse to fund research.","The social value of new antibiotics greatly exceeds their commercial return under current incentive structures.","Pharmaceutical companies lack the technical capability to develop new antibiotics.","Academic research has not identified new antibiotic targets."], answer:1, explanation:"If companies won't develop antibiotics because the business model is unattractive despite the drugs' importance, the private market fails to supply a socially valuable good.", difficulty:"hard" },
+  { id:"gv_t10_rc02", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"The passage states that when bacteria 'survive antibiotic exposure,' resistant strains propagate. This survival mechanism is best described as:", options:["Random mutation triggered by the antibiotic","Natural selection — susceptible bacteria are killed while resistant variants survive and reproduce","Acquired immunity analogous to vaccines","Horizontal gene transfer between humans and bacteria"], answer:1, explanation:"This is Darwinian natural selection: antibiotics kill susceptible bacteria; resistant ones survive and reproduce, increasing the resistant population.", difficulty:"medium" },
+  { id:"gv_t10_rc03", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"Which recommendation would be most consistent with the passage's analysis of antibiotic resistance?", options:["Invest solely in developing new antibiotics.","Adopt a multi-pronged strategy: restrict inappropriate use in both human medicine and agriculture, and provide commercial incentives for new antibiotic development.","Focus only on agricultural antibiotic reduction.","Make antibiotics available without prescription to improve access."], answer:1, explanation:"The passage identifies overuse in multiple sectors and a development pipeline problem — both must be addressed, consistent with a multi-pronged approach.", difficulty:"medium" },
+  { id:"gv_t10_rc04", path:"gmat_verbal", passage:P_ANTIBIOTIC_RESIST, question:"The author's tone toward the WHO's classification of AMR as a top threat is best described as:", options:["Skeptical — the classification is an exaggeration","Neutral reporting of an authoritative assessment","Enthusiastically supportive","Critical — the WHO should have acted earlier"], answer:1, explanation:"The passage presents the WHO classification as a factual reference without editorial commentary — neutral reporting.", difficulty:"easy" },
+  // RC – Passage 2: Carbon Capture (4 Qs) – new questions
+  { id:"gv_t10_rc05", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"The phrase 'alongside renewable energy' suggests that proponents of CCS view it as:", options:["A replacement for renewable energy","Complementary to renewables, not a substitute","Superior to renewables in cost","The primary driver of net-zero achievement"], answer:1, explanation:"'Alongside' indicates CCS and renewables are both needed — CCS is complementary, not a replacement.", difficulty:"easy" },
+  { id:"gv_t10_rc06", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"If CCS technology's energy intensity were halved, which side of the debate would most benefit?", options:["Critics, because the technology would still be imperfect.","Proponents, because the main cost and emissions-offset objections would be substantially reduced.","Neither — scale remains the dominant concern.","Critics — cheaper CCS would extend fossil fuel dependency longer."], answer:1, explanation:"Halving energy intensity directly reduces operating costs and the 'energy-intensive' criticism, strengthening the proponents' case.", difficulty:"medium" },
+  { id:"gv_t10_rc07", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"'Net-zero targets' as referenced in the passage means:", options:["Producing zero carbon emissions","Achieving a state where CO₂ emitted equals CO₂ removed, resulting in no net atmospheric increase","Sequestering more carbon than is emitted","Using only renewable energy sources"], answer:1, explanation:"Net-zero means balance: emissions and removals offset each other, so the net addition to the atmosphere is zero.", difficulty:"easy" },
+  { id:"gv_t10_rc08", path:"gmat_verbal", passage:P_CARBON_CAPTURE, question:"A critic of CCS who was persuaded by the proponents' strongest argument would most likely concede that:", options:["CCS should replace renewable energy investment.","Even with full renewable deployment, some sectors may be technically impossible to fully decarbonize without carbon removal.","CCS is already operating at adequate scale.","Carbon capture is risk-free."], answer:1, explanation:"The strongest proponent argument is necessity: some emissions (cement, steel, aviation) are very hard to eliminate, making CCS removal necessary for true net-zero.", difficulty:"hard" },
 ];
