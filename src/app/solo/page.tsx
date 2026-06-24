@@ -70,12 +70,20 @@ function SoloPageContent() {
 
     const roomRes = await fetch("/api/rooms", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
       body: JSON.stringify({ teamId: teamData.team.id }),
     });
 
+    if (!roomRes.ok) {
+      const roomErr = await roomRes.json().catch(() => ({}));
+      setError((roomErr as { error?: string }).error ?? "Failed to start game.");
+      setStarting(false);
+      return;
+    }
     const roomData = await roomRes.json();
-    if (!roomRes.ok) { setError(roomData.error ?? "Failed to start game."); setStarting(false); return; }
 
     if (selectedPath === "gmat_full_test" || selectedPath.startsWith("gmat_test_")) {
       router.push(`/gmat-test/${roomData.roomCode}`);

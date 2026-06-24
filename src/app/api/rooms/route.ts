@@ -18,52 +18,62 @@ function generateRoomCode(): string {
 
 // POST /api/rooms — start a game session for a team
 export async function POST(request: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const teamId = body?.teamId as string;
+    if (!teamId) {
+      return NextResponse.json({ error: "Missing teamId" }, { status: 400 });
+    }
+
+    const [team] = await db.select().from(teams).where(eq(teams.id, teamId));
+    if (!team) {
+      return NextResponse.json({ error: "Team not found" }, { status: 404 });
+    }
+
+    const roomCode = generateRoomCode();
+    // Use team's selected path as puzzleSetId so the game knows which questions to load.
+    // Falls back to "default_set" for teams created before path selection was added.
+    const puzzleSetId = team.selectedPath ?? "default_set";
+
+    const [session] = await db
+      .insert(gameSessions)
+      .values({
+        teamId,
+        userId: user.id,
+        roomCode,
+        puzzleSetId,
+        currentPuzzleIndex: 0,
+        status: "active",
+      })
+      .returning();
+
+    await db.update(teams).set({ status: "in_game" }).where(eq(teams.id, teamId));
+
+    const isMcqMode = puzzleSetId !== "default_set";
+    if (isMcqMode) {
+      return NextResponse.json({ session, roomCode, isMcqMode: true, selectedPath: puzzleSetId }, { status: 201 });
+    }
+
+    const puzzleOrder = getPuzzleOrder("default_set");
+    return NextResponse.json({ session, roomCode, puzzleOrder }, { status: 201 });
+  } catch (err) {
+    const e = err as Record<string, unknown>;
+    const cause = e?.cause as Record<string, unknown> | undefined;
+    const rootMsg = String(cause?.message ?? e?.message ?? err);
+    const code = String(cause?.code ?? e?.code ?? "");
+    const msg = [rootMsg, code && `[pg:${code}]`].filter(Boolean).join(" ");
+    console.error("[POST /api/rooms]", msg, cause ?? e);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
-
-  const body = await request.json();
-  const teamId = body?.teamId as string;
-  if (!teamId) {
-    return NextResponse.json({ error: "Missing teamId" }, { status: 400 });
-  }
-
-  const [team] = await db.select().from(teams).where(eq(teams.id, teamId));
-  if (!team) {
-    return NextResponse.json({ error: "Team not found" }, { status: 404 });
-  }
-
-  const roomCode = generateRoomCode();
-  // Use team's selected path as puzzleSetId so the game knows which questions to load.
-  // Falls back to "default_set" for teams created before path selection was added.
-  const puzzleSetId = team.selectedPath ?? "default_set";
-
-  const [session] = await db
-    .insert(gameSessions)
-    .values({
-      teamId,
-      userId: user.id,
-      roomCode,
-      puzzleSetId,
-      currentPuzzleIndex: 0,
-      status: "active",
-    })
-    .returning();
-
-  await db.update(teams).set({ status: "in_game" }).where(eq(teams.id, teamId));
-
-  const isMcqMode = puzzleSetId !== "default_set";
-  if (isMcqMode) {
-    return NextResponse.json({ session, roomCode, isMcqMode: true, selectedPath: puzzleSetId }, { status: 201 });
-  }
-
-  const puzzleOrder = getPuzzleOrder("default_set");
-  return NextResponse.json({ session, roomCode, puzzleOrder }, { status: 201 });
 }
 
 // GET /api/rooms?code=XXXXXX — get current game state

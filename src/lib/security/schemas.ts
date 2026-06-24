@@ -5,6 +5,12 @@ const PATH_IDS = [
   "cs_networks","cs_cybersecurity","cs_ml_ai","cs_databases",
   "cs_data_science","cs_software_engineering","cs_graphics","cs_hci",
   "gmat_quant","gmat_verbal","gmat_data_insights","cs_random","gmat_full_test",
+  "gmat_test_1","gmat_test_2","gmat_test_3","gmat_test_4","gmat_test_5",
+  "gmat_test_6","gmat_test_7","gmat_test_8","gmat_test_9","gmat_test_10",
+  "gmat_quant_arithmetic","gmat_quant_algebra","gmat_quant_geometry",
+  "gmat_quant_word_problems","gmat_quant_number_theory","gmat_quant_statistics",
+  "gmat_quant_combinatorics","gmat_quant_coordinate_geo","gmat_quant_functions",
+  "gmat_quant_probability",
 ] as const;
 
 export const createTeamSchema = z.object({
