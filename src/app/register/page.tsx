@@ -62,6 +62,7 @@ function RegisterPageContent() {
 
   // Auth state
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [authError, setAuthError] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
@@ -141,11 +142,15 @@ function RegisterPageContent() {
 
   async function sendMagicLink(e: React.FormEvent) {
     e.preventDefault();
+    if (!name.trim()) { setAuthError("Please enter your name."); return; }
     setAuthError("");
     setAuthSubmitting(true);
     const { error } = await getSupabaseBrowser().auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/register${inviteParam ? `?invite=${inviteParam}` : ""}` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/register${inviteParam ? `?invite=${inviteParam}` : ""}`,
+        data: { full_name: name.trim() },
+      },
     });
     setAuthSubmitting(false);
     if (error) setAuthError(error.message);
@@ -194,7 +199,7 @@ function RegisterPageContent() {
       body: JSON.stringify({
         teamName: teamName.trim(),
         maxSize,
-        creatorName: user?.email?.split("@")[0] ?? "Host",
+        creatorName: (user?.user_metadata?.full_name as string | undefined) ?? user?.email?.split("@")[0] ?? "Host",
         slotConfigs: agentSlots,
         selectedPath: selectedPath ?? "cs_algorithms",
         gameTrack: selectedTrack ?? "team",
@@ -284,6 +289,20 @@ function RegisterPageContent() {
                 </div>
               ) : (
                 <form onSubmit={sendMagicLink} className="space-y-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground tracking-widest block mb-2">
+                      YOUR NAME
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={50}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Alex"
+                      className="w-full px-4 py-3 bg-card border border-[var(--dark-border)] rounded text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-[var(--neon-cyan)]/60 transition-colors"
+                    />
+                  </div>
                   <div>
                     <label className="text-xs text-muted-foreground tracking-widest block mb-2">
                       EMAIL
@@ -793,7 +812,10 @@ function RegisterPageContent() {
               CREATE YOUR <span className="text-[var(--neon-cyan)] glow-cyan">TEAM</span>
             </h1>
             <p className="text-muted-foreground text-sm mt-2">
-              Signed in as <span className="text-foreground/70">{user.email}</span>
+              Signed in as{" "}
+              <span className="text-foreground/70">
+                {(user.user_metadata?.full_name as string | undefined) ?? user.email}
+              </span>
             </p>
           </div>
 
@@ -905,7 +927,7 @@ function RegisterPageContent() {
                       <>
                         <div className="flex-1">
                           <div className="text-sm text-foreground font-semibold">
-                            {user.email?.split("@")[0] ?? "You"}
+                            {(user.user_metadata?.full_name as string | undefined) ?? user.email?.split("@")[0] ?? "You"}
                           </div>
                           <div className="text-xs text-[var(--neon-cyan)]">HOST</div>
                         </div>

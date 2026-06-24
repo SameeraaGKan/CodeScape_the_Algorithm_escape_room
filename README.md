@@ -10,17 +10,19 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind_v4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-000?style=for-the-badge&logo=vercel)
 
-**Solve CS algorithm puzzles. Escape the mainframe.**
+**Solve CS puzzles. Beat the clock. Escape with your code.**
 
 </div>
 
 ---
 
-## Project Overview
+## What is CodeEscape?
 
-CodeEscape is an interactive, team-based escape room where players solve computer science algorithm puzzles to "break out" of a simulated cyberpunk mainframe. Each team is made up of human players and/or AI agent teammates — four distinct AI personalities powered by Claude — who provide real-time hints, encouragement, and guided learning as players work through puzzles involving sorting algorithms, Caesar ciphers, recursion call stacks, and graph traversal mazes.
+CodeEscape is a CS-themed escape room built as a full-stack web app. Pick a topic track — Algorithms, ML/AI, Cybersecurity, Databases, Networks, or a dozen more — then race through 10 questions before the clock hits zero. Play solo or build a team of up to 6, with any open slot fillable by an AI agent teammate.
 
-This project was built for **CodePath WEB101: Intro to Web Development** as the capstone project. I chose this topic because I wanted to build something at the intersection of two things I genuinely care about: making CS concepts more approachable for beginners, and exploring what AI-assisted learning feels like in practice. The escape room format makes algorithm study feel like a game rather than homework.
+The twist: your AI agent isn't just a hint button. Each of the four agent personalities responds differently based on your wrong answer, how long you've been stuck, and how much time is left. ARIA encourages without spoiling. BYTE walks you through it step by step. SIGMA asks Socratic questions. ZAP keeps it casual. You choose how you want to be helped.
+
+There are two ways to compete. **Team Mode** keeps everyone moving together — the game advances when all players answer or time runs out, and a live sidebar shows who's still thinking. **Race Mode** flips it individual — a live leaderboard shifts as players answer, and speed bonuses reward decisiveness.
 
 <div align="center">
 <img src="public/screenshots/puzzle.png" alt="Players solving puzzles together" width="70%" />
@@ -30,17 +32,19 @@ This project was built for **CodePath WEB101: Intro to Web Development** as the 
 
 ## Background
 
-This project is a ground-up rebuild of an earlier static HTML/CSS/JS event registration page (CodeScape v1) into a production-grade, full-stack Next.js application. The rebuild introduced real interactive gameplay, a live database, AI integration, real-time team sync, and a machine learning adaptive difficulty system — none of which existed in v1.
+CodeEscape started as a ground-up rebuild of an earlier static HTML/CSS/JS event registration page (CodeScape v1) into a production-grade, full-stack Next.js application. The rebuild introduced real interactive gameplay, a live database, AI integration, real-time team sync, and an adaptive difficulty engine — none of which existed in v1.
 
 ---
 
 ## Features
 
 ### Gameplay
-- **4 puzzle types**: Caesar cipher decode, code fill-in-the-blank, recursion call stack tracing, and BFS/DFS algorithm maze
-- **6 puzzles total** at launch, covering sorting, divide & conquer, recursion, graph algorithms, and data structures
+- **12+ CS topic tracks**: Algorithms & Data Structures, Computational Theory, Machine Learning, Cybersecurity, Operating Systems, Databases, Networks, Computer Architecture, and more — plus a Random Mix wildcard
+- **240+ questions** across all tracks; each session draws 10 curated questions from a pool of 20+ per track
+- **Two game modes**: Team Mode (collaborative, timer-driven) and Race Mode (individual leaderboard, speed bonuses)
+- **Solo or team play**: jump in alone or build a team of up to 6 (human + AI slots)
 - **Timed stages** with a color-coded countdown bar (cyan → amber → red as time runs low)
-- **Score system** with points per puzzle weighted by speed and hints used
+- **Score system** with points weighted by speed and correctness
 
 ### AI Agent System
 Four distinct AI teammate personalities, each powered by `claude-sonnet-4-6`:
@@ -56,9 +60,19 @@ Four distinct AI teammate personalities, each powered by `claude-sonnet-4-6`:
 - Agents receive full context: puzzle type, player's current wrong answer, hints already given, and time remaining
 - Smart hint engine: after a wrong submission, Claude analyzes the *specific* wrong answer and generates a targeted hint — not a generic one
 
+### Game Modes
+
+| Mode | How it works |
+|---|---|
+| **Team Mode** 🤝 | Everyone attempts every question at their own pace. A live sidebar shows who's done vs. still thinking. The game advances when everyone answers — or time runs out. Score is shared. |
+| **Race Mode** ⚡ | Every player for themselves. Individual leaderboard updates live as players answer. Speed bonus: answering earlier earns more base points. Correct answers score much higher, but wrong-but-fast still scores. |
+
+### Solo Play
+Players can launch a solo session without forming a team. Pick a track, choose an AI agent companion, and jump straight into the game — no lobby, no invite link needed.
+
 ### Team Formation
 - Magic link authentication via Supabase Auth (no passwords)
-- Create a team and configure each slot: invite a human via link, or assign an AI agent
+- Create a team, pick a game mode, and configure each slot: invite a human via link, or assign an AI agent
 - Real-time lobby with Supabase Realtime — slot fills appear instantly across all browsers
 - Host-only "Start Game" control
 
@@ -92,7 +106,8 @@ The entire application is a single Next.js 16 App Router project deployed to Ver
 ```
 src/
 ├── app/
-│   ├── page.tsx                # Landing page
+│   ├── page.tsx                # Landing page (hero, game modes, how it works, agents)
+│   ├── solo/                   # Solo play setup (track + agent picker, no lobby)
 │   ├── register/               # Team formation + auth gate
 │   ├── lobby/[teamId]/         # Waiting room with real-time slot updates
 │   ├── game/[roomCode]/        # Puzzle engine + agent sidebar
@@ -100,11 +115,12 @@ src/
 │   ├── dashboard/              # Analytics charts
 │   └── api/                    # Route handlers (teams, rooms, agent, ML)
 ├── components/
-│   ├── puzzle/                 # CipherPuzzle, CodeFillPuzzle, RecursionTrace, AlgorithmMaze
+│   ├── puzzle/                 # Puzzle components (4 types)
 │   └── agent/                  # AgentChatPanel (custom streaming)
 └── lib/
     ├── ai/personalities.ts     # 4 agent system prompts + context injection
     ├── ml/adaptive.ts          # IRT difficulty engine
+    ├── puzzles/paths.ts        # 12+ track definitions + categories
     ├── puzzles/validator.ts    # Server-side answer checking
     └── security/               # Zod schemas + Upstash rate limiters
 ```
@@ -125,8 +141,9 @@ src/
 
 - **Full-stack Next.js App Router** — server components, client components, Route Handlers, and when each is appropriate
 - **Streaming AI responses** — implemented token-by-token streaming from Claude using `ReadableStream` + `TextDecoder` at the HTTP level
-- **Real-time with Supabase** — `postgres_changes` subscriptions for live lobby updates without polling
+- **Real-time with Supabase** — `postgres_changes` subscriptions for live lobby and game-state updates without polling
 - **Item Response Theory** — implemented a psychometric model in TypeScript to estimate ability from performance
+- **Game mode design** — building two fundamentally different multiplayer dynamics (collaborative vs. competitive) on the same shared question engine
 - **Production debugging** — read `.d.ts` declaration files to understand breaking API changes when documentation lags behind releases
 - Navigating 6 simultaneous breaking API changes across Next.js 16, AI SDK v6, Zod v4, and Supabase SSR
 
@@ -142,12 +159,12 @@ The AI agent system was the most interesting part to build. Four distinct person
 
 ## Future Development
 
-- **More puzzle types** — dynamic programming, binary search trees, hash map collisions, graph coloring
-- **Multiplayer puzzle sync** — when one teammate solves a puzzle, all clients advance simultaneously
-- **Leaderboard** — global and team-based scoreboards with Elo-style ratings
+- **More tracks** — deeper dives into specific areas (operating systems internals, distributed systems, security CTF-style challenges)
+- **Global leaderboard** — Elo-style ratings across solo and team sessions
 - **Hint replay** — after session completion, replay the agent conversation that helped you
 - **Custom puzzle builder** — let instructors create puzzle sets for specific courses
 - **OAuth login** — GitHub/Google alongside magic link
+- **Mobile layout polish** — game page sidebar on small screens
 
 ---
 
@@ -238,7 +255,7 @@ Please do not commit `.env.local` or any API keys.
 
 ## Acknowledgments
 
-Anthropic Claude API · Supabase · Vercel · Upstash
+CodePath WEB101 curriculum · Anthropic Claude API · Supabase · Vercel · Upstash
 
 ---
 

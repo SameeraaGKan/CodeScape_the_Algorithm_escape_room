@@ -13,7 +13,7 @@ export interface GmatTestConfig {
 export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   {
     testNum: 1,
-    label: "Test 1 — Arithmetic & Critical Reasoning",
+    label: "Practice Test 1",
     quantIds: [
       "gq_t1_01","gq_t1_02","gq_t1_03","gq_t1_04","gq_t1_05","gq_t1_06","gq_t1_07",
       "gq_t1_08","gq_t1_09","gq_t1_10","gq_t1_11","gq_t1_12","gq_t1_13","gq_t1_14",
@@ -38,7 +38,7 @@ export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   },
   {
     testNum: 2,
-    label: "Test 2 — Algebra & Reading Comprehension",
+    label: "Practice Test 2",
     quantIds: [
       "gq_t2_01","gq_t2_02","gq_t2_03","gq_t2_04","gq_t2_05","gq_t2_06","gq_t2_07",
       "gq_t2_08","gq_t2_09","gq_t2_10","gq_t2_11","gq_t2_12","gq_t2_13","gq_t2_14",
@@ -63,7 +63,7 @@ export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   },
   {
     testNum: 3,
-    label: "Test 3 — Geometry & Analysis",
+    label: "Practice Test 3",
     quantIds: [
       "gq_t3_01","gq_t3_02","gq_t3_03","gq_t3_04","gq_t3_05","gq_t3_06","gq_t3_07",
       "gq_t3_08","gq_t3_09","gq_t3_10","gq_t3_11","gq_t3_12","gq_t3_13","gq_t3_14",
@@ -88,7 +88,7 @@ export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   },
   {
     testNum: 4,
-    label: "Test 4 — Word Problems & Verbal",
+    label: "Practice Test 4",
     quantIds: [
       "gq_t4_01","gq_t4_02","gq_t4_03","gq_t4_04","gq_t4_05","gq_t4_06","gq_t4_07",
       "gq_t4_08","gq_t4_09","gq_t4_10","gq_t4_11","gq_t4_12","gq_t4_13","gq_t4_14",
@@ -114,7 +114,7 @@ export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   },
   {
     testNum: 5,
-    label: "Test 5 — Number Theory & Critical Reasoning",
+    label: "Practice Test 5",
     quantIds: [
       "gq_t5_01","gq_t5_02","gq_t5_03","gq_t5_04","gq_t5_05","gq_t5_06","gq_t5_07",
       "gq_t5_08","gq_t5_09","gq_t5_10","gq_t5_11","gq_t5_12","gq_t5_13","gq_t5_14",
@@ -139,7 +139,7 @@ export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   },
   {
     testNum: 6,
-    label: "Test 6 — Statistics & Reading Comprehension",
+    label: "Practice Test 6",
     quantIds: [
       "gq_t6_01","gq_t6_02","gq_t6_03","gq_t6_04","gq_t6_05","gq_t6_06","gq_t6_07",
       "gq_t6_08","gq_t6_09","gq_t6_10","gq_t6_11","gq_t6_12","gq_t6_13","gq_t6_14",
@@ -164,7 +164,7 @@ export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   },
   {
     testNum: 7,
-    label: "Test 7 — Combinatorics & Critical Reasoning",
+    label: "Practice Test 7",
     quantIds: [
       "gq_t7_01","gq_t7_02","gq_t7_03","gq_t7_04","gq_t7_05","gq_t7_06","gq_t7_07",
       "gq_t7_08","gq_t7_09","gq_t7_10","gq_t7_11","gq_t7_12","gq_t7_13","gq_t7_14",
@@ -192,7 +192,7 @@ export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   },
   {
     testNum: 8,
-    label: "Test 8 — Coordinate Geometry & Verbal",
+    label: "Practice Test 8",
     quantIds: [
       "gq_t8_01","gq_t8_02","gq_t8_03","gq_t8_04","gq_t8_05","gq_t8_06","gq_t8_07",
       "gq_t8_08","gq_t8_09","gq_t8_10","gq_t8_11","gq_t8_12","gq_t8_13","gq_t8_14",
@@ -218,7 +218,7 @@ export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   },
   {
     testNum: 9,
-    label: "Test 9 — Functions & Critical Reasoning",
+    label: "Practice Test 9",
     quantIds: [
       "gq_t9_01","gq_t9_02","gq_t9_03","gq_t9_04","gq_t9_05","gq_t9_06","gq_t9_07",
       "gq_t9_08","gq_t9_09","gq_t9_10","gq_t9_11","gq_t9_12","gq_t9_13","gq_t9_14",
@@ -245,7 +245,7 @@ export const GMAT_TEST_CONFIGS: GmatTestConfig[] = [
   },
   {
     testNum: 10,
-    label: "Test 10 — Probability & Mixed Review",
+    label: "Practice Test 10",
     quantIds: [
       "gq_t10_01","gq_t10_02","gq_t10_03","gq_t10_04","gq_t10_05","gq_t10_06","gq_t10_07",
       "gq_t10_08","gq_t10_09","gq_t10_10","gq_t10_11","gq_t10_12","gq_t10_13","gq_t10_14",
