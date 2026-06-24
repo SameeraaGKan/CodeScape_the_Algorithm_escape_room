@@ -205,6 +205,18 @@ export const PATHS: PathMeta[] = [
     difficulty: "Mixed",
   },
   // ── GMAT Practice Tests 1–10 ────────────────────────────
+  // ── GMAT Quant Topic Drills ──────────────────────────────
+  { id: "gmat_quant_arithmetic" as PathId, label: "Arithmetic", description: "Fractions, decimals, percents, ratios, and averages. 15 adaptive questions.", icon: "🔢", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  { id: "gmat_quant_algebra" as PathId, label: "Algebra", description: "Equations, inequalities, exponents, and factoring. 15 adaptive questions.", icon: "📐", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  { id: "gmat_quant_geometry" as PathId, label: "Geometry", description: "Triangles, circles, area, volume, and angles. 15 adaptive questions.", icon: "📐", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  { id: "gmat_quant_word_problems" as PathId, label: "Word Problems", description: "Rate, work, mixture, and distance problems. 15 adaptive questions.", icon: "📝", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  { id: "gmat_quant_number_theory" as PathId, label: "Number Theory", description: "Divisibility, primes, GCD, LCM, remainders, and modular arithmetic. 15 questions.", icon: "🔢", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  { id: "gmat_quant_statistics" as PathId, label: "Statistics", description: "Mean, median, mode, range, standard deviation, and variance. 15 questions.", icon: "📊", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  { id: "gmat_quant_combinatorics" as PathId, label: "Combinatorics", description: "Permutations, combinations, and counting principles. 15 adaptive questions.", icon: "🔀", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  { id: "gmat_quant_coordinate_geo" as PathId, label: "Coordinate Geometry", description: "Slope, distance, midpoint, lines, and circles in the coordinate plane. 15 questions.", icon: "📍", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  { id: "gmat_quant_functions" as PathId, label: "Functions", description: "Function notation, composition, inverse functions, and graphs. 15 questions.", icon: "ƒ", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  { id: "gmat_quant_probability" as PathId, label: "Probability", description: "Basic probability, conditional probability, and counting outcomes. 15 questions.", icon: "🎲", questionCount: 15, category: "gmat" as const, difficulty: "Mixed" as const },
+  // ── GMAT Practice Tests 1–10 ────────────────────────────
   ...[1,2,3,4,5,6,7,8,9,10].map(n => ({
     id: `gmat_test_${n}` as PathId,
     label: `Practice Test ${n}`,

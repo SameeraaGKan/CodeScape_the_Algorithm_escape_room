@@ -27,7 +27,17 @@ export type PathId =
   | "gmat_test_7"
   | "gmat_test_8"
   | "gmat_test_9"
-  | "gmat_test_10";
+  | "gmat_test_10"
+  | "gmat_quant_arithmetic"
+  | "gmat_quant_algebra"
+  | "gmat_quant_geometry"
+  | "gmat_quant_word_problems"
+  | "gmat_quant_number_theory"
+  | "gmat_quant_statistics"
+  | "gmat_quant_combinatorics"
+  | "gmat_quant_coordinate_geo"
+  | "gmat_quant_functions"
+  | "gmat_quant_probability";
 
 export type MCQQuestion = {
   id: string;

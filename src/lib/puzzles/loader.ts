@@ -14,6 +14,19 @@ import { hciQuestions } from "./data/cs/hci";
 import { gmatQuantQuestions } from "./data/gmat/quant";
 import { gmatVerbalQuestions } from "./data/gmat/verbal";
 import { gmatDataInsightsQuestions } from "./data/gmat/data-insights";
+import {
+  gmatQuantArithmeticQuestions,
+  gmatQuantAlgebraQuestions,
+  gmatQuantGeometryQuestions,
+  gmatQuantWordProblemsQuestions,
+  gmatQuantNumberTheoryQuestions,
+  gmatQuantStatisticsQuestions,
+  gmatQuantCombinatoricsQuestions,
+  gmatQuantCoordinateGeoQuestions,
+  gmatQuantFunctionsQuestions,
+  gmatQuantProbabilityQuestions,
+  allGmatQuantTopicQuestions,
+} from "./data/gmat/quant-topics";
 
 // Flat lookup of every MCQ question by its id — used by the agent chat API
 export const ALL_MCQ_BY_ID: Record<string, MCQQuestion> = {};
@@ -39,6 +52,7 @@ const ALL_CS_QUESTIONS: MCQQuestion[] = [
   ...gmatQuantQuestions,
   ...gmatVerbalQuestions,
   ...gmatDataInsightsQuestions,
+  ...allGmatQuantTopicQuestions,
 ].forEach(q => { ALL_MCQ_BY_ID[q.id] = q; });
 
 type BankPathId = Exclude<PathId,
@@ -63,6 +77,16 @@ const QUESTION_BANK: Record<BankPathId, MCQQuestion[]> = {
   gmat_quant: gmatQuantQuestions,
   gmat_verbal: gmatVerbalQuestions,
   gmat_data_insights: gmatDataInsightsQuestions,
+  gmat_quant_arithmetic: gmatQuantArithmeticQuestions,
+  gmat_quant_algebra: gmatQuantAlgebraQuestions,
+  gmat_quant_geometry: gmatQuantGeometryQuestions,
+  gmat_quant_word_problems: gmatQuantWordProblemsQuestions,
+  gmat_quant_number_theory: gmatQuantNumberTheoryQuestions,
+  gmat_quant_statistics: gmatQuantStatisticsQuestions,
+  gmat_quant_combinatorics: gmatQuantCombinatoricsQuestions,
+  gmat_quant_coordinate_geo: gmatQuantCoordinateGeoQuestions,
+  gmat_quant_functions: gmatQuantFunctionsQuestions,
+  gmat_quant_probability: gmatQuantProbabilityQuestions,
 };
 
 function shuffle<T>(arr: T[]): T[] {
