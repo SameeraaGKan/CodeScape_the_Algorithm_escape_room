@@ -1,15 +1,8 @@
-import dns from "dns";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 
-// Supabase direct connections resolve to IPv6 on Windows which then times out.
-// Force IPv4 so the TCP connection actually reaches the database.
-dns.setDefaultResultOrder("ipv4first");
+const sql = neon(process.env.DATABASE_URL!);
 
-const connectionString = process.env.DATABASE_URL!;
-
-const client = postgres(connectionString, { prepare: false, ssl: "require" });
-
-export const db = drizzle(client, { schema });
+export const db = drizzle(sql, { schema });
 export * from "./schema";

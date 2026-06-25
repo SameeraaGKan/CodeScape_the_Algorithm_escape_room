@@ -92,6 +92,7 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   // Test selector — null means show the picker; set to 1–10 to lock a specific test
   const [testNum, setTestNum] = useState(1);
   const [lockedTestNum, setLockedTestNum] = useState<number | null>(null);
+  const [roomPathId, setRoomPathId] = useState("gmat_full_test");
 
   // Current section
   const [sIdx, setSIdx] = useState(0);
@@ -134,11 +135,14 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
         const roomInfo = await res.json();
 
         // Auto-select test if launched from a specific practice test card
-        if (typeof roomInfo.selectedPath === "string" && roomInfo.selectedPath.startsWith("gmat_test_")) {
-          const n = parseInt(roomInfo.selectedPath.replace("gmat_test_", ""), 10);
-          if (n >= 1 && n <= 10) {
-            setTestNum(n);
-            setLockedTestNum(n);
+        if (typeof roomInfo.selectedPath === "string") {
+          setRoomPathId(roomInfo.selectedPath);
+          if (roomInfo.selectedPath.startsWith("gmat_test_")) {
+            const n = parseInt(roomInfo.selectedPath.replace("gmat_test_", ""), 10);
+            if (n >= 1 && n <= 10) {
+              setTestNum(n);
+              setLockedTestNum(n);
+            }
           }
         }
 
@@ -228,29 +232,62 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
     const correct = served.filter(e => e.answer === e.question.answer).length;
     const result: SectionResult = { label: sec.label, score, correct, total: served.length };
     const newResults = [...results, result];
+    // Build complete entries now (state update is async, so capture synchronously)
+    const allEntries = [...sectionEntries, [...served]];
     setResults(newResults);
-    setSectionEntries(prev => [...prev, [...served]]);
+    setSectionEntries(allEntries);
 
     if (sIdx < 2) {
       setBreakTimer(BREAK_SECS);
       submittingRef.current = false;
       setPhase("break");
     } else {
-      finalizeTest(newResults);
+      finalizeTest(newResults, allEntries);
     }
   }
 
-  async function finalizeTest(finalResults: SectionResult[]) {
+  async function finalizeTest(finalResults: SectionResult[], allEntries: QEntry[][]) {
     const scores = finalResults.map(r => r.score);
     while (scores.length < 3) scores.push(60);
     const total = totalScore(scores);
+
+    const wrongAnswers = allEntries.flatMap((entries, sectionIdx) =>
+      entries
+        .filter(e => e.answer !== e.question.answer)
+        .map(e => ({
+          questionId: e.question.id,
+          sectionIdx,
+          passage: e.question.passage,
+          question: e.question.question,
+          options: [...e.question.options],
+          correctAnswer: e.question.answer,
+          userAnswer: e.answer,
+          explanation: e.question.explanation,
+          difficulty: e.question.difficulty,
+        }))
+    );
+
     try {
-      await fetch("/api/rooms/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomCode, finalScore: total }),
-      });
-    } catch { /* non-fatal */ }
+      await Promise.all([
+        fetch("/api/rooms/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ roomCode, finalScore: total }),
+        }),
+        fetch("/api/gmat-results", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            roomCode,
+            pathId: roomPathId,
+            testNum: lockedTestNum ?? testNum,
+            totalScore: total,
+            sectionScores: finalResults,
+            wrongAnswers,
+          }),
+        }),
+      ]);
+    } catch { /* non-fatal — results still shown on screen */ }
     submittingRef.current = false;
     setPhase("results");
   }

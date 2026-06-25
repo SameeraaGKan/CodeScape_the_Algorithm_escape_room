@@ -8,6 +8,7 @@ import type { UserResponse } from "@supabase/supabase-js";
 import { BackButton } from "@/components/ui/BackButton";
 import {
   User2, Mail, Calendar, Trophy, Gamepad2, Map, Save, Loader2,
+  ChevronDown, ChevronUp, BookOpen,
 } from "lucide-react";
 
 const AVATAR_COLORS = [
@@ -31,8 +32,51 @@ type ProfileStats = {
   error?: string;
 };
 
+type WrongAnswerRecord = {
+  questionId: string;
+  sectionIdx: number;
+  passage?: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  userAnswer: number | null;
+  explanation: string;
+  difficulty: "easy" | "medium" | "hard";
+};
+
+type SectionScoreRecord = {
+  label: string;
+  score: number;
+  correct: number;
+  total: number;
+};
+
+type GmatResultRecord = {
+  id: string;
+  pathId: string;
+  testNum: number | null;
+  totalScore: number;
+  sectionScores: SectionScoreRecord[];
+  wrongAnswers: WrongAnswerRecord[];
+  completedAt: string;
+};
+
 function pathLabel(id: string): string {
   return id.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function gmatTestLabel(result: GmatResultRecord): string {
+  if (result.pathId === "gmat_full_test") return "Full Adaptive Test";
+  if (result.testNum) return `Practice Test ${result.testNum}`;
+  return pathLabel(result.pathId);
+}
+
+function gmatScoreColor(score: number): string {
+  if (score >= 705) return "#ff00cc";
+  if (score >= 655) return "#0066ff";
+  if (score >= 605) return "#05b9b6";
+  if (score >= 555) return "#f59e0b";
+  return "#94a3b8";
 }
 
 export default function ProfilePage() {
@@ -43,6 +87,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [gmatHistory, setGmatHistory] = useState<GmatResultRecord[]>([]);
+  const [expandedResult, setExpandedResult] = useState<string | null>(null);
 
   useEffect(() => {
     const sb = getSupabaseBrowser();
@@ -50,16 +96,17 @@ export default function ProfilePage() {
       if (!user) { router.push("/register"); return; }
     });
 
-    fetch("/api/profile")
-      .then(r => r.json())
-      .then((data: ProfileStats) => {
-        if (data.error) { router.push("/register"); return; }
-        setStats(data);
-        setDisplayName(data.displayName ?? "");
-        setAvatarColor(data.avatarColor || "#05b9b6");
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch("/api/profile").then(r => r.json()),
+      fetch("/api/gmat-results").then(r => r.json()).catch(() => ({ results: [] })),
+    ]).then(([profileData, gmatData]: [ProfileStats, { results?: GmatResultRecord[] }]) => {
+      if (profileData.error) { router.push("/register"); return; }
+      setStats(profileData);
+      setDisplayName(profileData.displayName ?? "");
+      setAvatarColor(profileData.avatarColor || "#05b9b6");
+      setGmatHistory(gmatData.results ?? []);
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, [router]);
 
   async function handleSave() {
@@ -225,6 +272,126 @@ export default function ProfilePage() {
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* GMAT Test History */}
+          {gmatHistory.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-[10px] text-muted-foreground tracking-widest">
+                <BookOpen className="w-3.5 h-3.5" />
+                GMAT TEST HISTORY
+              </div>
+              {gmatHistory.map((result) => {
+                const color = gmatScoreColor(result.totalScore);
+                const isExpanded = expandedResult === result.id;
+                const wrongCount = result.wrongAnswers.length;
+                const date = new Date(result.completedAt).toLocaleDateString("en-US", {
+                  month: "short", day: "numeric", year: "numeric",
+                });
+                return (
+                  <div
+                    key={result.id}
+                    className="rounded border border-[var(--dark-border)] bg-[var(--dark-card)] overflow-hidden"
+                  >
+                    {/* Header row */}
+                    <div className="p-4 flex items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs text-muted-foreground tracking-widest mb-0.5">{date}</div>
+                        <div className="font-semibold text-foreground text-sm truncate">
+                          {gmatTestLabel(result)}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {wrongCount} wrong · {result.sectionScores.length} sections
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-center">
+                        <div
+                          className="font-[family-name:var(--font-orbitron)] text-2xl font-black tabular-nums"
+                          style={{ color }}
+                        >
+                          {result.totalScore}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">/ 805</div>
+                      </div>
+                      <button
+                        onClick={() => setExpandedResult(isExpanded ? null : result.id)}
+                        className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded border border-[var(--dark-border)] text-xs text-muted-foreground hover:border-[var(--neon-cyan)] hover:text-[var(--neon-cyan)] transition-all"
+                      >
+                        Review {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+
+                    {/* Section scores */}
+                    {result.sectionScores.length > 0 && (
+                      <div className="px-4 pb-3 flex gap-3">
+                        {result.sectionScores.map((s, i) => (
+                          <div key={i} className="flex-1 p-2 rounded border border-[var(--dark-border)] text-center">
+                            <div className="text-[10px] text-muted-foreground tracking-widest truncate mb-0.5">
+                              {s.label.split(" ")[0]}
+                            </div>
+                            <div className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-[var(--neon-cyan)]">
+                              {s.score}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground">{s.correct}/{s.total}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Expanded wrong-answer review */}
+                    {isExpanded && (
+                      <div className="border-t border-[var(--dark-border)] p-4 space-y-4 bg-background/40">
+                        <div className="text-xs text-muted-foreground tracking-widest">
+                          WRONG ANSWERS ({wrongCount}) — REVIEW &amp; EXPLANATIONS
+                        </div>
+                        {wrongCount === 0 ? (
+                          <p className="text-sm text-emerald-400">Perfect test! No wrong answers.</p>
+                        ) : (
+                          result.wrongAnswers.map((w, j) => (
+                            <div key={j} className="space-y-2 pb-4 border-b border-[var(--dark-border)] last:border-0 last:pb-0">
+                              <div className="text-[10px] text-muted-foreground tracking-widest">
+                                {["Quantitative", "Verbal", "Data Insights"][w.sectionIdx] ?? "Section"} · {w.difficulty}
+                              </div>
+                              {w.passage && (
+                                <div className="p-3 rounded bg-[var(--neon-cyan)]/5 border border-[var(--neon-cyan)]/15">
+                                  <div className="text-[10px] text-[var(--neon-cyan)] tracking-widest mb-1">PASSAGE</div>
+                                  <p className="text-xs text-foreground/80 leading-relaxed line-clamp-4">{w.passage}</p>
+                                </div>
+                              )}
+                              <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{w.question}</p>
+                              <div className="grid gap-1.5">
+                                {w.options.map((opt, oi) => {
+                                  const isCorrect = w.correctAnswer === oi;
+                                  const isYours = w.userAnswer === oi;
+                                  return (
+                                    <div
+                                      key={oi}
+                                      className={`flex items-start gap-2 p-2 rounded text-xs
+                                        ${isCorrect ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400" :
+                                         isYours ? "bg-red-500/10 border border-red-500/30 text-red-400" :
+                                         "border border-transparent text-muted-foreground"}`}
+                                    >
+                                      <span className="font-bold shrink-0">{String.fromCharCode(65 + oi)}.</span>
+                                      <span>{opt}</span>
+                                      {isCorrect && <span className="ml-auto shrink-0 font-bold">✓ Correct</span>}
+                                      {isYours && !isCorrect && <span className="ml-auto shrink-0 font-bold">✗ Your answer</span>}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              <div className="p-3 rounded border border-[var(--dark-border)] bg-card">
+                                <div className="text-[10px] text-[var(--neon-cyan)] tracking-widest mb-1">EXPLANATION</div>
+                                <p className="text-xs text-muted-foreground leading-relaxed">{w.explanation}</p>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 
