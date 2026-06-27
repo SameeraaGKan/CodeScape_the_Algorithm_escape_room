@@ -25,7 +25,7 @@ export default function LandingPage() {
             <span className="text-white" style={{ textShadow: "0 0 20px rgba(0,0,0,0.5), 0 2px 10px rgba(0,0,0,0.4)" }}>CODE</span>
             <span
               className="text-[var(--neon-cyan)]"
-              style={{ textShadow: "0 0 15px var(--neon-cyan), 0 0 40px var(--neon-cyan)" }}
+              style={{ textShadow: "0 0 8px var(--neon-cyan), 0 0 18px var(--neon-cyan)" }}
             >ESCAPE</span>
           </h1>
 
