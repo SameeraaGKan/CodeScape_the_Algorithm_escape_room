@@ -22,7 +22,7 @@ export default function LandingPage() {
           </div>
 
           <h1 className="font-[family-name:var(--font-orbitron)] text-4xl sm:text-6xl md:text-8xl font-black tracking-tight mb-6 leading-none">
-            <span className="text-white" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7), 2px 2px 0px rgba(0,0,0,0.8)" }}>CODE</span>
+            <span className="text-white" style={{ textShadow: "0 0 20px rgba(0,0,0,0.5), 0 2px 10px rgba(0,0,0,0.4)" }}>CODE</span>
             <span
               className="text-[var(--neon-cyan)]"
               style={{ textShadow: "0 0 15px var(--neon-cyan), 0 0 40px var(--neon-cyan)" }}
