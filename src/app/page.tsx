@@ -29,10 +29,10 @@ export default function LandingPage() {
             >ESCAPE</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-gray-200 mx-auto mb-3 whitespace-nowrap px-2">
+          <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 mx-auto mb-3 whitespace-nowrap px-2">
             Choose your domain. Beat the clock. Escape with your code.
           </p>
-          <p className="text-[11px] sm:text-xs text-muted-foreground mb-7 sm:mb-9 px-2">
+          <p className="text-[11px] sm:text-xs text-gray-600 dark:text-muted-foreground mb-7 sm:mb-9 px-2">
             Algorithms · ML/AI · Cybersecurity · Databases · Networks · Theory · and more
           </p>
 
