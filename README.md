@@ -249,7 +249,7 @@ Please do not commit `.env.local` or any API keys.
 
 **Magic link not arriving** — check Supabase Auth logs; verify email provider is configured
 
-**Agent chat not responding** — verify `ANTHROPIC_API_KEY` is set (no surrounding quotes needed)
+**Agent chat not responding** — verify API is set (no surrounding quotes needed)
 
 ---
 
