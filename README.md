@@ -260,7 +260,7 @@ CodePath WEB101 curriculum · Anthropic Claude API · Supabase · Vercel · Upst
 ---
 
 <div align="center">
-
+hehe
 Built by **[Sameeraa](https://sameeraagkan.github.io/)** &nbsp;·&nbsp;Summer 2026
 
 
