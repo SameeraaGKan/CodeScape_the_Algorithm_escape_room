@@ -99,12 +99,30 @@ export default function ProfilePage() {
     Promise.all([
       fetch("/api/profile").then(r => r.json()),
       fetch("/api/gmat-results").then(r => r.json()).catch(() => ({ results: [] })),
-    ]).then(([profileData, gmatData]: [ProfileStats, { results?: GmatResultRecord[] }]) => {
+    ]).then(async ([profileData, gmatData]: [ProfileStats, { results?: GmatResultRecord[] }]) => {
       if (profileData.error) { router.push("/register"); return; }
       setStats(profileData);
       setDisplayName(profileData.displayName ?? "");
       setAvatarColor(profileData.avatarColor || "#05b9b6");
-      setGmatHistory(gmatData.results ?? []);
+
+      // Recover a test result that failed to save earlier (stashed locally on the results screen).
+      let history = gmatData.results ?? [];
+      const pendingRaw = localStorage.getItem("gmat_pending_result");
+      if (pendingRaw) {
+        try {
+          const res = await fetch("/api/gmat-results", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: pendingRaw,
+          });
+          if (res.ok) {
+            localStorage.removeItem("gmat_pending_result");
+            const refreshed = await fetch("/api/gmat-results").then(r => r.json()).catch(() => null);
+            if (refreshed?.results) history = refreshed.results;
+          }
+        } catch { /* still pending — will retry on next visit */ }
+      }
+      setGmatHistory(history);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [router]);

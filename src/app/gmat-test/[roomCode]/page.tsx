@@ -22,10 +22,35 @@ const SECTIONS = [
 const BREAK_SECS = 10 * 60;
 const DIFFICULTY_WEIGHTS = { easy: 0.8, medium: 1.0, hard: 1.3 } as const;
 
+// Local fallback so a failed save isn't lost — flushed on next load or via the retry button.
+const PENDING_RESULT_KEY = "gmat_pending_result";
+
 // ── Types ────────────────────────────────────────────────────────────────────
 type QEntry = { question: ClientMCQQuestion; answer: number | null; flagged: boolean };
 type Phase = "loading" | "intro" | "section" | "review" | "break" | "results";
 type SectionResult = { label: string; score: number; correct: number; total: number };
+type SaveStatus = "idle" | "saving" | "saved" | "failed";
+type PendingResultPayload = {
+  roomCode: string;
+  pathId: string;
+  testNum: number | null;
+  totalScore: number;
+  sectionScores: SectionResult[];
+  wrongAnswers: unknown[];
+};
+
+async function saveGmatResult(payload: PendingResultPayload): Promise<boolean> {
+  try {
+    const res = await fetch("/api/gmat-results", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function adaptivePick(pool: ClientMCQQuestion[], usedIds: Set<string>, skill: number): ClientMCQQuestion | null {
@@ -116,6 +141,8 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
 
   // Results
   const [results, setResults] = useState<SectionResult[]>([]);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const pendingPayloadRef = useRef<PendingResultPayload | null>(null);
 
   // Wrong-answer review expansion state
   const [expandedSection, setExpandedSection] = useState<number | null>(null);
@@ -126,6 +153,33 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
       if (!user || user.email !== "sameeraagk883@gmail.com") router.push("/");
     });
   }, [router]);
+
+  // Best-effort flush of any result that failed to save on a previous run.
+  useEffect(() => {
+    const raw = localStorage.getItem(PENDING_RESULT_KEY);
+    if (!raw) return;
+    try {
+      const payload = JSON.parse(raw) as PendingResultPayload;
+      saveGmatResult(payload).then(ok => {
+        if (ok) localStorage.removeItem(PENDING_RESULT_KEY);
+      });
+    } catch {
+      localStorage.removeItem(PENDING_RESULT_KEY);
+    }
+  }, []);
+
+  async function retrySaveResult() {
+    const payload = pendingPayloadRef.current;
+    if (!payload) return;
+    setSaveStatus("saving");
+    const ok = await saveGmatResult(payload);
+    if (ok) {
+      localStorage.removeItem(PENDING_RESULT_KEY);
+      setSaveStatus("saved");
+    } else {
+      setSaveStatus("failed");
+    }
+  }
 
   // Load question pools
   useEffect(() => {
@@ -305,27 +359,33 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
         }))
     );
 
-    try {
-      await Promise.all([
-        fetch("/api/rooms/complete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ roomCode, finalScore: total }),
-        }),
-        fetch("/api/gmat-results", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            roomCode,
-            pathId: roomPathId,
-            testNum: lockedTestNum ?? testNum,
-            totalScore: total,
-            sectionScores: finalResults,
-            wrongAnswers,
-          }),
-        }),
-      ]);
-    } catch { /* non-fatal — results still shown on screen */ }
+    const payload: PendingResultPayload = {
+      roomCode,
+      pathId: roomPathId,
+      testNum: lockedTestNum ?? testNum,
+      totalScore: total,
+      sectionScores: finalResults,
+      wrongAnswers,
+    };
+    pendingPayloadRef.current = payload;
+    // Stash locally first so a failed save can still be recovered/retried later.
+    try { localStorage.setItem(PENDING_RESULT_KEY, JSON.stringify(payload)); } catch { /* storage unavailable */ }
+
+    setSaveStatus("saving");
+    fetch("/api/rooms/complete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomCode, finalScore: total }),
+    }).catch(() => { /* non-fatal — only affects teammates' room view */ });
+
+    const ok = await saveGmatResult(payload);
+    if (ok) {
+      try { localStorage.removeItem(PENDING_RESULT_KEY); } catch { /* storage unavailable */ }
+      setSaveStatus("saved");
+    } else {
+      setSaveStatus("failed");
+    }
+
     submittingRef.current = false;
     setPhase("results");
   }
@@ -783,6 +843,26 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
             <div className="text-xs text-[var(--neon-cyan)] tracking-[0.3em] font-[family-name:var(--font-orbitron)]">GMAT FOCUS EDITION · TEST {testNum}</div>
             <h1 className="text-3xl font-black font-[family-name:var(--font-orbitron)] text-foreground">YOUR SCORES</h1>
           </div>
+
+          {saveStatus === "failed" && (
+            <div className="p-4 rounded border-2 border-amber-400/50 bg-amber-400/10 flex items-center justify-between gap-4">
+              <div>
+                <div className="text-sm font-semibold text-amber-400">Couldn&apos;t save this result</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Your score is shown below, but it hasn&apos;t been saved to your profile history yet.</div>
+              </div>
+              <button
+                onClick={retrySaveResult}
+                className="shrink-0 px-4 py-2 rounded border border-amber-400 text-amber-400 text-xs font-semibold tracking-wide hover:bg-amber-400/10 transition-all"
+              >
+                RETRY SAVE
+              </button>
+            </div>
+          )}
+          {saveStatus === "saving" && (
+            <div className="p-3 rounded border border-[var(--dark-border)] bg-card flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving result…
+            </div>
+          )}
 
           {total !== null && grade !== null && (
             <div className="p-6 rounded border-2" style={{ background: grade.bg, borderColor: grade.border }}>
