@@ -10,10 +10,11 @@ import { MCQPuzzle } from "@/components/puzzle/MCQPuzzle";
 import { AgentChatPanel } from "@/components/agent/AgentChatPanel";
 import { TeamChatPanel } from "@/components/team/TeamChatPanel";
 import { AGENT_CONFIGS } from "@/lib/ai/personalities";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { PATHS } from "@/lib/puzzles/paths";
 import { getSupabaseBrowser } from "@/lib/db/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import type { AgentPersonality, Puzzle, MCQQuestion } from "@/types";
+import type { AgentPersonality, Puzzle, ClientMCQQuestion } from "@/types";
 import {
   Clock, Trophy, CheckCircle, XCircle, Loader2,
   MessageSquare, Layout, Cpu, Users,
@@ -87,7 +88,7 @@ export default function GamePage({
   // MCQ mode state
   const [isMcqMode, setIsMcqMode] = useState(false);
   const [selectedPathId, setSelectedPathId] = useState("");
-  const [mcqQuestions, setMcqQuestions] = useState<MCQQuestion[]>([]);
+  const [mcqQuestions, setMcqQuestions] = useState<ClientMCQQuestion[]>([]);
   const [mcqIndex, setMcqIndex] = useState(0);
   const [mcqAnswered, setMcqAnswered] = useState(false);
   const [mcqTimedOut, setMcqTimedOut] = useState(false);
@@ -104,7 +105,7 @@ export default function GamePage({
 
   // Multiplayer sync
   const roomChannelRef = useRef<RealtimeChannel | null>(null);
-  const mcqQuestionsRef = useRef<MCQQuestion[]>([]);
+  const mcqQuestionsRef = useRef<ClientMCQQuestion[]>([]);
   const advancedToRef = useRef(-1); // guards against double-advance from same index
   const mcqScoreRef = useRef(0);
   const mcqIndexRef = useRef(0);
@@ -181,9 +182,11 @@ export default function GamePage({
       if (data.isMcqMode) {
         setIsMcqMode(true);
         setSelectedPathId(data.selectedPath);
-        const qRes = await fetch(`/api/questions?path=${data.selectedPath}&seed=${code}`);
+        const qRes = await fetch(`/api/questions?path=${data.selectedPath}&seed=${code}`, {
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+        });
         const qData = await qRes.json();
-        const questions: MCQQuestion[] = qData.questions ?? [];
+        const questions: ClientMCQQuestion[] = qData.questions ?? [];
         setMcqQuestions(questions);
         mcqQuestionsRef.current = questions;
         advancedToRef.current = -1;
@@ -594,6 +597,8 @@ export default function GamePage({
             <span className="text-sm text-foreground font-semibold tabular-nums">{displayScore}</span>
           </div>
 
+          <ThemeToggle className="text-muted-foreground hover:text-[var(--neon-cyan)] transition-colors shrink-0" />
+
           {/* Agent selector (desktop) — only for all-human teams */}
           {teamAgents.length === 0 && (
             <div className="hidden md:flex items-center gap-2 shrink-0">
@@ -744,6 +749,7 @@ export default function GamePage({
                 <MCQPuzzle
                   key={mcqIndex}
                   question={currentMcqQ!}
+                  roomCode={roomCode}
                   questionNumber={mcqIndex + 1}
                   totalQuestions={mcqQuestions.length}
                   onAnswer={handleMcqAnswer}

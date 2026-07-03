@@ -50,6 +50,14 @@ export type MCQQuestion = {
   difficulty: "easy" | "medium" | "hard";
 };
 
+// What the client actually receives from /api/questions — the correct answer
+// and explanation are withheld until verified via POST /api/questions/grade,
+// which reveals them for that one question only.
+export type ClientMCQQuestion = Omit<MCQQuestion, "answer" | "explanation"> & {
+  answer?: number;
+  explanation?: string;
+};
+
 export type SlotType = "human" | "agent";
 
 export type TeamSlot = {

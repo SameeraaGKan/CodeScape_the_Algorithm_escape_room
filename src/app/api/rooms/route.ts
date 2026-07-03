@@ -5,7 +5,7 @@ import { createSupabaseServerClient, getUserFromRequest } from "@/lib/db/supabas
 import { validateAnswer, calculateScore } from "@/lib/puzzles/validator";
 import { PUZZLES, getPuzzleOrder } from "@/lib/puzzles/data/puzzles";
 import { submitAnswerSchema } from "@/lib/security/schemas";
-import { withRateLimit, puzzleSubmitLimiter } from "@/lib/security/ratelimit";
+import { withRateLimit, puzzleSubmitLimiter, roomLimiter } from "@/lib/security/ratelimit";
 import { updateTheta, getCategoryForPuzzle } from "@/lib/ml/adaptive";
 import { db as drizzle, playerSkills, puzzleAttempts } from "@/lib/db";
 
@@ -18,6 +18,7 @@ function generateRoomCode(): string {
 
 // POST /api/rooms — start a game session for a team
 export async function POST(request: NextRequest) {
+  return withRateLimit(request, roomLimiter, async () => {
   try {
     const supabase = await createSupabaseServerClient();
     const {
@@ -37,6 +38,13 @@ export async function POST(request: NextRequest) {
     const [team] = await db.select().from(teams).where(eq(teams.id, teamId));
     if (!team) {
       return NextResponse.json({ error: "Team not found" }, { status: 404 });
+    }
+
+    // Only team members may start a game
+    const slots = (team.slots ?? []) as Array<{ userId?: string; type: string }>;
+    const isMember = slots.some((s) => s.type === "human" && s.userId === user.id);
+    if (!isMember) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const roomCode = generateRoomCode();
@@ -74,11 +82,13 @@ export async function POST(request: NextRequest) {
     console.error("[POST /api/rooms]", msg, cause ?? e);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
+  });
 }
 
 // GET /api/rooms?code=XXXXXX — get current game state
 // GET /api/rooms?teamId=UUID — get active room code for a team (used by lobby redirect)
 export async function GET(request: NextRequest) {
+  return withRateLimit(request, roomLimiter, async () => {
   const user = await getUserFromRequest(request);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -90,6 +100,12 @@ export async function GET(request: NextRequest) {
 
   // Lobby redirect: find the most recent active session for a team
   if (teamId) {
+    const [ownerTeam] = await db.select().from(teams).where(eq(teams.id, teamId));
+    const ownerSlots = (ownerTeam?.slots ?? []) as Array<{ userId?: string; type: string }>;
+    if (!ownerTeam || !ownerSlots.some((s) => s.type === "human" && s.userId === user.id)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const [session] = await db
       .select()
       .from(gameSessions)
@@ -118,6 +134,13 @@ export async function GET(request: NextRequest) {
 
   const [team] = await db.select().from(teams).where(eq(teams.id, session.teamId));
   const slots = team?.slots ?? [];
+
+  const isMember = (slots as Array<{ userId?: string; type: string }>).some(
+    (s) => s.type === "human" && s.userId === user.id
+  );
+  if (!isMember) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const agentPersonalities = slots
     .filter(s => s.type === "agent" && s.agentPersonality)
@@ -151,6 +174,7 @@ export async function GET(request: NextRequest) {
     agentPersonalities,
     humanSlots,
   });
+  });
 }
 
 // PATCH /api/rooms — submit answer
@@ -181,6 +205,13 @@ export async function PATCH(request: NextRequest) {
 
     if (!session || session.status !== "active") {
       return NextResponse.json({ error: "Session not found or not active" }, { status: 404 });
+    }
+
+    // Verify submitter belongs to this session's team
+    const [sessionTeam] = await db.select().from(teams).where(eq(teams.id, session.teamId));
+    const sessionSlots = (sessionTeam?.slots ?? []) as Array<{ userId?: string; type: string }>;
+    if (!sessionSlots.some((s) => s.type === "human" && s.userId === user.id)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const puzzle = PUZZLES[puzzleId];

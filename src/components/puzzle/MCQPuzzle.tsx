@@ -1,10 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
-import { CheckCircle, XCircle, ChevronRight, Timer } from "lucide-react";
-import type { MCQQuestion } from "@/types";
+import { useState, useEffect, useRef } from "react";
+import { CheckCircle, XCircle, ChevronRight, Timer, Loader2 } from "lucide-react";
+import type { ClientMCQQuestion } from "@/types";
 
 type Props = {
-  question: MCQQuestion;
+  question: ClientMCQQuestion;
+  roomCode: string;
   questionNumber: number;
   totalQuestions: number;
   onAnswer: (isCorrect: boolean, selectedIndex: number) => void;
@@ -12,21 +13,53 @@ type Props = {
   timedOut?: boolean;
 };
 
-export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer, onNext, timedOut }: Props) {
+export function MCQPuzzle({ question, roomCode, questionNumber, totalQuestions, onAnswer, onNext, timedOut }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
+  const [grading, setGrading] = useState(false);
+  const [correctIndex, setCorrectIndex] = useState<number | null>(null);
+  const [explanation, setExplanation] = useState("");
+  const gradedRef = useRef(false);
+
+  async function grade(selectedIndex: number | null) {
+    if (gradedRef.current) return;
+    gradedRef.current = true;
+    setGrading(true);
+    try {
+      const res = await fetch("/api/questions/grade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomCode, answers: [{ questionId: question.id, selectedIndex }] }),
+      });
+      const data = await res.json();
+      const result = data?.results?.[0];
+      setRevealed(true);
+      setGrading(false);
+      if (!res.ok || !result) {
+        onAnswer(false, selectedIndex ?? -1);
+        return;
+      }
+      setCorrectIndex(result.correctIndex);
+      setExplanation(result.explanation);
+      onAnswer(result.isCorrect, selectedIndex ?? -1);
+    } catch {
+      setRevealed(true);
+      setGrading(false);
+      onAnswer(false, selectedIndex ?? -1);
+    }
+  }
 
   useEffect(() => {
-    if (timedOut && !revealed) {
-      setRevealed(true);
+    if (timedOut && !gradedRef.current) {
+      void grade(selected);
     }
-  }, [timedOut, revealed]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timedOut]);
 
   function handleSelect(idx: number) {
-    if (revealed) return;
+    if (revealed || grading) return;
     setSelected(idx);
-    setRevealed(true);
-    onAnswer(idx === question.answer, idx);
+    void grade(idx);
   }
 
   const isDS = question.options.length === 5;
@@ -68,7 +101,7 @@ export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer, 
       {/* Options */}
       <div className={`grid gap-3 ${isDS ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"}`}>
         {question.options.map((opt, idx) => {
-          const isCorrect = idx === question.answer;
+          const isCorrect = revealed && idx === correctIndex;
           const isSelected = idx === selected;
 
           let borderClass = "border-[var(--dark-border)] hover:border-[var(--neon-cyan)]/50";
@@ -94,11 +127,11 @@ export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer, 
             <button
               key={idx}
               onClick={() => handleSelect(idx)}
-              disabled={revealed}
-              className={`flex items-start gap-3 p-4 rounded border text-left text-sm transition-all ${borderClass} ${bgClass} ${textClass} ${!revealed ? "cursor-pointer" : "cursor-default"}`}
+              disabled={revealed || grading}
+              className={`flex items-start gap-3 p-4 rounded border text-left text-sm transition-all ${borderClass} ${bgClass} ${textClass} ${!revealed && !grading ? "cursor-pointer" : "cursor-default"}`}
             >
               <span className="shrink-0 w-6 h-6 rounded border border-current flex items-center justify-center text-xs font-bold font-[family-name:var(--font-orbitron)]">
-                {String.fromCharCode(65 + idx)}
+                {isSelected && grading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : String.fromCharCode(65 + idx)}
               </span>
               <span className="flex-1 leading-relaxed">{opt}</span>
               {revealed && isCorrect && (
@@ -113,12 +146,12 @@ export function MCQPuzzle({ question, questionNumber, totalQuestions, onAnswer, 
       </div>
 
       {/* Explanation */}
-      {revealed && (
+      {revealed && explanation && (
         <div className="p-4 rounded border border-[var(--neon-cyan)]/30 bg-[var(--neon-cyan)]/5 animate-slide-up">
           <p className="text-xs text-[var(--neon-cyan)] tracking-widest font-[family-name:var(--font-orbitron)] mb-2">
             EXPLANATION
           </p>
-          <p className="text-sm text-foreground leading-relaxed">{question.explanation}</p>
+          <p className="text-sm text-foreground leading-relaxed">{explanation}</p>
         </div>
       )}
 

@@ -4,12 +4,13 @@ import { use, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowser } from "@/lib/db/supabase";
 import type { UserResponse } from "@supabase/supabase-js";
-import type { MCQQuestion } from "@/types";
+import type { ClientMCQQuestion } from "@/types";
 import {
   Clock, Flag, ChevronLeft, ChevronRight, CheckCircle,
   AlertCircle, SkipForward, BookOpen, Loader2, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { GMAT_TEST_CONFIGS, getTestConfig } from "@/lib/puzzles/data/gmat/test-configs";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 // ── GMAT Focus Edition constants ──────────────────────────────────────────────
 const SECTIONS = [
@@ -22,12 +23,12 @@ const BREAK_SECS = 10 * 60;
 const DIFFICULTY_WEIGHTS = { easy: 0.8, medium: 1.0, hard: 1.3 } as const;
 
 // ── Types ────────────────────────────────────────────────────────────────────
-type QEntry = { question: MCQQuestion; answer: number | null; flagged: boolean };
+type QEntry = { question: ClientMCQQuestion; answer: number | null; flagged: boolean };
 type Phase = "loading" | "intro" | "section" | "review" | "break" | "results";
 type SectionResult = { label: string; score: number; correct: number; total: number };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-function adaptivePick(pool: MCQQuestion[], usedIds: Set<string>, skill: number): MCQQuestion | null {
+function adaptivePick(pool: ClientMCQQuestion[], usedIds: Set<string>, skill: number): ClientMCQQuestion | null {
   const target = skill > 0.6 ? "hard" : skill < -0.6 ? "easy" : "medium";
   const order: ("easy" | "medium" | "hard")[] =
     target === "hard"  ? ["hard",   "medium", "easy"]  :
@@ -84,10 +85,10 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   const [loadError, setLoadError] = useState("");
 
   // Raw question pools from API (one per section)
-  const [pools, setPools] = useState<[MCQQuestion[], MCQQuestion[], MCQQuestion[]]>([[], [], []]);
+  const [pools, setPools] = useState<[ClientMCQQuestion[], ClientMCQQuestion[], ClientMCQQuestion[]]>([[], [], []]);
 
   // Filtered pools for the selected test (stored in a ref so they're stable across renders)
-  const filteredPoolsRef = useRef<[MCQQuestion[], MCQQuestion[], MCQQuestion[]]>([[], [], []]);
+  const filteredPoolsRef = useRef<[ClientMCQQuestion[], ClientMCQQuestion[], ClientMCQQuestion[]]>([[], [], []]);
 
   // Test selector — null means show the picker; set to 1–10 to lock a specific test
   const [testNum, setTestNum] = useState(1);
@@ -146,10 +147,14 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
           }
         }
 
+        const { data: { session: authSession } } = await getSupabaseBrowser().auth.getSession();
+        const authHeaders: HeadersInit = authSession?.access_token
+          ? { Authorization: `Bearer ${authSession.access_token}` }
+          : {};
         const [qRes, vRes, dRes] = await Promise.all([
-          fetch("/api/questions?path=gmat_quant"),
-          fetch("/api/questions?path=gmat_verbal"),
-          fetch("/api/questions?path=gmat_data_insights"),
+          fetch("/api/questions?path=gmat_quant", { headers: authHeaders }),
+          fetch("/api/questions?path=gmat_verbal", { headers: authHeaders }),
+          fetch("/api/questions?path=gmat_data_insights", { headers: authHeaders }),
         ]);
         const [qD, vD, dD] = await Promise.all([qRes.json(), vRes.json(), dRes.json()]);
         setPools([qD.questions ?? [], vD.questions ?? [], dD.questions ?? []]);
@@ -215,25 +220,58 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
         pools[2].filter(q => dSet.has(q.id)),
       ];
     } else {
-      filteredPoolsRef.current = pools as [MCQQuestion[], MCQQuestion[], MCQQuestion[]];
+      filteredPoolsRef.current = pools as [ClientMCQQuestion[], ClientMCQQuestion[], ClientMCQQuestion[]];
     }
     setSectionEntries([]);
     setResults([]);
     beginSection(0);
   }
 
-  function submitSection() {
+  // Reveals correct answers server-side for any served entries not yet graded
+  // (e.g. skipped/unanswered questions) so section scoring and the review
+  // screen have verified data. Safe to call repeatedly — already-revealed
+  // entries are passed through unchanged.
+  async function revealUngraded(entries: QEntry[]): Promise<QEntry[]> {
+    const ungraded = entries.filter(e => e.question.answer === undefined);
+    if (ungraded.length === 0) return entries;
+
+    try {
+      const res = await fetch("/api/questions/grade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomCode,
+          answers: ungraded.map(e => ({ questionId: e.question.id, selectedIndex: e.answer })),
+        }),
+      });
+      if (!res.ok) return entries;
+      const { results } = await res.json();
+      const byId = new Map<string, { correctIndex: number; explanation: string }>(
+        (results ?? []).map((r: { questionId: string; correctIndex: number; explanation: string }) => [r.questionId, r])
+      );
+      return entries.map(e => {
+        const r = byId.get(e.question.id);
+        return r ? { ...e, question: { ...e.question, answer: r.correctIndex, explanation: r.explanation } } : e;
+      });
+    } catch {
+      return entries; // fail closed — ungraded entries stay unrevealed and score as incorrect
+    }
+  }
+
+  async function submitSection() {
     if (submittingRef.current) return;
     submittingRef.current = true;
 
     clearInterval(sectionTimerRef.current!);
     const sec = SECTIONS[sIdx];
-    const score = sectionScore(served);
-    const correct = served.filter(e => e.answer === e.question.answer).length;
-    const result: SectionResult = { label: sec.label, score, correct, total: served.length };
+    const revealedEntries = await revealUngraded(served);
+    setServed(revealedEntries);
+
+    const score = sectionScore(revealedEntries);
+    const correct = revealedEntries.filter(e => e.answer === e.question.answer).length;
+    const result: SectionResult = { label: sec.label, score, correct, total: revealedEntries.length };
     const newResults = [...results, result];
-    // Build complete entries now (state update is async, so capture synchronously)
-    const allEntries = [...sectionEntries, [...served]];
+    const allEntries = [...sectionEntries, revealedEntries];
     setResults(newResults);
     setSectionEntries(allEntries);
 
@@ -242,7 +280,7 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
       submittingRef.current = false;
       setPhase("break");
     } else {
-      finalizeTest(newResults, allEntries);
+      await finalizeTest(newResults, allEntries);
     }
   }
 
@@ -293,18 +331,46 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
   }
 
   // ── Question navigation ─────────────────────────────────────────────────────
-  function handleAnswer(idx: number) {
-    const updated = [...served];
-    const old = updated[curQ].answer;
-    updated[curQ] = { ...updated[curQ], answer: idx };
-    setServed(updated);
-    const q = updated[curQ].question;
-    const wasCorrect = old === q.answer;
-    const isCorrect = idx === q.answer;
+  function applySkillDelta(old: number | null, idx: number, correctIndex: number) {
+    const wasCorrect = old === correctIndex;
+    const isCorrect = idx === correctIndex;
     if (!wasCorrect && isCorrect) setSkillLevel(s => Math.min(2, s + 0.3));
     if (wasCorrect && !isCorrect) setSkillLevel(s => Math.max(-2, s - 0.3));
     if (old === null && isCorrect) setSkillLevel(s => Math.min(2, s + 0.3));
     if (old === null && !isCorrect) setSkillLevel(s => Math.max(-2, s - 0.3));
+  }
+
+  async function handleAnswer(idx: number) {
+    const updated = [...served];
+    const old = updated[curQ].answer;
+    const q = updated[curQ].question;
+    updated[curQ] = { ...updated[curQ], answer: idx };
+    setServed(updated);
+
+    // Already revealed by an earlier grade call for this question — score locally, no round-trip needed.
+    if (q.answer !== undefined) {
+      applySkillDelta(old, idx, q.answer);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/questions/grade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomCode, answers: [{ questionId: q.id, selectedIndex: idx }] }),
+      });
+      if (!res.ok) return;
+      const { results } = await res.json();
+      const r = results?.[0];
+      if (!r) return;
+      setServed(prev => prev.map(e =>
+        e.question.id === q.id ? { ...e, question: { ...e.question, answer: r.correctIndex, explanation: r.explanation } } : e
+      ));
+      applySkillDelta(old, idx, r.correctIndex);
+    } catch {
+      // Network failure — answer is still recorded locally; scoring falls back
+      // to "incorrect" for this entry until revealUngraded retries at section submit.
+    }
   }
 
   function handleFlag() {
@@ -520,6 +586,7 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
               <Clock className="w-3.5 h-3.5" />
               <span className="font-[family-name:var(--font-orbitron)] text-sm font-bold tabular-nums">{fmtTime(secTimer)}</span>
             </div>
+            <ThemeToggle className="text-muted-foreground hover:text-[var(--neon-cyan)] transition-colors shrink-0" />
           </div>
           <div className="h-0.5 bg-[var(--dark-border)]">
             <div className="h-full transition-all duration-1000" style={{ width: `${timerPct}%`, backgroundColor: timerColor }} />
@@ -826,6 +893,12 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
               className="flex-1 py-3 rounded border border-[var(--neon-cyan)]/50 text-[var(--neon-cyan)] text-sm hover:bg-[var(--neon-cyan)]/5 transition-all tracking-widest font-[family-name:var(--font-orbitron)]"
             >
               TAKE ANOTHER TEST
+            </button>
+            <button
+              onClick={() => router.push("/profile")}
+              className="flex-1 py-3 rounded border border-[var(--dark-border)] text-foreground text-sm hover:border-[var(--neon-cyan)] hover:text-[var(--neon-cyan)] transition-all tracking-widest font-[family-name:var(--font-orbitron)]"
+            >
+              GO TO PROFILE
             </button>
             <button
               onClick={() => router.push("/")}

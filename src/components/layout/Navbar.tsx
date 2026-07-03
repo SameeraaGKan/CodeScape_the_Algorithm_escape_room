@@ -1,14 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, Terminal, Sun, Moon, LogOut, User2, BarChart2 } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Menu, X, Terminal, LogOut, User2, BarChart2 } from "lucide-react";
 import { getSupabaseBrowser } from "@/lib/db/supabase";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import type { User, Session, AuthChangeEvent, UserResponse } from "@supabase/supabase-js";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -74,15 +73,7 @@ export function Navbar() {
               Leaderboard
             </Link>
           )}
-          {mounted && (
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="text-muted-foreground hover:text-[var(--neon-cyan)] transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-          )}
+          <ThemeToggle />
 
           {mounted && user ? (
             <div className="relative" ref={dropdownRef}>
@@ -140,15 +131,7 @@ export function Navbar() {
 
         {/* Mobile toggle */}
         <div className="md:hidden flex items-center gap-3">
-          {mounted && (
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="text-muted-foreground hover:text-[var(--neon-cyan)] transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-          )}
+          <ThemeToggle />
           <button
             className="text-muted-foreground hover:text-[var(--neon-cyan)]"
             onClick={() => setOpen(!open)}

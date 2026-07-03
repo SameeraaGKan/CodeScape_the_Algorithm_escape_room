@@ -130,6 +130,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Team not found" }, { status: 404 });
   }
 
+  // Lookup by invite code is the pre-join flow (a user needs to see the team
+  // before joining it) so it stays open. Lookup by id exposes full slot data
+  // (other members' userIds/displayNames) and is only for members/the creator.
+  if (!inviteCode) {
+    const slots = (team.slots ?? []) as Array<{ userId?: string; type: string }>;
+    const isMember = slots.some((s) => s.type === "human" && s.userId === user.id);
+    if (!isMember) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  }
+
   return NextResponse.json({ team });
 }
 

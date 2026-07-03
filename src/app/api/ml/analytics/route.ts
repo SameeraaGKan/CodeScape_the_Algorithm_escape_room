@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { db, puzzleAttempts, playerSkills, gameSessions } from "@/lib/db";
 import { sql, desc } from "drizzle-orm";
+import { createSupabaseServerClient } from "@/lib/db/supabase.server";
+
+const ADMIN_EMAIL = "sameeraagk883@gmail.com";
 
 export async function GET() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.email !== ADMIN_EMAIL) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const [puzzleStats, skillDist, recentSessions] = await Promise.all([
     // Average attempts and hint usage per puzzle
     db

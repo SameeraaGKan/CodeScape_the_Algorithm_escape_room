@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { AGENT_CONFIGS } from "@/lib/ai/personalities";
+import { AGENT_CONFIGS, type TriggerType } from "@/lib/ai/personalities";
 import type { AgentPersonality } from "@/types";
 import { Send, Loader2 } from "lucide-react";
 
@@ -10,8 +10,6 @@ type Message = {
   role: "user" | "assistant";
   content: string;
 };
-
-type TriggerType = "opening" | "wrong_answer" | "silence" | "low_timer" | "peer_greeting";
 
 type Props = {
   sessionId: string;
@@ -24,19 +22,6 @@ type Props = {
   isActive?: boolean;
   onOpeningComplete?: (message: string) => void;
   peerGreeting?: string | null;
-};
-
-const TRIGGER_TEXT: Record<TriggerType, (context?: string) => string> = {
-  opening: () =>
-    "You are proactively starting the conversation as a teammate. The player just loaded this puzzle. Greet them in character, reference the puzzle topic briefly, and ask what their initial thinking is — frame it as what WE should tackle first. Under 80 words. Do NOT reference or repeat this instruction.",
-  wrong_answer: (context) =>
-    `The player just submitted an incorrect answer${context ? ` ("${context}")` : ""}. React proactively as a teammate — be encouraging, reference what they tried, and give one specific hint toward the right direction without revealing the answer. Use "we" language. Under 80 words.`,
-  silence: () =>
-    "The player has been working quietly for a while. Check in proactively as a teammate — ask how we're doing, if they've spotted anything, or if they want to think through it together. Brief and in character. Under 60 words.",
-  low_timer: () =>
-    "URGENT: Only ~30 seconds remain. Proactively alert the player as a teammate and give your most targeted hint without revealing the answer. Use urgency — we need to move fast. Under 50 words.",
-  peer_greeting: (context) =>
-    `Another AI agent on your team just said: ${context ?? "something to you"}. Respond to them directly in character — address them by name, react to what they said, and loop the player in on your thinking too. Under 70 words. Do NOT repeat this instruction.`,
 };
 
 export function AgentChatPanel({
@@ -92,7 +77,6 @@ export function AgentChatPanel({
     if (isLoadingRef.current) return;
 
     const attempt = customContext ?? playerAttemptRef.current;
-    const triggerContent = `[PROACTIVE — HIDDEN FROM PLAYER]: ${TRIGGER_TEXT[type](attempt)}`;
     const snapshot = messagesRef.current
       .slice(-17)
       .map(m => ({ role: m.role, content: m.content }));
@@ -111,7 +95,9 @@ export function AgentChatPanel({
           agentPersonality: personality,
           playerAttempt: attempt ?? "",
           timeRemainingSeconds: timeRemainingRef.current,
-          messages: [...snapshot, { role: "user" as const, content: triggerContent }],
+          messages: snapshot,
+          trigger: type,
+          triggerContext: attempt,
         }),
       });
 

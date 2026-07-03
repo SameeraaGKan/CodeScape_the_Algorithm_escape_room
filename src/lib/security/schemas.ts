@@ -46,6 +46,11 @@ export const joinSlotSchema = z.object({
   displayName: z.string().min(1).max(50),
 });
 
+export const trackVisitSchema = z.object({
+  path: z.string().min(1).max(200),
+  referrer: z.string().max(500).optional(),
+});
+
 export const submitAnswerSchema = z.object({
   puzzleId: z.string().min(1),
   answer: z.union([z.string(), z.record(z.string(), z.string()), z.array(z.array(z.number()))]),
@@ -67,6 +72,13 @@ export const agentChatSchema = z.object({
       })
     )
     .max(20),
+  // Proactive nudges (opening line, wrong-answer reaction, etc.) are selected by
+  // type here and rendered server-side from a fixed template — the client can
+  // never supply the literal instruction text the model receives.
+  trigger: z
+    .enum(["opening", "wrong_answer", "silence", "low_timer", "peer_greeting"])
+    .optional(),
+  triggerContext: z.string().max(2000).optional(),
 });
 
 export const hintRequestSchema = z.object({
@@ -75,4 +87,31 @@ export const hintRequestSchema = z.object({
   playerAttempt: z.string().max(2000),
   agentPersonality: z.enum(["supportive", "spoon_feeder", "supervisor", "friendly"]),
   hintsUsed: z.number().int().min(0),
+});
+
+export const completeRoomSchema = z.object({
+  roomCode: z.string().min(6).max(8),
+  finalScore: z.number().int().min(0).max(50000),
+});
+
+export const mcqGradeSchema = z.object({
+  roomCode: z.string().min(6).max(8),
+  answers: z
+    .array(
+      z.object({
+        questionId: z.string().min(1),
+        selectedIndex: z.number().int().min(0).max(4).nullable(),
+      })
+    )
+    .min(1)
+    .max(30),
+});
+
+export const gmatResultSchema = z.object({
+  roomCode: z.string().min(6).max(8),
+  pathId: z.string().min(1).max(50),
+  testNum: z.number().int().min(1).max(20).nullable().optional(),
+  totalScore: z.number().min(0).max(1000),
+  sectionScores: z.record(z.string(), z.unknown()).optional(),
+  wrongAnswers: z.unknown().optional(),
 });

@@ -125,8 +125,8 @@ export const theoryQuestions: MCQQuestion[] = [
     path: "cs_theory",
     question: "The Pumping Lemma for regular languages states that for a sufficiently long string in L, we can pump (repeat) which part?",
     options: ["A middle substring", "The entire string", "A prefix of bounded length", "Any suffix"],
-    answer: 2,
-    explanation: "For any regular language L, there exists a pumping length p such that any string w ∈ L with |w| ≥ p can be split as w = xyz where |xy| ≤ p, |y| ≥ 1, and all pumped versions xyⁿz ∈ L.",
+    answer: 0,
+    explanation: "For any regular language L, there exists a pumping length p such that any string w ∈ L with |w| ≥ p can be split as w = xyz where |xy| ≤ p, |y| ≥ 1, and all pumped versions xyⁿz ∈ L. The pumped part is y — a middle substring within the first p characters.",
     difficulty: "hard",
   },
   {

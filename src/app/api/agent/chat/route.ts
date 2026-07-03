@@ -3,7 +3,7 @@ import { streamText } from "ai";
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 import { NextRequest } from "next/server";
-import { buildSystemPrompt, AGENT_CONFIGS } from "@/lib/ai/personalities";
+import { buildSystemPrompt, AGENT_CONFIGS, TRIGGER_TEXT } from "@/lib/ai/personalities";
 import { PUZZLES } from "@/lib/puzzles/data/puzzles";
 import { ALL_MCQ_BY_ID } from "@/lib/puzzles/loader";
 import { agentChatSchema } from "@/lib/security/schemas";
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { puzzleId, agentPersonality, playerAttempt, timeRemainingSeconds, messages, sessionId } = parsed.data;
+    const { puzzleId, agentPersonality, playerAttempt, timeRemainingSeconds, messages, trigger, triggerContext } = parsed.data;
     const puzzle = PUZZLES[puzzleId];
     const mcqQuestion = puzzle ? null : ALL_MCQ_BY_ID[puzzleId];
 
@@ -69,10 +69,20 @@ export async function POST(request: NextRequest) {
           agentContext: `Multiple-choice question (difficulty: ${mcqQuestion!.difficulty}). The player picks one of A/B/C/D. Guide their reasoning — do NOT reveal the correct answer unless hintsUsed >= 3 and your personality is spoon_feeder.`,
         });
 
+    // Proactive nudges are rendered here from a fixed template keyed by the
+    // validated `trigger` enum — the client never supplies this instruction text.
+    const apiMessages = messages.map((m) => ({ role: m.role, content: m.content }));
+    if (trigger) {
+      apiMessages.push({
+        role: "user" as const,
+        content: `[PROACTIVE — HIDDEN FROM PLAYER]: ${TRIGGER_TEXT[trigger](triggerContext)}`,
+      });
+    }
+
     const result = streamText({
       model: groq("llama-3.3-70b-versatile"),
       system: systemPrompt,
-      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      messages: apiMessages,
       maxOutputTokens: 350,
       temperature: config.temperature,
     });

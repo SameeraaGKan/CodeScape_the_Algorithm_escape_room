@@ -29,6 +29,41 @@ export const teamCreateLimiter = new Ratelimit({
   prefix: "rl:team_create",
 });
 
+export const pageViewLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(60, "1 m"), // 60 per minute — generous, just to blunt bot floods
+  analytics: true,
+  prefix: "rl:page_view",
+});
+
+export const mcqGradeLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(40, "1 m"), // generous enough for legit adaptive-test pacing, throttles answer-key scraping
+  analytics: true,
+  prefix: "rl:mcq_grade",
+});
+
+export const roomLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(20, "1 m"),
+  analytics: true,
+  prefix: "rl:room",
+});
+
+export const resultsSubmitLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, "1 m"),
+  analytics: true,
+  prefix: "rl:results_submit",
+});
+
+export const puzzlesReadLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(60, "1 m"),
+  analytics: true,
+  prefix: "rl:puzzles_read",
+});
+
 export async function withRateLimit(
   request: NextRequest,
   limiter: Ratelimit,
