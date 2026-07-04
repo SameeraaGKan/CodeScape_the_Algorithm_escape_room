@@ -65,6 +65,33 @@ export function MCQPuzzle({ question, roomCode, questionNumber, totalQuestions, 
   const isDS = question.options.length === 5;
   const isLast = questionNumber === totalQuestions;
 
+  // Keyboard shortcuts: letter keys pick an option, Enter/N advances.
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+
+      const key = e.key.toUpperCase();
+      if (key === "ENTER") {
+        if (revealed && onNext) {
+          e.preventDefault();
+          onNext();
+        }
+        return;
+      }
+
+      const idx = key.charCodeAt(0) - 65; // A -> 0, B -> 1, ...
+      if (key.length === 1 && idx >= 0 && idx < question.options.length) {
+        e.preventDefault();
+        handleSelect(idx);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [revealed, grading, onNext, question.options.length]);
+
   return (
     <div className="space-y-6 animate-slide-up">
       {/* Progress */}
@@ -157,7 +184,10 @@ export function MCQPuzzle({ question, roomCode, questionNumber, totalQuestions, 
 
       {/* Next / Finish button — hidden in multiplayer (timer drives advance) */}
       {revealed && (
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground tracking-widest hidden sm:inline">
+            PRESS ENTER TO CONTINUE
+          </span>
           {onNext ? (
             <button
               onClick={onNext}

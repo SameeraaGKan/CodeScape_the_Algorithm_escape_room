@@ -452,6 +452,34 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
 
   function goPrev() { if (curQ > 0) setCurQ(c => c - 1); }
 
+  // Keyboard shortcuts during the test: letter keys pick an option, Enter advances.
+  useEffect(() => {
+    if (phase !== "section") return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+
+      const key = e.key.toUpperCase();
+      if (key === "ENTER") {
+        e.preventDefault();
+        goNext();
+        return;
+      }
+
+      const opts = served[curQ]?.question.options;
+      if (!opts) return;
+      const idx = key.charCodeAt(0) - 65; // A -> 0, B -> 1, ...
+      if (key.length === 1 && idx >= 0 && idx < opts.length) {
+        e.preventDefault();
+        handleAnswer(idx);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, curQ, served]);
+
   const timerPct = (secTimer / SECTIONS[Math.min(sIdx, 2)].timeSecs) * 100;
   const timerColor = timerPct > 50 ? "var(--neon-cyan)" : timerPct > 20 ? "#f59e0b" : "#dc2626";
 
@@ -709,6 +737,10 @@ export default function GmatTestPage({ params }: { params: Promise<{ roomCode: s
                     );
                   })}
                 </div>
+
+                <span className="text-[10px] text-muted-foreground tracking-widest hidden sm:block">
+                  A–{String.fromCharCode(64 + entry.question.options.length)} TO ANSWER · ENTER FOR NEXT
+                </span>
 
                 {/* Action bar */}
                 <div className="flex items-center justify-between pt-2">
