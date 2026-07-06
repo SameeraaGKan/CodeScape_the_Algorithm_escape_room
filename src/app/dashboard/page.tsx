@@ -111,16 +111,71 @@ export default function DashboardPage() {
   const completedSessions =
     analytics?.sessionStats.find((s) => s.status === "completed")?.count ?? 0;
 
-  // Format puzzle stats for chart
-  const puzzleChartData =
-    analytics?.puzzleStats.map((p) => ({
-      name: PUZZLE_LABELS[p.puzzleId] ?? p.puzzleId,
-      "Avg Attempts": parseFloat(String(p.avgAttempts || 0)).toFixed(1),
-      "Avg Hints": parseFloat(String(p.avgHints || 0)).toFixed(1),
-      "Success Rate": p.totalAttempts
-        ? Math.round((Number(p.correctCount) / Number(p.totalAttempts)) * 100)
+  // GMAT question IDs (gq_t1_01, gv_t1_cr01, gdi_t1_ds01, ...) encode a
+  // practice-test number — group those by test instead of by individual
+  // question, or the chart would need ~1000 bars (21 quant + 23 verbal +
+  // 20 data-insights questions per test, x10 tests). Non-GMAT puzzle IDs
+  // are kept as their own bar.
+  const puzzleGroupOf = (puzzleId: string) => {
+    const m = puzzleId.match(/^(?:gdi|gq|gv)_t(\d+)_/);
+    if (m) {
+      const n = Number(m[1]);
+      return { key: `test-${n}`, label: `Practice Test ${n}`, order: n };
+    }
+    return {
+      key: puzzleId,
+      label: PUZZLE_LABELS[puzzleId] ?? puzzleId.replace(/_/g, " ").toUpperCase(),
+      order: 1000,
+    };
+  };
+
+  type PuzzleGroup = {
+    label: string;
+    order: number;
+    attemptsWeighted: number;
+    hintsWeighted: number;
+    totalAttempts: number;
+    correctCount: number;
+  };
+  const puzzleGroups = new Map<string, PuzzleGroup>();
+  for (const p of analytics?.puzzleStats ?? []) {
+    const { key, label, order } = puzzleGroupOf(p.puzzleId);
+    const totalAttempts = Number(p.totalAttempts) || 0;
+    const avgAttempts = Number(p.avgAttempts) || 0;
+    const avgHints = Number(p.avgHints) || 0;
+    const correctCount = Number(p.correctCount) || 0;
+    const g = puzzleGroups.get(key) ?? {
+      label,
+      order,
+      attemptsWeighted: 0,
+      hintsWeighted: 0,
+      totalAttempts: 0,
+      correctCount: 0,
+    };
+    g.attemptsWeighted += avgAttempts * totalAttempts;
+    g.hintsWeighted += avgHints * totalAttempts;
+    g.totalAttempts += totalAttempts;
+    g.correctCount += correctCount;
+    puzzleGroups.set(key, g);
+  }
+
+  const puzzleChartDataAll = Array.from(puzzleGroups.values())
+    .sort((a, b) => a.order - b.order || a.label.localeCompare(b.label))
+    .map((g) => ({
+      name: g.label,
+      "Avg Attempts": (g.totalAttempts ? g.attemptsWeighted / g.totalAttempts : 0).toFixed(1),
+      "Avg Hints": (g.totalAttempts ? g.hintsWeighted / g.totalAttempts : 0).toFixed(1),
+      "Success Rate": g.totalAttempts
+        ? Math.round((g.correctCount / g.totalAttempts) * 100)
         : 0,
-    })) ?? [];
+      totalAttempts: g.totalAttempts,
+    }));
+
+  // Safety cap in case legacy per-question puzzles ever dominate the list.
+  const PUZZLE_CHART_LIMIT = 20;
+  const puzzleChartData = puzzleChartDataAll.slice(0, PUZZLE_CHART_LIMIT);
+  const hiddenPuzzleCount = puzzleChartDataAll.length - puzzleChartData.length;
+  const puzzleChartHeight = Math.max(360, puzzleChartData.length * 34);
 
   // Skill radar data
   const radarData =
@@ -207,50 +262,66 @@ export default function DashboardPage() {
                 ))}
               </div>
 
-              {/* Puzzle charts — 2 columns */}
+              {/* Puzzle charts — stacked full-width, horizontal bars so long/many labels stay readable */}
               {puzzleChartData.length > 0 && (
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 gap-8">
                   {/* Difficulty chart */}
                   <div className="p-8 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
-                    <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-foreground mb-8">
+                    <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-foreground mb-2">
                       AVG ATTEMPTS & HINTS
                     </h2>
-                    <ResponsiveContainer width="100%" height={320}>
-                      <BarChart data={puzzleChartData} margin={{ top: 4, right: 8, left: -10, bottom: 70 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1a2a2a" />
-                        <XAxis
+                    {hiddenPuzzleCount > 0 && (
+                      <p className="text-xs text-muted-foreground mb-6">
+                        Showing first {puzzleChartData.length} of {puzzleChartDataAll.length} test/puzzle groups
+                      </p>
+                    )}
+                    <ResponsiveContainer width="100%" height={puzzleChartHeight}>
+                      <BarChart
+                        data={puzzleChartData}
+                        layout="vertical"
+                        margin={{ top: 4, right: 24, left: 8, bottom: 4 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1a2a2a" horizontal={false} />
+                        <XAxis type="number" tick={{ fill: "#6b7280", fontSize: 11 }} />
+                        <YAxis
+                          type="category"
                           dataKey="name"
-                          tick={{ fill: "#6b7280", fontSize: 10 }}
-                          angle={-35}
-                          textAnchor="end"
-                          interval={0}
+                          tick={{ fill: "#6b7280", fontSize: 11 }}
+                          width={160}
                         />
-                        <YAxis tick={{ fill: "#6b7280", fontSize: 11 }} />
                         <Tooltip content={<CustomTooltip />} />
-                        <Bar dataKey="Avg Attempts" fill={NEON_CYAN} fillOpacity={0.8} radius={[3, 3, 0, 0]} />
-                        <Bar dataKey="Avg Hints" fill={NEON_MAGENTA} fillOpacity={0.8} radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="Avg Attempts" fill={NEON_CYAN} fillOpacity={0.8} radius={[0, 3, 3, 0]} barSize={14} />
+                        <Bar dataKey="Avg Hints" fill={NEON_MAGENTA} fillOpacity={0.8} radius={[0, 3, 3, 0]} barSize={14} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
 
                   {/* Success rate chart */}
                   <div className="p-8 rounded border border-[var(--dark-border)] bg-[var(--dark-card)]">
-                    <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-foreground mb-8">
+                    <h2 className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-foreground mb-2">
                       SUCCESS RATE (%)
                     </h2>
-                    <ResponsiveContainer width="100%" height={320}>
-                      <BarChart data={puzzleChartData} margin={{ top: 4, right: 8, left: -10, bottom: 70 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1a2a2a" />
-                        <XAxis
+                    {hiddenPuzzleCount > 0 && (
+                      <p className="text-xs text-muted-foreground mb-6">
+                        Showing first {puzzleChartData.length} of {puzzleChartDataAll.length} test/puzzle groups
+                      </p>
+                    )}
+                    <ResponsiveContainer width="100%" height={puzzleChartHeight}>
+                      <BarChart
+                        data={puzzleChartData}
+                        layout="vertical"
+                        margin={{ top: 4, right: 24, left: 8, bottom: 4 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1a2a2a" horizontal={false} />
+                        <XAxis type="number" domain={[0, 100]} tick={{ fill: "#6b7280", fontSize: 11 }} />
+                        <YAxis
+                          type="category"
                           dataKey="name"
-                          tick={{ fill: "#6b7280", fontSize: 10 }}
-                          angle={-35}
-                          textAnchor="end"
-                          interval={0}
+                          tick={{ fill: "#6b7280", fontSize: 11 }}
+                          width={160}
                         />
-                        <YAxis domain={[0, 100]} tick={{ fill: "#6b7280", fontSize: 11 }} />
                         <Tooltip content={<CustomTooltip />} />
-                        <Bar dataKey="Success Rate" fill={NEON_GREEN} fillOpacity={0.8} radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="Success Rate" fill={NEON_GREEN} fillOpacity={0.8} radius={[0, 3, 3, 0]} barSize={18} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
