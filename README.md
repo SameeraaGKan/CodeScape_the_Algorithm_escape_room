@@ -16,7 +16,7 @@
 
 ---
 
-## What is CodeEscape?
+## What is CodeEscape??
 
 CodeEscape is a CS-themed escape room built as a full-stack web app. Pick a topic track — Algorithms, ML/AI, Cybersecurity, Databases, Networks, or a dozen more — then race through 10 questions before the clock hits zero. Play solo or build a team of up to 6, with any open slot fillable by an AI agent teammate.
 
