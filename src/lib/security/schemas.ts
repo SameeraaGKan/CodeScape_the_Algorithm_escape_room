@@ -112,6 +112,15 @@ export const gmatResultSchema = z.object({
   pathId: z.string().min(1).max(50),
   testNum: z.number().int().min(1).max(20).nullable().optional(),
   totalScore: z.number().min(0).max(1000),
-  sectionScores: z.record(z.string(), z.unknown()).optional(),
-  wrongAnswers: z.unknown().optional(),
+  sectionScores: z
+    .array(
+      z.object({
+        label: z.string(),
+        score: z.number(),
+        correct: z.number(),
+        total: z.number(),
+      })
+    )
+    .optional(),
+  wrongAnswers: z.array(z.unknown()).optional(),
 });
