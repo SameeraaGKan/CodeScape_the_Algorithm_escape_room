@@ -3,6 +3,7 @@ import { Poppins, Geist_Mono, Orbitron } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { VisitTracker } from "@/components/analytics/VisitTracker";
+import { PrivacyNotice } from "@/components/layout/PrivacyNotice";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -41,6 +42,7 @@ export default function RootLayout({
         <ThemeProvider>
           <VisitTracker />
           {children}
+          <PrivacyNotice />
         </ThemeProvider>
       </body>
     </html>
